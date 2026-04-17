@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Stock List — Redesign Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111;--panel:#1f1f1f;--surface:#252525;
+  --b1:rgba(255,255,255,.08);--b2:rgba(255,255,255,.13);
+  --t1:#f0f0f0;--t2:#777;--t3:#444;
+  --green:#4fcb6b;--red:#ec5e5e;--blue:#3a83f9;--amber:#f79d32;--purple:#b184f6;--indigo:#9b8fe8;
+  --bd:#04388c;--bb:rgba(58,131,249,.75);--bl:#b1cefd;
+}
+body{background:var(--bg);font-family:'Gabarito',-apple-system,sans-serif;color:var(--t1);min-height:100vh;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:16px}
+
+/* ── Controls ── */
+.ctrl{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:9px 16px;width:100%;max-width:520px;flex-wrap:wrap}
+.cl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.bg{display:flex;gap:3px}
+.btn{padding:5px 11px;border-radius:5px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;white-space:nowrap}
+.btn:hover{border-color:rgba(255,255,255,.3);color:var(--t1)}
+.btn.act{background:var(--bd);border-color:var(--bb);color:var(--bl)}
+.s-open.act{background:rgba(79,203,107,.15)!important;border-color:rgba(79,203,107,.4)!important;color:var(--green)!important}
+.s-pre.act{background:rgba(247,157,50,.15)!important;border-color:rgba(247,157,50,.4)!important;color:var(--amber)!important}
+.s-cls.act{background:rgba(128,128,128,.12)!important;border-color:rgba(128,128,128,.28)!important;color:var(--t2)!important}
+.s-ah.act{background:rgba(58,131,249,.15)!important;border-color:rgba(58,131,249,.4)!important;color:var(--blue)!important}
+.s-on.act{background:rgba(155,143,232,.15)!important;border-color:rgba(155,143,232,.4)!important;color:var(--indigo)!important}
+.vd{width:1px;height:22px;background:var(--b2);flex-shrink:0}
+.mla{margin-left:auto}
+.clk{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:5px}
+.sp{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.05em}
+
+/* ── Panel ── */
+.panel{background:var(--panel);border-radius:10px;overflow:hidden;width:100%;max-width:520px}
+
+/* ── Tabs ── */
+.tabs{display:flex;padding:0 12px;border-bottom:1px solid var(--b1)}
+.tab{display:flex;flex-direction:column;height:40px;align-items:center;justify-content:center;font-size:13px;color:var(--t2);cursor:pointer;white-space:nowrap;padding:0 10px;position:relative;transition:color .12s;flex-shrink:0}
+.tab:hover{color:var(--t1)}
+.tab.act{color:var(--blue);font-weight:600}
+.tab.act::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--blue);border-radius:3px 3px 0 0}
+
+/* ── Pills ── */
+.pills{display:flex;gap:4px;padding:8px 12px 6px;overflow-x:auto}
+.pill{padding:5px 9px;border-radius:7px;font-size:11px;color:var(--t2);border:1px solid var(--b2);cursor:pointer;white-space:nowrap;transition:all .12s;flex-shrink:0}
+.pill:hover{border-color:rgba(255,255,255,.22);color:var(--t1)}
+.pill.act{background:var(--bd);border-color:var(--bb);color:var(--bl);font-weight:600}
+
+/* ── Session Banner ── */
+.ban{display:flex;align-items:center;justify-content:space-between;padding:3px 14px 4px}
+.bi{display:flex;align-items:center;gap:5px}
+.bdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.btext{font-size:10px;font-weight:600}
+.btime{font-size:10px;color:var(--t2)}
+
+/* ── Pre-open CTA bar (ID only) ── */
+.pre-cta{display:flex;align-items:center;gap:6px;margin:2px 12px 4px;padding:7px 10px;background:rgba(247,157,50,.07);border:1px solid rgba(247,157,50,.2);border-radius:7px}
+.pre-cta-icon{font-size:13px}
+.pre-cta-text{font-size:11px;color:var(--amber);flex:1}
+.pre-cta-text strong{font-weight:700}
+.pre-cta-btn{padding:3px 9px;border-radius:5px;background:rgba(247,157,50,.2);border:1px solid rgba(247,157,50,.4);color:var(--amber);font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+.pre-cta-btn:hover{background:rgba(247,157,50,.3)}
+
+/* ── US education bar ── */
+.us-edu{display:flex;align-items:center;gap:6px;margin:2px 12px 4px;padding:6px 10px;background:rgba(58,131,249,.07);border:1px solid rgba(58,131,249,.2);border-radius:7px}
+.us-edu-icon{font-size:12px}
+.us-edu-text{font-size:10px;color:var(--bl);line-height:1.4}
+
+/* ── Stock list ── */
+.slist{padding:2px 8px 8px}
+
+/* ── Row base ── */
+.nr{display:flex;align-items:center;gap:7px;height:32px;cursor:pointer;border-radius:6px;padding:0 4px;transition:background .1s;position:relative}
+.nr.tall{height:44px}
+.nr:hover{background:rgba(255,255,255,.045)}
+
+/* ── Logo ── */
+.logo{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:0}
+
+/* ── Ticker + labels ── */
+.info{flex:0 0 100px;min-width:0;display:flex;align-items:center;gap:4px;overflow:hidden}
+.tk{font-size:13px;font-weight:600;color:var(--t1);white-space:nowrap;flex-shrink:0}
+.lset{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.l10x{display:inline-flex;align-items:center;height:14px;padding:0 4px;border:1px solid var(--purple);border-radius:3px;font-size:8px;font-weight:700;color:var(--purple);line-height:1;flex-shrink:0}
+.lic{width:13px;height:13px;border-radius:3px;flex-shrink:0}
+
+/* ── Position / order indicators (pre-open) ── */
+.pos-ind{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.pi-pos{width:8px;height:8px;border-radius:50%;background:var(--green);opacity:.9;flex-shrink:0}
+.pi-ord{width:8px;height:8px;border-radius:50%;border:2px solid var(--amber);flex-shrink:0}
+
+/* ── Sparkline ── */
+.spark{flex:1;min-width:30px;height:20px;overflow:visible}
+.spark svg{width:100%;height:20px;display:block;overflow:visible}
+
+/* ── ID standard price area (right-aligned 3-col) ── */
+.pa{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.vc{font-size:11px;width:68px;text-align:right;white-space:nowrap;flex-shrink:0}
+.pc{font-size:12px;font-weight:400;color:var(--t1);width:58px;text-align:right;white-space:nowrap;flex-shrink:0}
+.pb{display:flex;align-items:center;justify-content:center;padding:2px 5px;border-radius:6px;font-size:11px;font-weight:600;width:54px;flex-shrink:0;white-space:nowrap}
+
+/* ── US extended two-line price area ── */
+.us-pa{display:flex;flex-direction:column;gap:2px;flex-shrink:0;align-items:flex-end}
+.us-line{display:flex;align-items:center;gap:4px}
+.us-sess{font-size:9px;font-weight:700;width:64px;text-align:left;white-space:nowrap;letter-spacing:.03em;flex-shrink:0}
+.us-price{font-size:12px;font-weight:500;width:56px;text-align:right;white-space:nowrap;flex-shrink:0}
+.us-val{font-size:11px;width:54px;text-align:right;white-space:nowrap;flex-shrink:0}
+.us-pct{display:flex;align-items:center;justify-content:center;padding:2px 4px;border-radius:5px;font-size:10px;font-weight:600;width:52px;flex-shrink:0;white-space:nowrap}
+.live-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;flex:0 0 5px}
+
+/* ── Rich tooltip ── */
+.tip{
+  position:absolute;left:26px;bottom:calc(100% + 5px);
+  background:#242424;border:1px solid var(--b2);border-radius:8px;
+  padding:8px 10px;min-width:200px;
+  pointer-events:none;z-index:100;
+  opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;
+}
+.nr:hover .tip{opacity:1;transform:translateY(0)}
+.tip-name{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.tip-full{font-size:10px;color:var(--t2);margin-bottom:8px}
+.tip-divider{height:1px;background:var(--b1);margin:6px 0}
+.tip-section{display:flex;flex-direction:column;gap:2px}
+.tip-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--t2);margin-bottom:1px}
+.tip-row{display:flex;justify-content:space-between;font-size:11px}
+.tip-key{color:var(--t2)}
+.tip-val{font-weight:600}
+.tip-cta{margin-top:7px;padding:5px 8px;border-radius:5px;background:rgba(247,157,50,.15);border:1px solid rgba(247,157,50,.3);font-size:10px;font-weight:600;color:var(--amber);text-align:center}
+
+/* ── Animations ── */
+@keyframes spk{from{stroke-dashoffset:400}to{stroke-dashoffset:0}}
+.spkl{stroke-dasharray:400;animation:spk .6s ease-out forwards}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.dpulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes flash-up{0%{color:var(--t1)}40%{color:#7fffaa}100%{color:var(--t1)}}
+@keyframes flash-dn{0%{color:var(--t1)}40%{color:#ff9090}100%{color:var(--t1)}}
+.fu{animation:flash-up .7s ease-out forwards}
+.fd{animation:flash-dn .7s ease-out forwards}
+::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+
+<!-- Controls -->
+<div class="ctrl">
+  <span class="cl">Market</span>
+  <div class="bg" id="mkt-btns">
+    <button class="btn act" data-m="ID">🇮🇩 IDX</button>
+    <button class="btn"     data-m="US">🇺🇸 US</button>
+  </div>
+  <div class="vd"></div>
+  <span class="cl">Session</span>
+  <div class="bg" id="state-btns"></div>
+  <div class="vd"></div>
+  <div class="clk mla">
+    <span id="clk-t"></span>
+    <span class="sp" id="clk-b"></span>
+  </div>
+</div>
+
+<div class="panel" id="p-main"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const ID_BASE = [
+  {t:'SMMA',n:'Sinarmas Multiartha Tbk.',c:'#ed1d24',lbl:['10x','B','F'],
+   p0:38200, // open price (IDR)
+   p:43450,v:5250,pct:13.74,dir:1,
+   d:[38200,38500,39100,38900,40200,41000,40600,41500,42000,41800,42500,43000,42700,43200,43400,43100,43450,43300,43500,43450]},
+  {t:'MEGA',n:'Bank Mega Tbk.',c:'#f79d32',lbl:['10x','B'],
+   p0:13200,p:13450,v:250,pct:1.89,dir:1,
+   d:[13200,13250,13300,13280,13320,13350,13310,13370,13400,13380,13420,13400,13430,13450,13440,13460,13450,13470,13450,13450]},
+  {t:'RLCO',n:'Abadi Lestari Indonesia Tbk.',c:'#6ccdb2',lbl:['F'],
+   p0:7600,p:7500,v:-100,pct:-1.32,dir:-1,
+   d:[7600,7570,7590,7550,7560,7530,7540,7510,7520,7500,7510,7480,7490,7470,7480,7460,7470,7500,7490,7500]},
+  {t:'BBCA',n:'Bank Central Asia Tbk.',c:'#0066bb',lbl:['10x'],
+   p0:9400,p:9575,v:175,pct:1.86,dir:1,
+   d:[9400,9420,9450,9440,9470,9490,9480,9500,9510,9520,9530,9520,9540,9550,9560,9555,9570,9565,9580,9575]},
+  {t:'TLKM',n:'Telekomunikasi Indonesia Tbk.',c:'#cc0000',lbl:[],
+   p0:3150,p:3180,v:30,pct:0.95,dir:1,
+   d:[3150,3155,3160,3158,3162,3165,3163,3167,3170,3168,3172,3175,3173,3177,3180,3178,3182,3179,3181,3180]},
+  {t:'GOTO',n:'GoTo Gojek Tokopedia Tbk.',c:'#00aa5b',lbl:['B'],
+   p0:57,p:55,v:-2,pct:-3.51,dir:-1,
+   d:[57,56.5,57,56,55.5,56,55,54.5,55,54,53.5,54,53,54,53.5,53,54,53.5,55,55]},
+  {t:'BREN',n:'Barito Renewables Energy Tbk.',c:'#2e7d32',lbl:['10x'],
+   p0:6500,p:6875,v:375,pct:5.77,dir:1,
+   d:[6500,6550,6620,6600,6680,6720,6700,6760,6790,6780,6820,6850,6830,6860,6880,6870,6890,6875,6880,6875]},
+  {t:'AMMN',n:'Amman Mineral Internasional Tbk.',c:'#c0392b',lbl:[],
+   p0:7575,p:7525,v:-50,pct:-0.66,dir:-1,
+   d:[7575,7560,7570,7550,7555,7545,7550,7540,7535,7545,7530,7540,7535,7525,7530,7520,7525,7530,7525,7525]},
+  {t:'EMTK',n:'Elang Mahkota Teknologi Tbk.',c:'#7b1fa2',lbl:[],
+   p0:880,p:890,v:10,pct:1.14,dir:1,
+   d:[880,882,885,884,886,888,887,889,891,890,892,891,893,890,892,889,891,890,892,890]},
+  {t:'BRPT',n:'Barito Pacific Tbk.',c:'#e65100',lbl:['B'],
+   p0:840,p:815,v:-25,pct:-2.98,dir:-1,
+   d:[840,835,838,830,832,825,828,820,822,815,818,812,815,810,813,808,812,810,815,815]},
+];
+
+const US_BASE = [
+  {t:'NVDA',n:'Nvidia Corporation',c:'#76b900',lbl:['10x'],
+   p0:848,close:875.43,p:875.43,ep:903.21,pct:3.23,epct:3.18,dir:1,
+   d:[848,855,862,858,866,871,868,875,878,874,880,876,882,879,885,882,878,880,874,875],
+   ed:[875,879,883,880,887,892,890,896,903,900,903]},
+  {t:'AAPL',n:'Apple Inc.',c:'#999',lbl:[],
+   p0:190,close:195.89,p:195.89,ep:196.41,pct:0.26,epct:0.27,dir:1,
+   d:[190,191,193,192,194,194,195,195,196,195,196,196,197,196,197,196,196,195,196,196],
+   ed:[196,196,196,196,197,196,196]},
+  {t:'TSLA',n:'Tesla, Inc.',c:'#e31937',lbl:[],
+   p0:182,close:178.65,p:178.65,ep:174.89,pct:-1.84,epct:-2.11,dir:-1,
+   d:[182,181,180,181,179,178,179,177,176,177,175,176,174,175,173,174,173,178,179,179],
+   ed:[179,177,176,175,175,174,175]},
+  {t:'META',n:'Meta Platforms, Inc.',c:'#0866ff',lbl:[],
+   p0:485,close:497.31,p:497.31,ep:508.75,pct:2.54,epct:2.30,dir:1,
+   d:[485,488,492,490,494,495,493,497,499,498,500,498,502,500,503,501,498,498,497,497],
+   ed:[497,500,503,502,505,508,507,509,509]},
+  {t:'AMZN',n:'Amazon.com, Inc.',c:'#ff9900',lbl:['B'],
+   p0:181,close:184.72,p:184.72,ep:186.66,pct:2.05,epct:1.05,dir:1,
+   d:[181,182,183,182,183,184,183,184,185,184,185,184,185,184,185,185,185,185,185,185],
+   ed:[185,185,186,186,186,187,187]},
+  {t:'MSFT',n:'Microsoft Corporation',c:'#00a4ef',lbl:[],
+   p0:408,close:412.27,p:412.27,ep:413.01,pct:1.05,epct:0.18,dir:1,
+   d:[408,409,410,409,410,411,410,411,412,411,412,411,412,412,413,412,413,412,412,412],
+   ed:[412,412,413,413,413,413,413]},
+  {t:'NFLX',n:'Netflix, Inc.',c:'#e50914',lbl:[],
+   p0:616,close:628.14,p:628.14,ep:639.91,pct:1.97,epct:1.87,dir:1,
+   d:[616,619,623,621,624,625,624,627,628,627,629,628,629,628,629,628,628,628,628,628],
+   ed:[628,630,632,631,635,638,640,640]},
+  {t:'AMD',n:'Advanced Micro Devices',c:'#ed1c24',lbl:['10x'],
+   p0:167,close:172.18,p:172.18,ep:177.26,pct:3.10,epct:2.95,dir:1,
+   d:[167,168,169,168,170,171,170,172,172,172,172,172,172,172,172,172,172,172,172,172],
+   ed:[172,173,174,174,175,176,177,177]},
+  {t:'GOOGL',n:'Alphabet Inc.',c:'#4285f4',lbl:[],
+   p0:173,close:171.44,p:171.44,ep:170.89,pct:-0.90,epct:-0.32,dir:-1,
+   d:[173,172,172,171,172,171,171,171,171,171,171,171,171,171,171,171,171,171,171,171],
+   ed:[171,171,171,171,171,171,171]},
+  {t:'PLTR',n:'Palantir Technologies',c:'#5b21b6',lbl:[],
+   p0:23.4,close:24.33,p:24.33,ep:25.33,pct:3.97,epct:4.11,dir:1,
+   d:[23.4,23.6,23.9,23.8,24.1,24.2,24.1,24.3,24.4,24.4,24.4,24.4,24.4,24.3,24.4,24.3,24.3,24.3,24.3,24.3],
+   ed:[24.3,24.5,24.7,24.6,24.9,25.1,25.3,25.3]},
+];
+
+// ── Portfolio/order mock data (shown during ID pre-opening) ──
+const PORTFOLIO = {
+  SMMA:{pos:{avg:'38.200',qty:'1.000',pnl:null},order:{side:'Beli',price:'43.000',qty:'500',status:'Menunggu'}},
+  BBCA:{order:{side:'Beli',price:'9.500',qty:'500',status:'Menunggu'}},
+  GOTO:{pos:{avg:'62',qty:'2.000',pnl:null}},
+  BREN:{pos:{avg:'6.500',qty:'300',pnl:null},order:{side:'Beli',price:'6.850',qty:'200',status:'Menunggu'}},
+  EMTK:{pos:{avg:'875',qty:'500',pnl:null}},
+};
+
+const STATES = {
+  ID:[
+    {id:'open',label:'Market Open',   short:'OPEN',   cls:'s-open',color:'#4fcb6b',pulse:true, time:'09:00 – 16:15 WIB'},
+    {id:'pre', label:'Pre-Opening',   short:'PRE-OPN',cls:'s-pre', color:'#f79d32',pulse:false,time:'08:45 – 09:00 WIB'},
+    {id:'cls', label:'Market Closed', short:'CLOSED', cls:'s-cls', color:'#666',   pulse:false,time:'Buka besok 08:45 WIB'},
+  ],
+  US:[
+    {id:'open',label:'Regular Market', short:'OPEN',  cls:'s-open',color:'#4fcb6b',pulse:true, time:'09:30 – 16:00 ET'},
+    {id:'pre', label:'Pre-Market',     short:'PRE',   cls:'s-pre', color:'#f79d32',pulse:true, time:'04:00 – 09:30 ET'},
+    {id:'ah',  label:'After Market',   short:'AH',    cls:'s-ah',  color:'#3a83f9',pulse:true, time:'16:00 – 20:00 ET'},
+    {id:'on',  label:'Overnight',      short:'ON',    cls:'s-on',  color:'#9b8fe8',pulse:true, time:'20:00 – 04:00 ET'},
+  ]
+};
+
+const PILLS_ID = ['Top Gainer','Top Gainer (by %)','Top Gainer Day Trading','Top Loser','Top Loser (by %)','Top Volume','Top Value','Top Frequency'];
+const PILLS_US = ['Top Gainer','Top Gainer (by %)','Top Loser','Most Active','Top Volume','52W High','Unusual Vol.'];
+const TABS_ID  = ['Trending','Movers','Berdasarkan Kategori'];
+const TABS_US  = ['Trending','Movers','By Sector'];
+
+// ═══════════════════════════════════════════════════════
+// LIVE STATE (mutable copy of prices)
+// ═══════════════════════════════════════════════════════
+
+let mkt = 'ID', st = 'open';
+const live = {};    // { ticker: { p, v, pct, dir, ep, epct, edir, d, ed } }
+let simTimer = null;
+
+function initLive() {
+  const ss = mkt==='ID' ? ID_BASE : US_BASE;
+  ss.forEach(s => {
+    if (mkt === 'ID') {
+      live[s.t] = { p: s.p, v: s.v, pct: s.pct, dir: s.dir, d: [...s.d] };
+    } else {
+      live[s.t] = {
+        p: s.p, v: s.p - s.p0, pct: s.pct, dir: s.dir,
+        ep: s.ep, ev: s.ep - s.close, epct: s.epct, edir: s.dir,
+        close: s.close, d: [...s.d], ed: [...s.ed]
+      };
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// FORMATTERS
+// ═══════════════════════════════════════════════════════
+
+function fmtIDPrice(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+function fmtIDVal(n) {
+  const a = Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return (n>=0?'+':'-')+a;
+}
+function fmtIDPct(n) {
+  return (n>=0?'+':'')+n.toFixed(2).replace('.',',')+',';
+}
+function fmtUSPrice(n) { return '$'+n.toFixed(2); }
+function fmtUSVal(n)   { return (n>=0?'+$':'-$')+Math.abs(n).toFixed(2); }
+function fmtUSPct(n)   { return (n>=0?'+':'')+n.toFixed(2)+'%'; }
+
+function dispPrice(t) {
+  const ls = live[t]; if(!ls) return '';
+  return mkt==='ID' ? fmtIDPrice(ls.p) : fmtUSPrice(ls.p);
+}
+function dispVal(t) {
+  const ls = live[t]; if(!ls) return '';
+  return mkt==='ID' ? fmtIDVal(ls.v) : fmtUSVal(ls.v);
+}
+function dispPct(t) {
+  const ls = live[t]; if(!ls) return '';
+  return mkt==='ID' ? fmtIDPct(ls.pct)+'%' : fmtUSPct(ls.pct);
+}
+function dispExtPrice(t) {
+  const ls = live[t]; if(!ls) return '';
+  return fmtUSPrice(ls.ep);
+}
+function dispExtVal(t) {
+  const ls = live[t]; if(!ls) return '';
+  return fmtUSVal(ls.ev);
+}
+function dispExtPct(t) {
+  const ls = live[t]; if(!ls) return '';
+  return fmtUSPct(ls.epct);
+}
+
+// ═══════════════════════════════════════════════════════
+// SPARKLINE
+// ═══════════════════════════════════════════════════════
+
+function normPts(data, w, h) {
+  const mn=Math.min(...data), mx=Math.max(...data), r=(mx-mn)||1;
+  return data.map((v,i)=>[(i/(data.length-1))*w, h*.88-((v-mn)/r)*h*.76]);
+}
+
+function curvePath(ps) {
+  if(!ps||ps.length<2) return '';
+  let d=`M${ps[0][0].toFixed(1)},${ps[0][1].toFixed(1)}`;
+  for(let i=1;i<ps.length;i++){
+    const a=ps[Math.max(0,i-2)],b=ps[i-1],c=ps[i],e=ps[Math.min(ps.length-1,i+1)];
+    d+=` C${(b[0]+(c[0]-a[0])/6).toFixed(1)},${(b[1]+(c[1]-a[1])/6).toFixed(1)} ${(c[0]-(e[0]-b[0])/6).toFixed(1)},${(c[1]-(e[1]-b[1])/6).toFixed(1)} ${c[0].toFixed(1)},${c[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+function buildSpark(ticker, noAnim) {
+  const ls = live[ticker];
+  if (!ls) return '';
+  const W=60, H=20;
+  const uid = ticker+(noAnim?'n':'')+(Math.random()*1e5|0);
+  const anim = noAnim ? '' : 'class="spkl"';
+
+  if (mkt === 'ID') {
+    if (st === 'pre') {
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <line x1="2" y1="${H/2}" x2="${W-2}" y2="${H/2}" stroke="#f79d32" stroke-width="1.2" stroke-dasharray="4,4" stroke-linecap="round" opacity=".5"/>
+      </svg>`;
+    }
+    // open & closed: show day's movement; closed = muted
+    const opacity = st==='cls' ? '0.45' : '1';
+    const ps = normPts(ls.d, W, H);
+    const lp = curvePath(ps);
+    const fp = lp+` L${ps[ps.length-1][0].toFixed(1)},${H} L${ps[0][0].toFixed(1)},${H} Z`;
+    const clr = ls.dir>0?'#4fcb6b':'#ec5e5e';
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" opacity="${opacity}">
+      <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${clr}" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="${clr}" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path d="${fp}" fill="url(#g${uid})"/>
+      <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.5" stroke-linecap="round" ${anim}/>
+    </svg>`;
+  }
+
+  // US regular
+  if (st === 'open') {
+    const ps = normPts(ls.d, W, H);
+    const lp = curvePath(ps);
+    const fp = lp+` L${ps[ps.length-1][0].toFixed(1)},${H} L${ps[0][0].toFixed(1)},${H} Z`;
+    const clr = ls.dir>0?'#4fcb6b':'#ec5e5e';
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${clr}" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="${clr}" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path d="${fp}" fill="url(#g${uid})"/>
+      <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.5" stroke-linecap="round" ${anim}/>
+    </svg>`;
+  }
+
+  // US extended: regular session muted + ext session in session color
+  const extClr = st==='pre'?'#f79d32':st==='ah'?'#3a83f9':'#9b8fe8';
+  const regClr = ls.dir>0?'#4fcb6b':'#ec5e5e';
+  const combined = [...ls.d, ...ls.ed];
+  const allPs = normPts(combined, W, H);
+  const regPs = allPs.slice(0, ls.d.length);
+  const extPs = allPs.slice(ls.d.length-1);
+  const extLp = curvePath(extPs);
+  const extFp = extLp+` L${extPs[extPs.length-1][0].toFixed(1)},${H} L${extPs[0][0].toFixed(1)},${H} Z`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${extClr}" stop-opacity=".2"/>
+      <stop offset="100%" stop-color="${extClr}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${curvePath(regPs)}" fill="none" stroke="${regClr}" stroke-width="1" opacity=".3"/>
+    <path d="${extFp}" fill="url(#g${uid})"/>
+    <path d="${extLp}" fill="none" stroke="${extClr}" stroke-width="1.5" stroke-linecap="round" ${anim}/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════════════════
+
+function stInfo() { return STATES[mkt].find(s=>s.id===st); }
+
+function renderTabs() {
+  const tabs = mkt==='ID'?TABS_ID:TABS_US;
+  return tabs.map((t,i)=>`<div class="tab${i===1?' act':''}">${t}</div>`).join('');
+}
+function renderPills() {
+  const pills = mkt==='ID'?PILLS_ID:PILLS_US;
+  return pills.map((p,i)=>`<div class="pill${i===0?' act':''}">${p}</div>`).join('');
+}
+function renderBanner() {
+  const cs = stInfo();
+  return `<div class="ban">
+    <div class="bi"><div class="bdot ${cs.pulse?'dpulse':''}" style="background:${cs.color}"></div>
+    <span class="btext" style="color:${cs.color}">${cs.label}</span></div>
+    <span class="btime">${cs.time}</span>
+  </div>`;
+}
+
+// Pre-opening CTA bar (ID only)
+function renderPreCTA() {
+  if (mkt!=='ID' || st!=='pre') return '';
+  return `<div class="pre-cta">
+    <span class="pre-cta-icon">⏰</span>
+    <span class="pre-cta-text">Market buka dalam <strong>~23 menit</strong>. Siapkan ordermu sebelum sesi dimulai.</span>
+    <button class="pre-cta-btn">+ Pasang Order</button>
+  </div>`;
+}
+
+// US 24/5 education bar
+function renderUSEdu() {
+  if (mkt!=='US' || st==='open') return '';
+  const msgs = {
+    pre: 'US stocks open for <strong>Pre-Market trading</strong> right now — place orders at today\'s earliest prices.',
+    ah:  'US stocks continue trading <strong>After Market hours</strong>. Price movement visible above regular session close.',
+    on:  'US stocks have <strong>Overnight liquidity</strong> — limited volume but active. Price may gap at open.',
+  };
+  return `<div class="us-edu">
+    <span class="us-edu-icon">💡</span>
+    <span class="us-edu-text">US Saham · 24 jam/hari, 5 hari/minggu · ${msgs[st]||''}</span>
+  </div>`;
+}
+
+// ── Tooltip content for a row ──
+function tipContent(s) {
+  const port = PORTFOLIO[s.t];
+  if (mkt === 'US') {
+    return `<div class="tip-name">${s.t}</div><div class="tip-full">${s.n}</div>`;
+  }
+  if (st !== 'pre') {
+    // open / closed: just company name
+    return `<div class="tip-name">${s.t}</div><div class="tip-full">${s.n}</div>`;
+  }
+  // pre-opening: show portfolio details + CTA
+  let html = `<div class="tip-name">${s.t}</div><div class="tip-full">${s.n}</div>`;
+  if (port) {
+    if (port.pos) {
+      const ls = live[s.t];
+      const pnl = ls ? (((ls.p - parseFloat(port.pos.avg.replace(/\./g,'')))/parseFloat(port.pos.avg.replace(/\./g,'')))*100).toFixed(2) : '—';
+      const pnlColor = pnl>0?'var(--green)':'var(--red)';
+      html += `<div class="tip-divider"></div>
+      <div class="tip-section">
+        <div class="tip-label">📊 Posisi Anda</div>
+        <div class="tip-row"><span class="tip-key">Avg Beli</span><span class="tip-val">${port.pos.avg}</span></div>
+        <div class="tip-row"><span class="tip-key">Qty</span><span class="tip-val">${port.pos.qty} lot</span></div>
+        <div class="tip-row"><span class="tip-key">Unrealized</span><span class="tip-val" style="color:${pnlColor}">${pnl>0?'+':''}${pnl}%</span></div>
+      </div>`;
+    }
+    if (port.order) {
+      html += `<div class="tip-divider"></div>
+      <div class="tip-section">
+        <div class="tip-label">📋 Order Terbuka</div>
+        <div class="tip-row"><span class="tip-key">${port.order.side} @ ${port.order.price}</span><span class="tip-val">${port.order.qty} lot</span></div>
+        <div class="tip-row"><span class="tip-key">Status</span><span class="tip-val" style="color:var(--amber)">${port.order.status}</span></div>
+      </div>`;
+    }
+  } else {
+    html += `<div class="tip-cta">+ Pasang Order untuk ${s.t}</div>`;
+  }
+  return html;
+}
+
+// ── Labels ──
+function renderLabels(s) {
+  return (s.lbl||[]).map(l => {
+    if (l==='10x') return `<span class="l10x">10x</span>`;
+    if (l==='B')   return `<div class="lic" style="background:rgba(58,131,249,.25);border:1px solid rgba(58,131,249,.5)" title="Broker coverage"></div>`;
+    if (l==='F')   return `<div class="lic" style="background:rgba(247,157,50,.2);border:1px solid rgba(247,157,50,.45)" title="Watchlist"></div>`;
+    return '';
+  }).join('');
+}
+
+// ── Position/order dots (pre-open ID only) ──
+function renderPortIndicators(s) {
+  if (mkt!=='ID' || st!=='pre') return '';
+  const port = PORTFOLIO[s.t];
+  if (!port) return '';
+  let html = '<div class="pos-ind">';
+  if (port.pos)   html += '<div class="pi-pos" title="Punya posisi"></div>';
+  if (port.order) html += '<div class="pi-ord" title="Ada order aktif"></div>';
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════
+// ROW RENDERERS
+// ═══════════════════════════════════════════════════════
+
+function renderIDRow(s) {
+  const ls = live[s.t];
+  if (!ls) return '';
+  const isCls = st==='cls';
+  const clr   = ls.dir>0?'var(--green)':'var(--red)';
+  const bg    = ls.dir>0?'rgba(79,203,107,.17)':'rgba(236,94,94,.17)';
+  const muted = isCls ? 'opacity:0.7' : '';
+
+  // Price, value, pct displayed based on state
+  // Closed: still show the day's movement — just subtly muted
+  const priceColor = isCls ? 'var(--t2)' : 'var(--t1)';
+  const valColor   = clr;
+  const pctBg      = bg;
+  const pctColor   = clr;
+
+  return `<div class="nr" data-t="${s.t}">
+    <div class="logo" style="background:${s.c}">${s.t.slice(0,2)}</div>
+    <div class="info">
+      <span class="tk">${s.t}</span>
+      <div class="lset">${renderLabels(s)}${renderPortIndicators(s)}</div>
+    </div>
+    <div class="spark" id="sk-${s.t}">${buildSpark(s.t)}</div>
+    <div class="pa">
+      <span class="vc" style="color:${valColor};${muted}" data-field="val">${fmtIDVal(ls.v)}</span>
+      <span class="pc" style="color:${priceColor}" data-field="price">${fmtIDPrice(ls.p)}</span>
+      <span class="pb" style="background:${pctBg};color:${pctColor};${muted}" data-field="pct">${fmtIDPct(ls.pct)}%</span>
+    </div>
+    <div class="tip">${tipContent(s)}</div>
+  </div>`;
+}
+
+function renderUSRow(s) {
+  const ls = live[s.t];
+  if (!ls) return '';
+  const isExt = st==='pre'||st==='ah'||st==='on';
+  const cs = stInfo();
+
+  if (!isExt) {
+    // Regular hours: single line
+    const clr = ls.dir>0?'var(--green)':'var(--red)';
+    const bg  = ls.dir>0?'rgba(79,203,107,.17)':'rgba(236,94,94,.17)';
+    return `<div class="nr" data-t="${s.t}">
+      <div class="logo" style="background:${s.c}">${s.t.slice(0,2)}</div>
+      <div class="info"><span class="tk">${s.t}</span><div class="lset">${renderLabels(s)}</div></div>
+      <div class="spark" id="sk-${s.t}">${buildSpark(s.t)}</div>
+      <div class="pa">
+        <span class="vc" style="color:${clr}" data-field="val">${fmtUSVal(ls.v)}</span>
+        <span class="pc" data-field="price">${fmtUSPrice(ls.p)}</span>
+        <span class="pb" style="background:${bg};color:${clr}" data-field="pct">${fmtUSPct(ls.pct)}</span>
+      </div>
+      <div class="tip">${tipContent(s)}</div>
+    </div>`;
+  }
+
+  // Extended hours: two-line price
+  const extDir = ls.edir||ls.dir;
+  const extClr = extDir>0?'var(--green)':'var(--red)';
+  const extBg  = extDir>0?'rgba(79,203,107,.17)':'rgba(236,94,94,.17)';
+  const regDir = ls.dir;
+  const regClr = regDir>0?'var(--green)':'var(--red)';
+
+  // Session label text
+  const sessLabel = {pre:'Pre-Market',ah:'After Market',on:'Overnight'}[st]||st.toUpperCase();
+
+  return `<div class="nr tall" data-t="${s.t}">
+    <div class="logo" style="background:${s.c}">${s.t.slice(0,2)}</div>
+    <div class="info"><span class="tk">${s.t}</span><div class="lset">${renderLabels(s)}</div></div>
+    <div class="spark" id="sk-${s.t}">${buildSpark(s.t)}</div>
+    <div class="us-pa">
+      <div class="us-line">
+        <span class="us-sess" style="color:${cs.color}" data-field="ext-sess">${sessLabel}</span>
+        <span class="us-price" data-field="ext-price">${fmtUSPrice(ls.ep)}</span>
+        <span class="us-val" style="color:${extClr}" data-field="ext-val">${fmtUSVal(ls.ev)}</span>
+        <span class="us-pct" style="background:${extBg};color:${extClr}" data-field="ext-pct">${fmtUSPct(ls.epct)}</span>
+        <div class="live-dot dpulse" style="background:${cs.color}"></div>
+      </div>
+      <div class="us-line" style="opacity:0.55">
+        <span class="us-sess" style="color:var(--t2)">Reg. Close</span>
+        <span class="us-price" style="color:var(--t2)">${fmtUSPrice(ls.close)}</span>
+        <span class="us-val" style="color:${regClr}">${fmtUSVal(ls.v)}</span>
+        <span class="us-pct" style="background:${regDir>0?'rgba(79,203,107,.12)':'rgba(236,94,94,.12)'};color:${regClr}">${fmtUSPct(ls.pct)}</span>
+        <div style="width:5px;flex:0 0 5px"></div>
+      </div>
+    </div>
+    <div class="tip">${tipContent(s)}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// FULL RENDER
+// ═══════════════════════════════════════════════════════
+
+function renderPanel() {
+  const ss = mkt==='ID'?ID_BASE:US_BASE;
+  const rows = ss.map(s => mkt==='ID' ? renderIDRow(s) : renderUSRow(s)).join('');
+  document.getElementById('p-main').innerHTML = `
+    <div class="tabs">${renderTabs()}</div>
+    <div class="pills">${renderPills()}</div>
+    ${renderBanner()}
+    ${renderPreCTA()}
+    ${renderUSEdu()}
+    <div class="slist">${rows}</div>`;
+  wireEvents();
+}
+
+// Update only price fields (no full re-render, preserves sparklines)
+function updatePriceFields() {
+  const ss = mkt==='ID'?ID_BASE:US_BASE;
+  ss.forEach(s => {
+    const row = document.querySelector(`[data-t="${s.t}"]`);
+    if (!row) return;
+    const ls = live[s.t];
+    if (!ls) return;
+
+    if (mkt === 'ID') {
+      const vEl = row.querySelector('[data-field="val"]');
+      const pEl = row.querySelector('[data-field="price"]');
+      const pctEl = row.querySelector('[data-field="pct"]');
+      if (vEl)   vEl.textContent = fmtIDVal(ls.v);
+      if (pEl)   pEl.textContent = fmtIDPrice(ls.p);
+      if (pctEl) pctEl.textContent = fmtIDPct(ls.pct)+'%';
+    } else {
+      const isExt = st==='pre'||st==='ah'||st==='on';
+      if (isExt) {
+        const epEl   = row.querySelector('[data-field="ext-price"]');
+        const evEl   = row.querySelector('[data-field="ext-val"]');
+        const epctEl = row.querySelector('[data-field="ext-pct"]');
+        if (epEl)   epEl.textContent  = fmtUSPrice(ls.ep);
+        if (evEl)   evEl.textContent  = fmtUSVal(ls.ev);
+        if (epctEl) epctEl.textContent= fmtUSPct(ls.epct);
+      } else {
+        const vEl   = row.querySelector('[data-field="val"]');
+        const pEl   = row.querySelector('[data-field="price"]');
+        const pctEl = row.querySelector('[data-field="pct"]');
+        if (vEl)   vEl.textContent = fmtUSVal(ls.v);
+        if (pEl)   pEl.textContent = fmtUSPrice(ls.p);
+        if (pctEl) pctEl.textContent= fmtUSPct(ls.pct);
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// LIVE SIMULATION
+// ═══════════════════════════════════════════════════════
+
+function isLive() {
+  if (mkt==='ID') return st==='open';
+  return true; // all US sessions are live
+}
+
+function flashEl(el, dir) {
+  el.classList.remove('fu','fd');
+  void el.offsetWidth;
+  el.classList.add(dir>0?'fu':'fd');
+}
+
+function tickSim() {
+  if (!isLive()) return;
+  const ss = mkt==='ID'?ID_BASE:US_BASE;
+  // Tick 1 or 2 random stocks
+  const count = Math.random()<0.35 ? 2 : 1;
+  const ticked = new Set();
+  for (let i=0; i<count; i++) {
+    const s = ss[Math.floor(Math.random()*ss.length)];
+    if (ticked.has(s.t)) continue;
+    ticked.add(s.t);
+    const ls = live[s.t];
+    if (!ls) continue;
+
+    if (mkt==='ID' && st==='open') {
+      // IDR prices move in steps: ±1,2,5,10,25,50 depending on price range
+      const step = ls.p < 200 ? 1 : ls.p < 500 ? 2 : ls.p < 2000 ? 5 : ls.p < 5000 ? 10 : 25;
+      const move = (Math.random()<0.53?1:-1) * step * (Math.floor(Math.random()*3)+1);
+      ls.p += move;
+      ls.v = ls.p - s.p0;
+      ls.pct = (ls.v / s.p0) * 100;
+      ls.dir = ls.pct>=0?1:-1;
+      ls.d = [...ls.d.slice(1), ls.d[ls.d.length-1] + (move/s.p0)*500];
+    } else if (mkt==='US') {
+      const isExt = st!=='open';
+      if (isExt) {
+        const move = (Math.random()<0.52?1:-1) * (Math.random()*0.08+0.01);
+        ls.ep += move;
+        ls.ev  = ls.ep - ls.close;
+        ls.epct= (ls.ev / ls.close)*100;
+        ls.edir= ls.epct>=0?1:-1;
+        ls.ed  = [...ls.ed.slice(1), ls.ed[ls.ed.length-1]+(move*20)];
+      } else {
+        const move = (Math.random()<0.52?1:-1)*(Math.random()*0.15+0.02);
+        ls.p  += move;
+        ls.v   = ls.p - s.p0;
+        ls.pct = (ls.v / s.p0)*100;
+        ls.dir = ls.pct>=0?1:-1;
+        ls.d   = [...ls.d.slice(1), ls.d[ls.d.length-1]+(move*30)];
+      }
+    }
+
+    // Flash the price element
+    const row = document.querySelector(`[data-t="${s.t}"]`);
+    if (row) {
+      const isExt = mkt==='US' && (st==='pre'||st==='ah'||st==='on');
+      const fld   = isExt ? '[data-field="ext-price"]' : '[data-field="price"]';
+      const el    = row.querySelector(fld);
+      const dir   = isExt ? (ls.edir||ls.dir) : ls.dir;
+      if (el) flashEl(el, dir);
+
+      // Occasionally refresh sparkline
+      if (Math.random()<0.25) {
+        const sk = document.getElementById('sk-'+s.t);
+        if (sk) sk.innerHTML = buildSpark(s.t, true);
+      }
+    }
+  }
+
+  // Update all text fields
+  updatePriceFields();
+}
+
+function startSim() {
+  if (simTimer) clearInterval(simTimer);
+  if (!isLive()) return;
+  simTimer = setInterval(tickSim, 1600);
+}
+
+// ═══════════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════════
+
+function updateClock() {
+  const cs = stInfo();
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  document.getElementById('clk-t').textContent = t+(mkt==='ID'?' WIB':' ET');
+  const b = document.getElementById('clk-b');
+  b.textContent = cs.short;
+  b.style.cssText = `background:${cs.color}20;color:${cs.color};border:1px solid ${cs.color}40`;
+}
+
+// ═══════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════
+
+function wireEvents() {
+  document.querySelectorAll('.tab').forEach(el=>el.addEventListener('click',function(){
+    this.closest('.tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('act'));
+    this.classList.add('act');
+  }));
+  document.querySelectorAll('.pill').forEach(el=>el.addEventListener('click',function(){
+    this.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('act'));
+    this.classList.add('act');
+  }));
+}
+
+function renderStateButtons() {
+  const c = document.getElementById('state-btns');
+  c.innerHTML = STATES[mkt].map(s=>
+    `<button class="btn ${s.cls}${s.id===st?' act':''}" data-st="${s.id}">${s.short}</button>`
+  ).join('');
+  c.querySelectorAll('[data-st]').forEach(b=>b.addEventListener('click',function(){
+    st = this.dataset.st;
+    renderStateButtons();
+    initLive();
+    renderPanel();
+    updateClock();
+    startSim();
+  }));
+}
+
+document.getElementById('mkt-btns').addEventListener('click',function(e){
+  const b = e.target.closest('[data-m]');
+  if (!b) return;
+  mkt = b.dataset.m; st = 'open';
+  this.querySelectorAll('.btn').forEach(x=>x.classList.remove('act'));
+  b.classList.add('act');
+  renderStateButtons();
+  initLive();
+  renderPanel();
+  updateClock();
+  startSim();
+});
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+
+renderStateButtons();
+initLive();
+renderPanel();
+updateClock();
+startSim();
+setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
