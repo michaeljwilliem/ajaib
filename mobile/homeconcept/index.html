@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib — Home Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060608;
+  --s0:#000;--s1:#0d0d10;--s2:#1c1c1f;--s3:#242428;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t1:#f2f2f7;--t2:#8e8e93;--t3:#48484a;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;
+  --amber:#ffd60a;--purple:#bf5af2;--teal:#5ac8fa;
+  --idxc:#e8334a;--crypto:#f7931a;--usc:#0a84ff;--rdc:#bf5af2;--oblc:#4dd9ac;
+  --safe-top:54px;--safe-bot:34px;
+}
+body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var(--t1);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px;gap:16px}
+
+/* ── Controls ── */
+.ctrl{display:flex;align-items:center;gap:10px;background:#1a1a1e;border:1px solid var(--b2);border-radius:12px;padding:10px 16px;width:100%;max-width:440px;flex-wrap:wrap}
+.cl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.bg{display:flex;gap:3px}
+.btn{padding:5px 11px;border-radius:6px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}
+.btn:hover{color:var(--t1);border-color:rgba(255,255,255,.3)}
+.btn.act{background:#04388c;border-color:rgba(58,131,249,.75);color:#b1cefd}
+.s-open.act{background:rgba(48,209,88,.12)!important;border-color:rgba(48,209,88,.4)!important;color:var(--green)!important}
+.s-pre.act{background:rgba(255,214,10,.1)!important;border-color:rgba(255,214,10,.35)!important;color:var(--amber)!important}
+.s-ah.act{background:rgba(10,132,255,.12)!important;border-color:rgba(10,132,255,.4)!important;color:var(--blue)!important}
+.s-on.act{background:rgba(191,90,242,.12)!important;border-color:rgba(191,90,242,.4)!important;color:var(--purple)!important}
+.vd{width:1px;height:22px;background:var(--b2);flex-shrink:0}
+.mla{margin-left:auto}
+.clk{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:5px}
+.sp{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.04em}
+
+/* ── Phone shell ── */
+.phone-wrap{position:relative;width:407px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.phone-shell{width:407px;background:linear-gradient(170deg,#2a2a2e 0%,#1a1a1e 60%,#111 100%);border-radius:56px;padding:10px;position:relative}
+.phone-shell::before{content:'';position:absolute;inset:0;border-radius:56px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.btn-vol{position:absolute;left:-3px;top:130px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-vol2{position:absolute;left:-3px;top:178px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-pwr{position:absolute;right:-3px;top:158px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+
+/* ── Screen ── */
+.screen{width:387px;height:839px;border-radius:48px;background:var(--s0);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* ── Status bar ── */
+.sbar{height:var(--safe-top);display:flex;align-items:flex-end;padding:0 28px 10px;justify-content:space-between;flex-shrink:0;position:relative;z-index:10;background:var(--s0)}
+.sbar-time{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;border:1px solid #1c1c1e}
+.sbar-icons{display:flex;align-items:center;gap:6px}
+
+/* ── Fixed header ── */
+.fixed-top{flex-shrink:0;background:var(--s0)}
+
+/* App bar */
+.app-bar{display:flex;align-items:center;padding:6px 16px;gap:10px}
+.app-bar-search{flex:1;display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:8px 12px;cursor:text;overflow:hidden;min-width:0;height:36px}
+.search-icon{color:var(--t2);flex-shrink:0}
+.search-ph-wrap{flex:1;position:relative;height:18px;overflow:hidden}
+.search-ph{position:absolute;inset:0;display:flex;align-items:center;font-size:13px;color:var(--t3);transition:opacity .3s,transform .3s;white-space:nowrap}
+.search-ph.hidden{opacity:0;transform:translateY(6px)}
+.search-ph.visible{opacity:1;transform:translateY(0)}
+.search-ph .brand{color:#2563eb;font-weight:700;font-size:13px}
+.app-bar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--s0)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer}
+
+/* Total aset row */
+.total-row{display:flex;align-items:center;padding:2px 16px 8px;gap:10px}
+.total-left{flex:1;min-width:0}
+.total-label-row{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.total-label{font-size:10px;color:var(--t2)}
+.eye-btn{color:var(--t3);cursor:pointer;flex-shrink:0}
+.total-amount{font-size:20px;font-weight:700;letter-spacing:-.5px;color:var(--t1)}
+.deposit-cta{display:flex;align-items:center;gap:4px;background:var(--blue);border-radius:10px;padding:8px 14px;cursor:pointer;flex-shrink:0}
+.deposit-cta span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+
+/* Action pills */
+.action-pills{display:flex;gap:7px;padding:0 16px 10px;overflow-x:auto}
+.action-pills::-webkit-scrollbar{display:none}
+.ap{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--b2);background:var(--s1);cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:11px;color:var(--t2);transition:opacity .2s,transform .2s}
+.ap:hover{border-color:rgba(255,255,255,.22)}
+/* BP pill fixed-width so it doesn't reflow during flip */
+#bp-pill{background:var(--s2);border-color:rgba(255,255,255,.18);width:172px;justify-content:flex-start}
+.ap.ap-alert{border-color:rgba(48,209,88,.28);background:rgba(48,209,88,.07)}
+.ap.ap-action{border-color:rgba(10,132,255,.3);background:rgba(10,132,255,.07)}
+.ap.ap-warn{border-color:rgba(255,214,10,.3);background:rgba(255,214,10,.07)}
+.ap-val{font-size:11px;font-weight:600;color:var(--t1)}
+.ap-tag{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.03em;flex-shrink:0}
+
+/* Collapsible wrapper — total-row + action-pills collapse on scroll */
+.collapsible-top{overflow:hidden;transition:max-height .28s ease,opacity .24s ease;max-height:200px;opacity:1}
+.collapsible-top.collapsed{max-height:0;opacity:0}
+
+/* Scroll mini — replaces collapsible-top when scrolled */
+.scroll-mini{max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .24s ease;display:flex;align-items:center;padding:0 16px;gap:10px;background:rgba(0,0,0,.97);border-bottom:1px solid transparent}
+.scroll-mini.visible{max-height:60px;opacity:1;padding:8px 16px;border-bottom-color:var(--b1)}
+.sm-left{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sm-label-row{display:flex;align-items:center;gap:4px}
+.sm-label{font-size:9px;color:var(--t2)}
+.sm-amount-row{display:flex;align-items:center;gap:8px}
+.sm-amount{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.3px;white-space:nowrap}
+.sm-deposit{display:flex;align-items:center;gap:3px;background:var(--blue);border-radius:6px;padding:3px 9px;cursor:pointer;flex-shrink:0}
+.sm-deposit span{font-size:10px;font-weight:700;color:#fff}
+.sm-sep{width:1px;height:30px;background:var(--b2);flex-shrink:0}
+.sm-bp{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
+.sm-bp-label{font-size:10px;color:var(--t2)}
+
+/* ── Watchlist ── */
+.wl{padding-bottom:4px}
+
+.wl-hdr{display:flex;align-items:center;padding:10px 16px 6px;gap:8px}
+.wl-title{font-size:15px;font-weight:700;color:var(--t1);flex:1}
+.wl-action-btns{display:flex;align-items:center;gap:6px}
+.wl-action-btn{font-size:10px;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer;white-space:nowrap;border:1px solid rgba(10,132,255,.35);background:rgba(10,132,255,.08);color:var(--blue)}
+.wl-action-btn.secondary{border-color:rgba(255,255,255,.14);background:var(--s2);color:var(--t2)}
+
+/* Filter pills */
+.wl-filters{display:flex;gap:6px;padding:0 16px 8px;overflow-x:auto}
+.wl-filters::-webkit-scrollbar{display:none}
+.af{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--b2);color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.af.act{color:#fff;font-weight:600;border-color:transparent}
+.af-all.act{background:#3a3a3e;color:var(--t1)}
+.af-idx.act{background:rgba(232,51,74,.2);border-color:rgba(232,51,74,.4);color:var(--idxc)}
+.af-crypto.act{background:rgba(247,147,26,.2);border-color:rgba(247,147,26,.4);color:var(--crypto)}
+.af-us.act{background:rgba(10,132,255,.2);border-color:rgba(10,132,255,.4);color:var(--usc)}
+.af-rd.act{background:rgba(191,90,242,.2);border-color:rgba(191,90,242,.4);color:var(--rdc)}
+.af-obl.act{background:rgba(77,217,172,.2);border-color:rgba(77,217,172,.4);color:var(--oblc)}
+
+/* Moomoo-style screener column header */
+.wl-screener{display:flex;align-items:center;padding:5px 16px;gap:8px;border-bottom:1px solid var(--b1);background:var(--s0)}
+.wls-icons{display:flex;align-items:center;gap:5px;flex:1}
+.wls-ico{width:22px;height:22px;border-radius:5px;border:1px solid var(--b1);background:var(--s1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:all .15s}
+.wls-ico:hover{border-color:rgba(255,255,255,.2);color:var(--t2)}
+.wls-ico.active{border-color:rgba(10,132,255,.5);background:rgba(10,132,255,.12);color:var(--blue)}
+.wls-cols{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.wls-col{display:flex;align-items:center;justify-content:flex-end;gap:3px;cursor:pointer;padding:3px 5px;border-radius:4px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;font-weight:500;white-space:nowrap;transition:all .12s;user-select:none}
+.wls-col:hover{color:var(--t2)}
+.wls-col.sort-act{color:var(--amber);background:rgba(255,214,10,.08)}
+.sort-arr{font-size:8px;opacity:.7}
+
+/* Watchlist rows */
+.wl-rows{padding:0 12px}
+.wrow{display:flex;align-items:center;gap:8px;height:48px;padding:0 4px;border-radius:10px;cursor:pointer;transition:background .1s;position:relative}
+.wrow:hover{background:rgba(255,255,255,.04)}
+.wrow.tall{height:62px;align-items:center}
+.wrow-sep{height:1px;background:var(--b1);margin:0 4px}
+.wrow.flash-row-u{animation:fru .5s ease-out}
+.wrow.flash-row-d{animation:frd .5s ease-out}
+
+.wlogo{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;position:relative}
+.wlogo-live{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--s0)}
+
+.winfo{flex:0 0 auto;width:100px;min-width:0}
+.wticker-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px}
+.wticker{font-size:13px;font-weight:600;color:var(--t1);line-height:1;white-space:nowrap}
+.wtype{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.04em;flex-shrink:0}
+.wbadge{font-size:7px;font-weight:700;padding:1px 3px;border-radius:3px;flex-shrink:0;letter-spacing:.02em}
+.wname{font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
+
+.wspark{flex:1;min-width:28px;height:28px;overflow:visible}
+.wspark svg{width:100%;height:28px;display:block;overflow:visible}
+/* OBL text "column" uses wspark layout but shows text, not a chart */
+.wspark.obl-text-col{display:flex;align-items:center}
+
+.wpa{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.wprice{font-size:12px;font-weight:500;color:var(--t1);width:70px;text-align:right;white-space:nowrap;flex-shrink:0}
+.wpct{display:flex;align-items:center;justify-content:center;padding:3px 5px;border-radius:6px;font-size:10px;font-weight:600;width:56px;flex-shrink:0;white-space:nowrap;min-height:22px}
+
+.us-pa{display:flex;flex-direction:column;gap:3px;flex-shrink:0;align-items:flex-end}
+.us-line{display:flex;align-items:center;gap:4px}
+.us-sess{font-size:8px;font-weight:600;width:52px;text-align:right;white-space:nowrap;flex-shrink:0}
+.us-p{font-size:11px;font-weight:500;width:58px;text-align:right;white-space:nowrap;flex-shrink:0}
+.us-pct{display:flex;align-items:center;justify-content:center;padding:2px 4px;border-radius:5px;font-size:9px;font-weight:600;width:50px;flex-shrink:0;white-space:nowrap}
+.live-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* Add to watchlist CTA */
+.wl-add-cta{display:flex;align-items:center;gap:8px;padding:12px 16px;cursor:pointer;margin:4px 12px;border-radius:10px;border:1px dashed var(--b2);transition:background .1s}
+.wl-add-cta:hover{background:rgba(255,255,255,.03)}
+.wl-add-icon{width:24px;height:24px;border-radius:50%;background:rgba(10,132,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wl-add-text{font-size:12px;color:var(--t2)}
+.wl-add-text strong{color:var(--blue);font-weight:600}
+
+/* Scrollable content */
+.scroll-content{flex:1;overflow-y:auto;min-height:0}
+.scroll-content::-webkit-scrollbar{display:none}
+
+/* Below fold */
+.below-fold{padding:0 16px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 4px 10px}
+.section-title{font-size:15px;font-weight:700}
+.section-link{font-size:12px;color:var(--blue)}
+
+/* AI Insight cards */
+.insight-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.insight-row::-webkit-scrollbar{display:none}
+.insight-card{width:162px;flex-shrink:0;background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;cursor:pointer;transition:background .12s}
+.insight-card:hover{background:var(--s3)}
+.ic-bar{position:absolute;top:0;left:0;right:0;height:2px}
+.ic-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1px}
+.ic-ticker{font-size:14px;font-weight:700}
+.ic-ai{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(191,90,242,.2);color:var(--purple);letter-spacing:.04em}
+.ic-name{font-size:10px;color:var(--t2);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic-divider{height:1px;background:var(--b1);margin:2px 0}
+.ic-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.ic-lbl{font-size:9px;color:var(--t3);white-space:nowrap}
+/* consistent 10px across all asset classes so long BTC amounts don't overflow */
+.ic-curr{font-size:10px;font-weight:600;color:var(--t1)}
+.ic-target{font-size:10px;font-weight:700;color:var(--green)}
+.ic-return{font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;background:rgba(48,209,88,.15);color:var(--green)}
+.ic-sl{font-size:10px;font-weight:600;color:var(--red)}
+.ic-buy{width:100%;margin-top:4px;padding:7px;border-radius:8px;background:var(--blue);border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.02em}
+
+/* News */
+.news-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px}
+.news-row::-webkit-scrollbar{display:none}
+.news-card{width:168px;flex-shrink:0;background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:5px;transition:background .1s}
+.news-card:hover{background:var(--s3)}
+.news-meta{font-size:9px;color:var(--t3)}
+.news-headline{font-size:11px;color:var(--t1);line-height:1.38;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.news-footer{display:flex;align-items:center;gap:5px;margin-top:2px}
+.news-badge{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px}
+.news-type{font-size:9px;color:var(--t3)}
+
+/* Bottom tab bar — 6 tabs */
+.bottom-tabs{flex-shrink:0;background:rgba(6,6,8,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--b1)}
+.tabs-row{display:flex;align-items:flex-start}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 3px;cursor:pointer;position:relative;min-width:0}
+.tab-item svg{flex-shrink:0}
+.tab-label{font-size:9px;font-weight:500;color:var(--t2);white-space:nowrap;letter-spacing:-.2px}
+.tab-item.act .tab-label{color:var(--blue)}
+.tab-badge{position:absolute;top:5px;right:calc(50% - 14px);width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--s0)}
+.home-ind{height:var(--safe-bot);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;background:rgba(6,6,8,.94)}
+.home-bar{width:120px;height:4px;background:rgba(255,255,255,.25);border-radius:2px}
+
+/* Animations */
+@keyframes spk{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
+.spkl{stroke-dasharray:300;animation:spk .5s ease-out forwards}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.dpulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes fu{0%{color:var(--t1)}40%{color:#7effa0}100%{color:var(--t1)}}
+@keyframes fd{0%{color:var(--t1)}40%{color:#ff9090}100%{color:var(--t1)}}
+@keyframes fru{0%{background:transparent}30%{background:rgba(48,209,88,.06)}100%{background:transparent}}
+@keyframes frd{0%{background:transparent}30%{background:rgba(255,67,58,.06)}100%{background:transparent}}
+.flash-u{animation:fu .55s ease-out forwards}
+.flash-d{animation:fd .55s ease-out forwards}
+::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+
+<!-- Controls -->
+<div class="ctrl">
+  <span class="cl">US Market</span>
+  <div class="bg" id="state-btns"></div>
+  <div class="vd"></div>
+  <div class="clk mla">
+    <span id="clk-t"></span>
+    <span class="sp" id="clk-b"></span>
+  </div>
+</div>
+
+<!-- Phone -->
+<div class="phone-wrap">
+  <div class="phone-shell">
+    <div class="btn-vol"></div>
+    <div class="btn-vol2"></div>
+    <div class="btn-pwr"></div>
+
+    <div class="screen" id="screen">
+
+      <!-- Status bar -->
+      <div class="sbar">
+        <div class="sbar-time">9:41</div>
+        <div class="di"></div>
+        <div class="sbar-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+            <rect x="0" y="4" width="3" height="8" rx="1" fill="white"/>
+            <rect x="4.5" y="2.5" width="3" height="9.5" rx="1" fill="white"/>
+            <rect x="9" y="1" width="3" height="11" rx="1" fill="white"/>
+            <rect x="13.5" y="0" width="3" height="12" rx="1" fill="white"/>
+          </svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+            <path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM1.5 4.5C3.4 2.6 5.6 1.5 8 1.5s4.6 1.1 6.5 3l1.5-1.5C13.7 1.1 11 0 8 0S2.3 1.1.0 3l1.5 1.5zM8 4.5c-1.5 0-2.9.6-3.9 1.6L5.6 7.6C6.2 7 7.1 6.5 8 6.5s1.8.5 2.4 1.1l1.5-1.5C10.9 5.1 9.5 4.5 8 4.5z"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/>
+            <rect x="2" y="2" width="17" height="8" rx="2" fill="white"/>
+            <path d="M23 4v4a2 2 0 000-4z" fill="white" opacity=".4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Fixed header -->
+      <div class="fixed-top">
+
+        <!-- App bar: search + bell + avatar -->
+        <div class="app-bar">
+          <div class="app-bar-search">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <div class="search-ph-wrap" id="search-ph-wrap"></div>
+          </div>
+          <div class="app-bar-actions">
+            <div class="icon-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <div class="notif-dot"></div>
+            </div>
+            <div class="avatar">M</div>
+          </div>
+        </div>
+
+        <!-- Collapsible: total-row + action-pills (hides on scroll) -->
+        <div class="collapsible-top" id="collapsible-top">
+
+        <!-- Total Aset -->
+        <div class="total-row">
+          <div class="total-left">
+            <div class="total-label-row">
+              <span class="total-label">Total Aset</span>
+              <svg class="eye-btn" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <span class="total-amount" id="total-aset">Rp100.567.890</span>
+          </div>
+          <div class="deposit-cta">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Deposit</span>
+          </div>
+        </div>
+
+        <!-- Action pills: BP (flips IDX/US/₿) + actionable + shortcuts -->
+        <div class="action-pills">
+          <div class="ap" id="bp-pill"></div>
+          <div class="ap ap-alert">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            <span>Posisi Terbuka</span>
+            <span style="font-size:11px;font-weight:700;color:var(--green)">+2,1%</span>
+          </div>
+          <div class="ap ap-warn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Order Terbuka</span>
+            <span style="font-size:11px;font-weight:700;color:var(--amber)">3</span>
+          </div>
+          <div class="ap ap-action">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span style="color:var(--blue);font-weight:600">E-IPO</span>
+            <span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:rgba(10,132,255,.2);color:var(--blue)">2</span>
+          </div>
+          <div class="ap">
+            <span style="font-size:11px">🥇</span>
+            <span>Gold ETF</span>
+          </div>
+          <div class="ap">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Day Trading</span>
+          </div>
+          <div class="ap">
+            <span style="font-size:11px">📊</span>
+            <span>Reksa Dana</span>
+          </div>
+          <div class="ap">
+            <span style="font-size:11px">🏛</span>
+            <span>Obligasi</span>
+          </div>
+          <div class="ap">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Futures</span>
+          </div>
+        </div>
+        </div><!-- /collapsible-top -->
+
+        <!-- Scroll mini — slides in when scrolled, replaces total-row + pills -->
+        <div class="scroll-mini" id="scroll-mini">
+          <!-- Left: Total Aset + Deposit -->
+          <div class="sm-left">
+            <div class="sm-label-row">
+              <span class="sm-label">Total Aset</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="sm-amount-row">
+              <span class="sm-amount" id="mini-aset">Rp100.567.890</span>
+              <div class="sm-deposit">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                <span>Deposit</span>
+              </div>
+            </div>
+          </div>
+          <!-- Divider -->
+          <div class="sm-sep"></div>
+          <!-- Right: BP flipping -->
+          <div class="sm-bp">
+            <span id="mini-bp-tag" style="font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px">IDX</span>
+            <span class="sm-bp-label">BP</span>
+            <span class="sm-amount" id="mini-bp-val">Rp32.000.000</span>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+
+      </div><!-- /fixed-top -->
+
+      <!-- Scrollable content -->
+      <div class="scroll-content" id="scroll-content">
+
+        <!-- Watchlist -->
+        <div class="wl">
+          <div class="wl-hdr">
+            <span class="wl-title">Watchlist</span>
+            <div class="wl-action-btns">
+              <span class="wl-action-btn">+ Tambah Aset</span>
+              <span class="wl-action-btn secondary">Ubah List</span>
+            </div>
+          </div>
+
+          <div class="wl-filters">
+            <div class="af af-all act" data-f="all">Semua</div>
+            <div class="af af-idx" data-f="idx">🇮🇩 IDX</div>
+            <div class="af af-crypto" data-f="crypto">₿ Kripto</div>
+            <div class="af af-us" data-f="us">🇺🇸 US</div>
+            <div class="af af-rd" data-f="rd">📊 Reksa Dana</div>
+            <div class="af af-obl" data-f="obl">🏛 Obligasi</div>
+          </div>
+
+          <!-- Moomoo-style screener header -->
+          <div class="wl-screener">
+            <div class="wls-icons">
+              <div class="wls-ico" id="chart-toggle" title="Tampilkan/Sembunyikan Grafik">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="wls-ico" title="Screener & Filter">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              </div>
+              <div class="wls-ico" title="Tampilan Tabel">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+              </div>
+            </div>
+            <div class="wls-cols">
+              <div class="wls-col" style="width:72px" id="sort-price">
+                Harga <span class="sort-arr">↕</span>
+              </div>
+              <div class="wls-col sort-act" style="width:70px" id="sort-pct">
+                % Hari Ini <span class="sort-arr">↓</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="wl-rows" id="wl-rows"></div>
+
+          <div class="wl-add-cta" id="wl-add-cta">
+            <div class="wl-add-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+            <div class="wl-add-text"><strong>Tambahkan aset</strong> ke watchlist kamu</div>
+          </div>
+        </div>
+
+        <!-- AI Insight — right after watchlist -->
+        <div class="below-fold">
+          <div class="section-hdr">
+            <span class="section-title" style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:14px">🤖</span> AI Insight
+            </span>
+            <span class="section-link">Lihat Semua</span>
+          </div>
+          <div class="insight-row" id="insight-row">
+
+            <div class="insight-card">
+              <div class="ic-bar" style="background:linear-gradient(90deg,#e8334a,#ff6b6b)"></div>
+              <div class="ic-head">
+                <span class="ic-ticker" style="color:#e8334a">BBCA</span>
+                <span class="ic-ai">AI</span>
+              </div>
+              <div class="ic-name">Bank Central Asia</div>
+              <div class="ic-divider"></div>
+              <div class="ic-row">
+                <span class="ic-lbl">Harga</span>
+                <span class="ic-curr">Rp9.575</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Target</span>
+                <span class="ic-target">Rp10.500 ↑</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Return</span>
+                <span class="ic-return">+9,7%</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Stop Loss</span>
+                <span class="ic-sl">Rp9.200</span>
+              </div>
+              <button class="ic-buy">Beli Sekarang →</button>
+            </div>
+
+            <div class="insight-card">
+              <div class="ic-bar" style="background:linear-gradient(90deg,#f7931a,#ffc84d)"></div>
+              <div class="ic-head">
+                <span class="ic-ticker" style="color:#f7931a">BTC</span>
+                <span class="ic-ai">AI</span>
+              </div>
+              <div class="ic-name">Bitcoin / IDR</div>
+              <div class="ic-divider"></div>
+              <div class="ic-row">
+                <span class="ic-lbl">Harga</span>
+                <span class="ic-curr">Rp1.067.234.000</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Target</span>
+                <span class="ic-target">Rp1.200.000.000 ↑</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Return</span>
+                <span class="ic-return">+12,4%</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Stop Loss</span>
+                <span class="ic-sl">Rp980.000.000</span>
+              </div>
+              <button class="ic-buy">Beli Sekarang →</button>
+            </div>
+
+            <div class="insight-card">
+              <div class="ic-bar" style="background:linear-gradient(90deg,#76b900,#a0e040)"></div>
+              <div class="ic-head">
+                <span class="ic-ticker" style="color:#76b900">NVDA</span>
+                <span class="ic-ai">AI</span>
+              </div>
+              <div class="ic-name">Nvidia Corporation</div>
+              <div class="ic-divider"></div>
+              <div class="ic-row">
+                <span class="ic-lbl">Harga</span>
+                <span class="ic-curr">$875,43</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Target</span>
+                <span class="ic-target">$1.020,00 ↑</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Return</span>
+                <span class="ic-return">+16,5%</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Stop Loss</span>
+                <span class="ic-sl">$820,00</span>
+              </div>
+              <button class="ic-buy">Beli Sekarang →</button>
+            </div>
+
+            <div class="insight-card">
+              <div class="ic-bar" style="background:linear-gradient(90deg,#00aa5b,#2ecc71)"></div>
+              <div class="ic-head">
+                <span class="ic-ticker" style="color:#00aa5b">GOTO</span>
+                <span class="ic-ai">AI</span>
+              </div>
+              <div class="ic-name">GoTo Gojek Tokopedia</div>
+              <div class="ic-divider"></div>
+              <div class="ic-row">
+                <span class="ic-lbl">Harga</span>
+                <span class="ic-curr">Rp55</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Target</span>
+                <span class="ic-target">Rp72 ↑</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Return</span>
+                <span class="ic-return">+30,9%</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Stop Loss</span>
+                <span class="ic-sl">Rp48</span>
+              </div>
+              <button class="ic-buy">Beli Sekarang →</button>
+            </div>
+
+            <div class="insight-card">
+              <div class="ic-bar" style="background:linear-gradient(90deg,#0a84ff,#5ac8fa)"></div>
+              <div class="ic-head">
+                <span class="ic-ticker" style="color:#0a84ff">TSLA</span>
+                <span class="ic-ai">AI</span>
+              </div>
+              <div class="ic-name">Tesla Inc.</div>
+              <div class="ic-divider"></div>
+              <div class="ic-row">
+                <span class="ic-lbl">Harga</span>
+                <span class="ic-curr">$178,65</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Target</span>
+                <span class="ic-target">$220,00 ↑</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Return</span>
+                <span class="ic-return">+23,1%</span>
+              </div>
+              <div class="ic-row">
+                <span class="ic-lbl">Stop Loss</span>
+                <span class="ic-sl">$160,00</span>
+              </div>
+              <button class="ic-buy">Beli Sekarang →</button>
+            </div>
+
+          </div><!-- /insight-row -->
+
+          <!-- News & Insight -->
+          <div class="section-hdr">
+            <span class="section-title">Berita & Insight</span>
+            <span class="section-link">Lihat Semua</span>
+          </div>
+          <div class="news-row">
+
+            <div class="news-card">
+              <div class="news-meta">CNBC Indonesia · 5 mnt lalu</div>
+              <div class="news-headline">BBCA cetak laba bersih Q1 Rp12,4 T, naik 14% YoY melampaui estimasi analis</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(232,51,74,.15);color:var(--idxc)">BBCA</span>
+                <span class="news-type">Keuangan</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">Bloomberg · 18 mnt lalu</div>
+              <div class="news-headline">Bitcoin tembus $72.000 seiring inflasi AS mereda, sentimen kripto membaik</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(247,147,26,.15);color:var(--crypto)">BTC</span>
+                <span class="news-type">Kripto</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">Reuters · 32 mnt lalu</div>
+              <div class="news-headline">NVIDIA umumkan chip Blackwell generasi terbaru, saham melonjak 4,2% pre-market</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(10,132,255,.15);color:var(--usc)">NVDA</span>
+                <span class="news-type">Teknologi</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">Bisnis.com · 1 jam lalu</div>
+              <div class="news-headline">BI pertahankan suku bunga 6,25%, Rupiah menguat ke level Rp15.820/USD</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(255,214,10,.12);color:var(--amber)">MAKRO</span>
+                <span class="news-type">Ekonomi</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">Kontan · 2 jam lalu</div>
+              <div class="news-headline">GOTO umumkan restrukturisasi, GoTo Financial jadi unit fokus profitabilitas</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(0,170,91,.15);color:#00aa5b">GOTO</span>
+                <span class="news-type">Korporasi</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">Katadata · 2 jam lalu</div>
+              <div class="news-headline">IHSG berpotensi uji level 7.800 minggu ini, analis rekomendasikan akumulasi saham perbankan</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(232,51,74,.15);color:var(--idxc)">IHSG</span>
+                <span class="news-type">Market</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">CoinDesk · 3 jam lalu</div>
+              <div class="news-headline">Ethereum ETF spot catat arus masuk $280 juta dalam sehari, tertinggi sepanjang masa</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(98,126,234,.15);color:#627eea">ETH</span>
+                <span class="news-type">Kripto</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">Investor.id · 3 jam lalu</div>
+              <div class="news-headline">TLKM raih kontrak infrastruktur data center senilai Rp2,8 T dari tiga perusahaan teknologi AS</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(204,0,0,.15);color:#cc0000">TLKM</span>
+                <span class="news-type">Korporasi</span>
+              </div>
+            </div>
+
+            <div class="news-card">
+              <div class="news-meta">WSJ · 4 jam lalu</div>
+              <div class="news-headline">Fed minutes: pejabat sepakati kemungkinan satu kali pemangkasan suku bunga di 2024</div>
+              <div class="news-footer">
+                <span class="news-badge" style="background:rgba(10,132,255,.12);color:var(--usc)">FED</span>
+                <span class="news-type">Ekonomi AS</span>
+              </div>
+            </div>
+
+          </div><!-- /news-row -->
+
+        </div><!-- /below-fold -->
+      </div><!-- /scroll-content -->
+
+      <!-- Bottom tabs — 6 tabs -->
+      <div class="bottom-tabs">
+        <div class="tabs-row">
+          <div class="tab-item act">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#0a84ff" stroke="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            <span class="tab-label" style="color:#0a84ff">Beranda</span>
+          </div>
+          <div class="tab-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><rect x="2" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="18" y="13" width="4" height="8" rx="1"/></svg>
+            <span class="tab-label">Investasi</span>
+          </div>
+          <div class="tab-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.7 0-3 1.3-3 3s1.3 3 3 3c1 0 2-.5 2.5-1.5M12 7v1m0 8v1"/></svg>
+            <span class="tab-label">Kripto</span>
+          </div>
+          <div class="tab-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18M12 3c-2.5 2.5-4 6-4 9s1.5 6.5 4 9M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9M3 12h18"/></svg>
+            <span class="tab-label">Saham AS</span>
+          </div>
+          <div class="tab-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><rect x="1" y="6" width="22" height="14" rx="2"/><path d="M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg>
+            <span class="tab-label">Cash</span>
+          </div>
+          <div class="tab-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            <span class="tab-label">Portfolio</span>
+          </div>
+        </div>
+        <div class="home-ind"><div class="home-bar"></div></div>
+      </div>
+
+    </div><!-- /screen -->
+  </div><!-- /phone-shell -->
+</div><!-- /phone-wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+
+let usState = 'ah';
+
+const WL_BASE = [
+  {id:'BBCA',name:'Bank Central Asia',type:'IDX',market:'open',color:'#e8334a',
+   p:9575,v:175,pct:1.86,dir:1,p0:9400,mult:'10x',
+   d:[9400,9420,9450,9440,9470,9490,9500,9510,9520,9530,9540,9555,9565,9575]},
+
+  {id:'BTC',name:'Bitcoin / IDR',type:'CRYPTO',market:'live',color:'#f7931a',
+   currency:'IDR', p:1067234000,v:19680000,pct:1.87,dir:1,p0:1047554000,
+   d:[1047,1052,1059,1056,1061,1065,1061,1066,1068,1067]},
+
+  {id:'NVDA',name:'Nvidia',type:'US',market:'ext',color:'#76b900',
+   p:875.43,ep:903.21,close:875.43,pct:3.23,epct:3.18,dir:1,p0:848,
+   d:[848,855,862,858,866,871,868,875,878,875],ed:[875,879,883,887,892,895,900,903]},
+
+  {id:'TLKM',name:'Telekomunikasi Indonesia',type:'IDX',market:'open',color:'#cc0000',
+   p:3180,v:30,pct:0.95,dir:1,p0:3150,
+   d:[3150,3155,3160,3158,3162,3165,3168,3170,3173,3176,3178,3180]},
+
+  {id:'ETH',name:'Ethereum / USDT',type:'CRYPTO',market:'live',color:'#627eea',
+   currency:'USDT', p:3456,v:-45,pct:-1.28,dir:-1,p0:3501,
+   d:[3501,3490,3480,3495,3470,3465,3475,3460,3456]},
+
+  {id:'AAPL',name:'Apple',type:'US',market:'ext',color:'#888',
+   p:195.89,ep:196.41,close:195.89,pct:0.26,epct:0.27,dir:1,p0:190,
+   d:[190,191,193,192,194,194,195,195,196,195,196],ed:[196,196,196,197,196,196]},
+
+  {id:'GOTO',name:'GoTo Gojek Tokopedia',type:'IDX',market:'open',color:'#00aa5b',
+   p:55,v:-2,pct:-3.51,dir:-1,p0:57,mult:'3x',
+   d:[57,56.5,57,56,55.5,56,55,54.5,55,54,53.5,55]},
+
+  {id:'SUCOR',name:'Sucorinvest Equity Fund',type:'RD',market:'nav',color:'#bf5af2',
+   p:2456,v:3,pct:0.12,dir:1,
+   d:[2440,2441,2443,2443,2445,2446,2448,2450,2452,2454,2455,2456]},
+
+  {id:'TSLA',name:'Tesla',type:'US',market:'ext',color:'#e31937',
+   p:178.65,ep:174.89,close:178.65,pct:-0.89,epct:-2.11,dir:-1,p0:182,
+   d:[182,181,180,181,179,178,179,177,176,177,174,179],ed:[179,177,176,175,174,175]},
+
+  {id:'ORI025',name:'ORI 025 · Jatuh Tempo 2029',type:'OBL',market:'stable',color:'#4dd9ac',
+   p:1000,v:0,pct:0,dir:0,yield:6.50,coupon:'Bulanan',
+   d:[1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000]},
+];
+
+const live = {};
+
+function initLive() {
+  WL_BASE.forEach(s => {
+    live[s.id] = {
+      p:s.p, v:s.v||0, pct:s.pct, dir:s.dir,
+      ep:s.ep, ev:s.ep?(s.ep-s.close):0,
+      epct:s.epct||0, edir:s.dir,
+      close:s.close,
+      d:[...(s.d||[])], ed:[...(s.ed||[])]
+    };
+  });
+}
+
+const US_STATES = [
+  {id:'open',label:'Regular Market',short:'OPEN',cls:'s-open',color:'#30d158'},
+  {id:'pre', label:'Pre-Market',    short:'PRE', cls:'s-pre', color:'#ffd60a'},
+  {id:'ah',  label:'After Market',  short:'AH',  cls:'s-ah',  color:'#0a84ff'},
+  {id:'on',  label:'Overnight',     short:'ON',  cls:'s-on',  color:'#bf5af2'},
+];
+function usInfo(){ return US_STATES.find(s=>s.id===usState); }
+
+// ═══════════════════════════════════════════════════
+// FORMATTERS — no space between Rp and number
+// ═══════════════════════════════════════════════════
+
+function fIDp(n){ return 'Rp'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function fIDraw(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function fIDpct(n){ return (n>=0?'+':'')+n.toFixed(2).replace('.',',')+'\u202f%'; }
+function fUSDp(n){ return '$'+n.toFixed(2); }
+function fUSDpct(n){ return (n>=0?'+':'')+n.toFixed(2)+'%'; }
+
+function fCrypIDR(n){
+  if(n>=1e9) return 'Rp'+(n/1e9).toFixed(2)+'M';
+  if(n>=1e6) return 'Rp'+(n/1e6).toFixed(1)+'jt';
+  return 'Rp'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+function fCrypUSDT(n){ return n>=1000?'$'+n.toLocaleString('en',{maximumFractionDigits:0}):'$'+n.toFixed(2); }
+
+// ═══════════════════════════════════════════════════
+// SORT STATE
+// ═══════════════════════════════════════════════════
+
+let sortField = 'pct'; // 'pct' | 'price'
+let sortDir   = -1;    // -1 = desc (default: highest % first)
+let showCharts = true;
+
+function sortedWL() {
+  return [...WL_BASE].sort((a, b) => {
+    const la = live[a.id], lb = live[b.id];
+    if (!la || !lb) return 0;
+    let va, vb;
+    if (sortField === 'pct') {
+      va = la.pct; vb = lb.pct;
+    } else {
+      // normalise to a common basis — use pct for cross-currency comparability
+      va = la.p; vb = lb.p;
+    }
+    return sortDir * (vb - va);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// SPARKLINES
+// ═══════════════════════════════════════════════════
+
+function normPts(data,w,h) {
+  const mn=Math.min(...data),mx=Math.max(...data),r=(mx-mn)||1;
+  return data.map((v,i)=>[(i/(data.length-1))*w, h*.85-((v-mn)/r)*h*.72]);
+}
+function curve(ps) {
+  if(!ps||ps.length<2)return'';
+  let d=`M${ps[0][0].toFixed(1)},${ps[0][1].toFixed(1)}`;
+  for(let i=1;i<ps.length;i++){
+    const a=ps[Math.max(0,i-2)],b=ps[i-1],c=ps[i],e=ps[Math.min(ps.length-1,i+1)];
+    d+=` C${(b[0]+(c[0]-a[0])/6).toFixed(1)},${(b[1]+(c[1]-a[1])/6).toFixed(1)} ${(c[0]-(e[0]-b[0])/6).toFixed(1)},${(c[1]-(e[1]-b[1])/6).toFixed(1)} ${c[0].toFixed(1)},${c[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+function spark(id, noAnim) {
+  const ls=live[id]; const s=WL_BASE.find(x=>x.id===id);
+  if(!ls||!s) return '';
+  const W=52,H=28,uid=id+(Math.random()*1e5|0);
+  const anim=noAnim?'':'class="spkl"';
+
+  if(s.type==='RD') {
+    const ps=normPts(ls.d,W,H); const lp=curve(ps);
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <path d="${lp}" fill="none" stroke="#bf5af2" stroke-width="1.2" opacity=".6"/>
+    </svg>`;
+  }
+
+  if(s.type==='US') {
+    const isExt=usState!=='open';
+    if(!isExt){
+      const ps=normPts(ls.d,W,H); const lp=curve(ps);
+      const fp=lp+` L${ps[ps.length-1][0].toFixed(1)},${H} L${ps[0][0].toFixed(1)},${H} Z`;
+      const clr=ls.dir>0?'#30d158':'#ff453a';
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${clr}" stop-opacity=".2"/><stop offset="100%" stop-color="${clr}" stop-opacity="0"/>
+        </linearGradient></defs>
+        <path d="${fp}" fill="url(#g${uid})"/>
+        <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.5" ${anim}/>
+      </svg>`;
+    }
+    const us=usInfo(); const extClr=us.color; const regClr=ls.dir>0?'#30d158':'#ff453a';
+    const comb=[...ls.d,...ls.ed]; const allPs=normPts(comb,W,H);
+    const regPs=allPs.slice(0,ls.d.length); const extPs=allPs.slice(ls.d.length-1);
+    const extLp=curve(extPs);
+    const extFp=extLp+` L${extPs[extPs.length-1][0].toFixed(1)},${H} L${extPs[0][0].toFixed(1)},${H} Z`;
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${extClr}" stop-opacity=".18"/><stop offset="100%" stop-color="${extClr}" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path d="${curve(regPs)}" fill="none" stroke="${regClr}" stroke-width="1" opacity=".3"/>
+      <path d="${extFp}" fill="url(#g${uid})"/>
+      <path d="${extLp}" fill="none" stroke="${extClr}" stroke-width="1.5" ${anim}/>
+    </svg>`;
+  }
+
+  const ps=normPts(ls.d,W,H); const lp=curve(ps);
+  const fp=lp+` L${ps[ps.length-1][0].toFixed(1)},${H} L${ps[0][0].toFixed(1)},${H} Z`;
+  const clr=ls.dir>0?'#30d158':'#ff453a';
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${clr}" stop-opacity=".2"/><stop offset="100%" stop-color="${clr}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${fp}" fill="url(#g${uid})"/>
+    <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.5" ${anim}/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+// ROW BUILDER
+// ═══════════════════════════════════════════════════
+
+function typeChip(type, color, extra) {
+  const lbl={IDX:'IDX',CRYPTO:'₿',US:'US',RD:'RD',OBL:'OBL'}[type]||type;
+  let html=`<span class="wtype" style="background:${color}18;color:${color};border:1px solid ${color}35">${lbl}</span>`;
+  if(extra) html+=extra;
+  return html;
+}
+function liveDotHtml(color){
+  return `<div class="live-dot dpulse" style="background:${color}"></div>`;
+}
+
+function buildRow(s) {
+  const ls=live[s.id]; if(!ls) return '';
+  const isUSExt = s.type==='US' && usState!=='open';
+  const rowCls = `wrow${isUSExt?' tall':''}`;
+  const liveDotOnLogo = (s.type==='IDX'||s.type==='CRYPTO'||s.type==='US')
+    ? `<div class="wlogo-live dpulse" style="background:${s.type==='IDX'?'#30d158':s.type==='CRYPTO'?'#f7931a':usInfo().color}"></div>` : '';
+
+  // ── IDX ──
+  if(s.type==='IDX') {
+    const clr=ls.dir>0?'var(--green)':'var(--red)';
+    const bg=ls.dir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';
+    const thunderBadge=s.mult?`<span class="wbadge" style="background:rgba(255,214,10,.15);color:#ffd60a;border:1px solid rgba(255,214,10,.3)">⚡${s.mult}</span>`:'';
+    return `<div class="${rowCls}" data-id="${s.id}">
+      <div class="wlogo" style="background:${s.color}">${s.id.slice(0,2)}${liveDotOnLogo}</div>
+      <div class="winfo">
+        <div class="wticker-row"><span class="wticker">${s.id}</span>${typeChip(s.type,s.color,thunderBadge)}</div>
+        <div class="wname">${s.name}</div>
+      </div>
+      <div class="wspark" id="sk-${s.id}">${spark(s.id)}</div>
+      <div class="wpa">
+        <span class="wprice" data-f="price" style="font-size:11px">${fIDp(ls.p)}</span>
+        <span class="wpct" style="background:${bg};color:${clr}" data-f="pct">${fIDpct(ls.pct)}</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Crypto ──
+  if(s.type==='CRYPTO') {
+    const clr=ls.dir>0?'var(--green)':'var(--red)';
+    const bg=ls.dir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';
+    const isIDR=s.currency==='IDR';
+    const priceStr=isIDR?fCrypIDR(ls.p):fCrypUSDT(ls.p);
+    return `<div class="${rowCls}" data-id="${s.id}">
+      <div class="wlogo" style="background:${s.color}">${s.id.slice(0,2)}${liveDotOnLogo}</div>
+      <div class="winfo">
+        <div class="wticker-row"><span class="wticker">${s.id}</span>${typeChip(s.type,s.color)}</div>
+        <div class="wname">${s.name}</div>
+      </div>
+      <div class="wspark" id="sk-${s.id}">${spark(s.id)}</div>
+      <div class="wpa">
+        <span class="wprice" data-f="price" style="font-size:${isIDR?'10px':'12px'}">${priceStr}</span>
+        <span class="wpct" style="background:${bg};color:${clr}" data-f="pct">${fUSDpct(ls.pct)}</span>
+      </div>
+    </div>`;
+  }
+
+  // ── US ──
+  if(s.type==='US') {
+    const badge24h=`<span class="wbadge" style="background:rgba(10,132,255,.15);color:var(--usc);border:1px solid rgba(10,132,255,.3)">24H</span>`;
+    if(!isUSExt) {
+      const clr=ls.dir>0?'var(--green)':'var(--red)';
+      const bg=ls.dir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';
+      return `<div class="${rowCls}" data-id="${s.id}">
+        <div class="wlogo" style="background:${s.color}">${s.id.slice(0,2)}${liveDotOnLogo}</div>
+        <div class="winfo">
+          <div class="wticker-row"><span class="wticker">${s.id}</span>${typeChip(s.type,'#0a84ff',badge24h)}</div>
+          <div class="wname">${s.name}</div>
+        </div>
+        <div class="wspark" id="sk-${s.id}">${spark(s.id)}</div>
+        <div class="wpa">
+          <span class="wprice" data-f="price">${fUSDp(ls.p)}</span>
+          <span class="wpct" style="background:${bg};color:${clr}" data-f="pct">${fUSDpct(ls.pct)}</span>
+        </div>
+      </div>`;
+    }
+    const us=usInfo();
+    const extDir=ls.edir||ls.dir;
+    const extClr=extDir>0?'var(--green)':'var(--red)';
+    const extBg=extDir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';
+    const regClr=ls.dir>0?'var(--green)':'var(--red)';
+    const regBg=ls.dir>0?'rgba(48,209,88,.1)':'rgba(255,67,58,.1)';
+    const sessLbl={pre:'Pre-Market',ah:'After Market',on:'Overnight'}[usState]||usState;
+    return `<div class="${rowCls}" data-id="${s.id}">
+      <div class="wlogo" style="background:${s.color}">${s.id.slice(0,2)}${liveDotOnLogo}</div>
+      <div class="winfo">
+        <div class="wticker-row"><span class="wticker">${s.id}</span>${typeChip(s.type,'#0a84ff',badge24h)}</div>
+        <div class="wname">${s.name}</div>
+      </div>
+      <div class="wspark" id="sk-${s.id}">${spark(s.id)}</div>
+      <div class="us-pa">
+        <div class="us-line">
+          <span class="us-sess" style="color:${us.color}">${sessLbl}</span>
+          <span class="us-p" data-f="ext-p">${fUSDp(ls.ep||ls.p)}</span>
+          <span class="us-pct" style="background:${extBg};color:${extClr}" data-f="ext-pct">${fUSDpct(ls.epct)}</span>
+          ${liveDotHtml(us.color)}
+        </div>
+        <div class="us-line" style="opacity:.5">
+          <span class="us-sess" style="color:var(--t2)">Reg. Close</span>
+          <span class="us-p" style="color:var(--t2)">${fUSDp(ls.close||ls.p)}</span>
+          <span class="us-pct" style="background:${regBg};color:${regClr}">${fUSDpct(ls.pct)}</span>
+          <div style="width:5px;flex-shrink:0"></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Reksa Dana — NAV in Harga column, % in Pergerakan column ──
+  if(s.type==='RD') {
+    const clr=ls.dir>0?'var(--green)':'var(--red)';
+    const bg=ls.dir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';
+    return `<div class="${rowCls}" data-id="${s.id}">
+      <div class="wlogo" style="background:${s.color}">${s.id.slice(0,2)}</div>
+      <div class="winfo">
+        <div class="wticker-row"><span class="wticker" style="font-size:12px">${s.id}</span>${typeChip(s.type,s.color)}</div>
+        <div class="wname">${s.name}</div>
+      </div>
+      <div class="wspark" id="sk-${s.id}">${spark(s.id)}</div>
+      <div class="wpa">
+        <div class="wprice" style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;width:70px">
+          <span style="font-size:8px;color:var(--t3)">NAV/unit</span>
+          <span style="font-size:11px;font-weight:600;color:var(--t1)" data-f="price">${fIDraw(ls.p)}</span>
+        </div>
+        <span class="wpct" style="background:${bg};color:${clr}" data-f="pct">${fIDpct(ls.pct)}</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Obligasi: "Stabil · Bulanan" in chart col; yield% p.a. in % Hari Ini col ──
+  if(s.type==='OBL') {
+    return `<div class="${rowCls}" data-id="${s.id}">
+      <div class="wlogo" style="background:${s.color};font-size:8px">${s.id.slice(0,3)}</div>
+      <div class="winfo">
+        <div class="wticker-row"><span class="wticker" style="font-size:12px">${s.id}</span>${typeChip(s.type,s.color)}</div>
+        <div class="wname">${s.name}</div>
+      </div>
+      <div class="wspark obl-text-col" id="sk-${s.id}">
+        <span style="font-size:9px;font-weight:500;color:var(--oblc);white-space:nowrap;padding-left:2px">Stabil · ${s.coupon}</span>
+      </div>
+      <div class="wpa">
+        <div class="wprice" style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;width:70px">
+          <span style="font-size:8px;color:var(--t3)">Face value</span>
+          <span style="font-size:11px;font-weight:500;color:var(--t1)">Rp1.000</span>
+        </div>
+        <div class="wpct" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(77,217,172,.12);color:var(--oblc);gap:0px;min-height:32px">
+          <span style="font-size:12px;font-weight:700;line-height:1.1">${s.yield.toFixed(2).replace('.',',')}%</span>
+          <span style="font-size:8px;opacity:.75;line-height:1.2">p.a.</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  return '';
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER + SORT
+// ═══════════════════════════════════════════════════
+
+function renderRows() {
+  const container = document.getElementById('wl-rows');
+  if (!container) return;
+  let html = '';
+  const sorted = sortedWL();
+  sorted.forEach((s, i) => {
+    html += buildRow(s);
+    if (i < sorted.length - 1) html += '<div class="wrow-sep"></div>';
+  });
+  container.innerHTML = html;
+  // apply chart visibility — use visibility so columns don't shift
+  if (!showCharts) {
+    container.querySelectorAll('.wspark:not(.obl-text-col)').forEach(el => el.style.visibility = 'hidden');
+  }
+  wireFilters();
+}
+
+function wireFilters() {
+  document.querySelectorAll('.af').forEach(el => el.addEventListener('click', function(){
+    document.querySelectorAll('.af').forEach(x => x.classList.remove('act'));
+    this.classList.add('act');
+    const f = this.dataset.f;
+    document.querySelectorAll('.wrow,.wrow-sep').forEach((r, i, all) => {
+      if (r.classList.contains('wrow-sep')) {
+        const prev = all[i-1], next = all[i+1];
+        r.style.display = ((prev&&prev.style.display==='none')||(next&&next.style.display==='none')) ? 'none' : '';
+        return;
+      }
+      if (f === 'all') { r.style.display = ''; return; }
+      const id = r.dataset?.id;
+      if (!id) { r.style.display = 'none'; return; }
+      const s = WL_BASE.find(x => x.id === id);
+      r.style.display = (s && s.type.toLowerCase() === f) ? '' : 'none';
+    });
+    document.querySelectorAll('.wrow-sep').forEach(sep => {
+      const next = sep.nextElementSibling;
+      if (!next || next.style.display === 'none') sep.style.display = 'none';
+    });
+    const addCta = document.getElementById('wl-add-cta');
+    if (addCta) addCta.style.display = f === 'all' ? '' : 'none';
+  }));
+}
+
+// ── Screener: chart toggle + functional sort ──
+function wireScreener() {
+  const chartBtn = document.getElementById('chart-toggle');
+  if (chartBtn) {
+    chartBtn.addEventListener('click', () => {
+      showCharts = !showCharts;
+      chartBtn.classList.toggle('active', showCharts);
+      // visibility:hidden keeps column widths intact; only the SVG disappears
+      document.querySelectorAll('#wl-rows .wspark:not(.obl-text-col)').forEach(el => {
+        el.style.visibility = showCharts ? '' : 'hidden';
+      });
+    });
+    chartBtn.classList.add('active');
+  }
+
+  function doSort(field) {
+    if (sortField === field) {
+      sortDir *= -1;
+    } else {
+      sortField = field;
+      sortDir = -1;
+    }
+    renderRows();
+    updateSortUI();
+  }
+
+  document.getElementById('sort-pct')?.addEventListener('click', () => doSort('pct'));
+  document.getElementById('sort-price')?.addEventListener('click', () => doSort('price'));
+}
+
+function updateSortUI() {
+  document.querySelectorAll('.wls-col').forEach(el => {
+    el.classList.remove('sort-act');
+    const arr = el.querySelector('.sort-arr');
+    if (arr) arr.textContent = '↕';
+  });
+  const activeEl = document.getElementById('sort-' + sortField);
+  if (activeEl) {
+    activeEl.classList.add('sort-act');
+    const arr = activeEl.querySelector('.sort-arr');
+    if (arr) arr.textContent = sortDir < 0 ? '↓' : '↑';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// BP FLIPPING PILL (no RD; Kripto = ₿; full Rp amounts)
+// ═══════════════════════════════════════════════════
+
+const BP_DATA = [
+  { tag:'IDX', tagColor:'#e8334a', val:'Rp32.000.000' },
+  { tag:'US',  tagColor:'#0a84ff', val:'$1.234,56'    },
+  { tag:'₿',   tagColor:'#f7931a', val:'Rp5.000.000'  },
+];
+let bpIdx = 0;
+
+function renderBpPill() {
+  const pill = document.getElementById('bp-pill');
+  if (!pill) return;
+  const d = BP_DATA[bpIdx];
+  pill.innerHTML = `
+    <span class="ap-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>
+    <span style="font-size:10px;color:var(--t2)">BP</span>
+    <span style="font-size:11px;font-weight:600;color:var(--t1)">${d.val}</span>
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" style="margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+  `;
+  updateScrollMini();
+}
+
+function advanceBpPill() {
+  const pill = document.getElementById('bp-pill');
+  if (!pill) return;
+  pill.style.opacity = '0';
+  pill.style.transform = 'translateY(4px)';
+  setTimeout(() => {
+    bpIdx = (bpIdx + 1) % BP_DATA.length;
+    renderBpPill();
+    pill.style.opacity = '1';
+    pill.style.transform = 'translateY(0)';
+  }, 180);
+}
+
+// ═══════════════════════════════════════════════════
+// SCROLL MINI HEADER
+// ═══════════════════════════════════════════════════
+
+function updateScrollMini() {
+  const d = BP_DATA[bpIdx];
+  const miniTag = document.getElementById('mini-bp-tag');
+  const miniVal = document.getElementById('mini-bp-val');
+  if (miniTag) {
+    miniTag.textContent = d.tag;
+    miniTag.style.cssText = `font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40`;
+  }
+  if (miniVal) miniVal.textContent = d.val;
+}
+
+function wireScrollMini() {
+  const sc = document.getElementById('scroll-content');
+  const mini = document.getElementById('scroll-mini');
+  const collapsible = document.getElementById('collapsible-top');
+  if (!sc || !mini || !collapsible) return;
+  sc.addEventListener('scroll', () => {
+    const scrolled = sc.scrollTop > 52;
+    mini.classList.toggle('visible', scrolled);
+    collapsible.classList.toggle('collapsed', scrolled);
+    if (scrolled) updateScrollMini();
+  }, { passive: true });
+}
+
+// ═══════════════════════════════════════════════════
+// SEARCH PLACEHOLDER ANIMATION
+// ═══════════════════════════════════════════════════
+
+const SEARCH_PHS = [
+  `<span class="brand">🪔 ajaib</span>`,
+  `Cari <span style="color:var(--t2)">Saham IDX…</span>`,
+  `Cari <span style="color:var(--t2)">BTC, ETH, kripto…</span>`,
+  `Cari <span style="color:var(--t2)">NVDA, TSLA, US stocks…</span>`,
+  `Cari <span style="color:var(--t2)">Reksa Dana, Obligasi…</span>`,
+];
+let searchPhIdx = 0;
+
+function renderSearchPhs() {
+  const wrap = document.getElementById('search-ph-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = SEARCH_PHS.map((t, i) =>
+    `<div class="search-ph ${i===searchPhIdx?'visible':'hidden'}">${t}</div>`
+  ).join('');
+}
+
+function advanceSearchPh() {
+  const wrap = document.getElementById('search-ph-wrap');
+  if (!wrap) return;
+  const phs = wrap.querySelectorAll('.search-ph');
+  phs[searchPhIdx].classList.remove('visible');
+  phs[searchPhIdx].classList.add('hidden');
+  searchPhIdx = (searchPhIdx + 1) % SEARCH_PHS.length;
+  phs[searchPhIdx].classList.remove('hidden');
+  phs[searchPhIdx].classList.add('visible');
+}
+
+// ═══════════════════════════════════════════════════
+// LIVE SIMULATION — variable-speed, multi-tick, high volatility
+// ═══════════════════════════════════════════════════
+
+function flashEl(el, dir) {
+  el.classList.remove('flash-u', 'flash-d');
+  void el.offsetWidth;
+  el.classList.add(dir > 0 ? 'flash-u' : 'flash-d');
+}
+
+function flashRow(id, dir) {
+  const row = document.querySelector(`[data-id="${id}"]`);
+  if (!row) return;
+  row.classList.remove('flash-row-u', 'flash-row-d');
+  void row.offsetWidth;
+  row.classList.add(dir > 0 ? 'flash-row-u' : 'flash-row-d');
+}
+
+function tickOne() {
+  const liveAssets = WL_BASE.filter(s => s.type==='IDX'||s.type==='CRYPTO'||s.type==='US');
+  const s = liveAssets[Math.floor(Math.random() * liveAssets.length)];
+  const ls = live[s.id]; if (!ls) return;
+
+  if (s.type === 'IDX') {
+    const step = ls.p<200?1:ls.p<500?2:ls.p<2000?5:ls.p<5000?25:50;
+    // burst: 1-4 steps at once for more dramatic moves
+    const burst = Math.floor(Math.random()*4)+1;
+    const move = (Math.random()<0.53?1:-1) * step * burst;
+    ls.p += move; ls.v = ls.p - s.p0;
+    ls.pct = (ls.v/s.p0)*100; ls.dir = ls.pct>=0?1:-1;
+    ls.d = [...ls.d.slice(1), ls.d[ls.d.length-1]+(move/s.p0)*200];
+  } else if (s.type === 'CRYPTO') {
+    const isIDR = s.currency === 'IDR';
+    const base  = isIDR ? 2500000 : 120;
+    const move  = (Math.random()<0.52?1:-1) * (base + Math.random()*base*0.5);
+    ls.p += move; ls.v = ls.p - s.p0;
+    ls.pct = (ls.v/s.p0)*100; ls.dir = ls.pct>=0?1:-1;
+    ls.d = [...ls.d.slice(1), ls.d[ls.d.length-1]+(move/s.p0)*500];
+  } else if (s.type === 'US') {
+    const isExt = usState !== 'open';
+    if (isExt) {
+      const move = (Math.random()<0.52?1:-1)*(Math.random()*0.35+0.05);
+      ls.ep = (ls.ep||ls.p) + move;
+      ls.ev = ls.ep - (ls.close||ls.p);
+      ls.epct = (ls.ev/(ls.close||ls.p))*100;
+      ls.edir = ls.epct>=0?1:-1;
+      ls.ed = [...(ls.ed||[]).slice(1), (ls.ed||[ls.p])[(ls.ed||[]).length-1]+(move*15)];
+    } else {
+      const move = (Math.random()<0.52?1:-1)*(Math.random()*0.45+0.05);
+      ls.p += move; ls.v = ls.p - s.p0;
+      ls.pct = (ls.v/s.p0)*100; ls.dir = ls.pct>=0?1:-1;
+      ls.d = [...ls.d.slice(1), ls.d[ls.d.length-1]+(move*20)];
+    }
+  }
+
+  // Update DOM
+  const row = document.querySelector(`[data-id="${s.id}"]`);
+  if (!row) return;
+  const isUSExt = s.type==='US' && usState!=='open';
+
+  if (s.type==='IDX') {
+    const pEl=row.querySelector('[data-f="price"]'), pctEl=row.querySelector('[data-f="pct"]');
+    if(pEl){pEl.textContent=fIDp(ls.p);flashEl(pEl,ls.dir);}
+    if(pctEl){pctEl.textContent=fIDpct(ls.pct);pctEl.style.color=ls.dir>0?'var(--green)':'var(--red)';pctEl.style.background=ls.dir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';}
+    if(Math.random()<0.35) flashRow(s.id, ls.dir);
+  } else if (s.type==='CRYPTO') {
+    const isIDR=s.currency==='IDR';
+    const pEl=row.querySelector('[data-f="price"]'), pctEl=row.querySelector('[data-f="pct"]');
+    if(pEl){pEl.textContent=isIDR?fCrypIDR(ls.p):fCrypUSDT(ls.p);flashEl(pEl,ls.dir);}
+    if(pctEl){pctEl.textContent=fUSDpct(ls.pct);pctEl.style.color=ls.dir>0?'var(--green)':'var(--red)';pctEl.style.background=ls.dir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';}
+    if(Math.random()<0.3) flashRow(s.id, ls.dir);
+  } else if (isUSExt) {
+    const epEl=row.querySelector('[data-f="ext-p"]'), epctEl=row.querySelector('[data-f="ext-pct"]');
+    if(epEl){epEl.textContent=fUSDp(ls.ep);flashEl(epEl,ls.edir);}
+    if(epctEl){epctEl.textContent=fUSDpct(ls.epct);epctEl.style.color=ls.edir>0?'var(--green)':'var(--red)';}
+    if(Math.random()<0.25) flashRow(s.id, ls.edir);
+  } else {
+    const pEl=row.querySelector('[data-f="price"]'), pctEl=row.querySelector('[data-f="pct"]');
+    if(pEl){pEl.textContent=fUSDp(ls.p);flashEl(pEl,ls.dir);}
+    if(pctEl){pctEl.textContent=fUSDpct(ls.pct);pctEl.style.color=ls.dir>0?'var(--green)':'var(--red)';}
+    if(Math.random()<0.25) flashRow(s.id, ls.dir);
+  }
+
+  // Refresh sparkline occasionally
+  if (showCharts && Math.random() < 0.22) {
+    const sk = document.getElementById('sk-'+s.id);
+    if (sk) sk.innerHTML = spark(s.id, true);
+  }
+}
+
+function startSim() {
+  function tick() {
+    tickOne();
+    // 35% chance: fire a second tick for burst activity
+    if (Math.random() < 0.35) tickOne();
+    // variable delay: 300–950ms for natural feel
+    const delay = 300 + Math.random() * 650;
+    setTimeout(tick, delay);
+  }
+  setTimeout(tick, 500);
+}
+
+// ═══════════════════════════════════════════════════
+// STATE BUTTONS
+// ═══════════════════════════════════════════════════
+
+function renderStateBtns() {
+  const c = document.getElementById('state-btns');
+  c.innerHTML = US_STATES.map(s =>
+    `<button class="btn ${s.cls}${s.id===usState?' act':''}" data-st="${s.id}">${s.short}</button>`
+  ).join('');
+  c.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', function(){
+    usState = this.dataset.st;
+    renderStateBtns(); initLive(); renderRows(); updateClock();
+  }));
+}
+
+// ═══════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════
+
+function updateClock() {
+  const us = usInfo();
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  document.getElementById('clk-t').textContent = t+' ET';
+  const b = document.getElementById('clk-b');
+  b.textContent = us.short;
+  b.style.cssText = `background:${us.color}20;color:${us.color};border:1px solid ${us.color}40`;
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+
+renderStateBtns();
+initLive();
+renderRows();
+updateSortUI();
+wireScreener();
+renderBpPill();
+renderSearchPhs();
+wireScrollMini();
+updateClock();
+startSim();
+
+setInterval(updateClock, 1000);
+setInterval(advanceBpPill, 2800);
+setInterval(advanceSearchPh, 2500);
+</script>
+</body>
+</html>
