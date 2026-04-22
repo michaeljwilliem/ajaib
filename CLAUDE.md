@@ -76,9 +76,21 @@ Redesigned mobile home screen — optimized for watchlist density on first fold.
 
 **Watchlist column layout:** Aset | Grafik | Harga | Pergerakan
 
+**Watchlist row flex layout:**
+- `winfo` is `flex:1` — the grower; expands to fill all available space so ticker + chips never wrap
+- Sparkline is fixed `flex:0 1 44px` — compact visual, not dominant; collapses toward 0 on very narrow screens
+- OBL text column (`wspark.obl-text-col`) stays `flex:1` — text truncates with ellipsis
+- `wpa` / `us-pa` (price + % area) is `flex-shrink:0` — always protected
+
+**Narrow screen breakpoints:**
+- ≤375px (iPhone mini): right-column widths tighten slightly
+- ≤340px (Fold outer): further compression, row gap reduces to 6px
+- ≤295px (Fold inner): sparkline hidden entirely, logo shrinks to 28px
+
 **Asset type chips + badges:**
-- IDX: red chip + ⚡`Nx` thunder badge for leveraged stocks (amber)
-- US: blue chip + `24H` badge (reminds users US trades 24/5)
+- IDX: red chip + ⚡`Nx` thunder badge for leveraged stocks (amber) — both on line 1 of ticker row; `flex-wrap:nowrap` prevents wrapping
+- US regular hours: blue chip + `24H` badge on ticker row (reminds users US trades 24/5)
+- US extended hours: no badge on ticker row — `24h` chip appears in the price area instead (see below)
 - CRYPTO: orange chip
 - RD: purple chip
 - OBL: teal chip
@@ -91,7 +103,9 @@ Redesigned mobile home screen — optimized for watchlist density on first fold.
 - RD: NAV `X.XXX /unit`
 - OBL: coupon `X,XX% p.a.` + "Stabil · Bulanan"
 
-**US extended hours:** two-line row (60px) — session price on top + Reg. Close dimmed below. Full-word labels: "After Market", "Pre-Market", "Overnight" (never abbreviations).
+**US extended hours:** two-line row (62px tall class) — unified `24h` chip label on top line (not per-session "After Market"/"Pre-Market"/"Overnight") + `last close` dimmed below. Top line shows extended session price + `epct`; bottom line shows regular close price + `pct` (that day's regular session change).
+
+**US regular hours:** single-line row (48px) — price + day % only. No two-line layout.
 
 **Live simulation:** IDX, Crypto, US all tick every 1500ms with flash animations. US state switchable via controls outside phone frame.
 

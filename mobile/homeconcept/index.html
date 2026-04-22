@@ -186,28 +186,52 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .wlogo{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;position:relative}
 .wlogo-live{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--s0)}
 
-.winfo{flex:0 0 auto;width:100px;min-width:0}
-.wticker-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px}
+.winfo{flex:1;min-width:0}
+.wticker-row{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;margin-bottom:2px}
 .wticker{font-size:13px;font-weight:600;color:var(--t1);line-height:1;white-space:nowrap}
 .wtype{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.04em;flex-shrink:0}
 .wbadge{font-size:7px;font-weight:700;padding:1px 3px;border-radius:3px;flex-shrink:0;letter-spacing:.02em}
-.wname{font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
+.wname{font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.wspark{flex:1;min-width:28px;height:28px;overflow:visible}
+.wspark:not(.obl-text-col){flex:0 1 44px;min-width:0;height:28px;overflow:visible}
 .wspark svg{width:100%;height:28px;display:block;overflow:visible}
 /* OBL text "column" uses wspark layout but shows text, not a chart */
-.wspark.obl-text-col{display:flex;align-items:center}
+.wspark.obl-text-col{flex:1;min-width:0;display:flex;align-items:center;overflow:hidden}
 
 .wpa{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.wprice{font-size:12px;font-weight:500;color:var(--t1);width:70px;text-align:right;white-space:nowrap;flex-shrink:0}
-.wpct{display:flex;align-items:center;justify-content:center;padding:3px 5px;border-radius:6px;font-size:10px;font-weight:600;width:56px;flex-shrink:0;white-space:nowrap;min-height:22px}
+.wprice{font-size:12px;font-weight:500;color:var(--t1);width:68px;text-align:right;white-space:nowrap;flex-shrink:0}
+.wpct{display:flex;align-items:center;justify-content:center;padding:3px 5px;border-radius:6px;font-size:10px;font-weight:600;width:54px;flex-shrink:0;white-space:nowrap;min-height:22px}
 
 .us-pa{display:flex;flex-direction:column;gap:3px;flex-shrink:0;align-items:flex-end}
 .us-line{display:flex;align-items:center;gap:4px}
-.us-sess{font-size:8px;font-weight:600;width:52px;text-align:right;white-space:nowrap;flex-shrink:0}
-.us-p{font-size:11px;font-weight:500;width:58px;text-align:right;white-space:nowrap;flex-shrink:0}
-.us-pct{display:flex;align-items:center;justify-content:center;padding:2px 4px;border-radius:5px;font-size:9px;font-weight:600;width:50px;flex-shrink:0;white-space:nowrap}
+.us-chip{display:inline-flex;align-items:center;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);font-size:8px;font-weight:700;color:var(--t2);white-space:nowrap;flex-shrink:0;letter-spacing:.02em}
+.us-sess{font-size:8px;font-weight:500;text-align:right;white-space:nowrap;flex-shrink:0;color:var(--t3)}
+.us-p{font-size:11px;font-weight:500;width:54px;text-align:right;white-space:nowrap;flex-shrink:0}
+.us-pct{display:flex;align-items:center;justify-content:center;padding:2px 4px;border-radius:5px;font-size:9px;font-weight:600;width:46px;flex-shrink:0;white-space:nowrap}
 .live-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* Narrow screen progressive compression */
+@media(max-width:375px){
+  .wprice{width:62px}
+  .wpct{width:50px}
+  .us-p{width:50px;font-size:10px}
+  .us-pct{width:42px}
+}
+@media(max-width:340px){
+  .wprice{width:56px;font-size:10px}
+  .wpct{width:46px;font-size:9px}
+  .us-p{width:46px}
+  .us-pct{width:38px;padding:2px 2px}
+  .wrow,.wrow.tall{gap:6px}
+}
+@media(max-width:295px){
+  .wspark:not(.obl-text-col){display:none!important}
+  .wlogo{width:28px;height:28px;font-size:9px}
+  .wprice{width:50px;font-size:10px}
+  .us-p{width:42px;font-size:9px}
+  .us-pct{width:34px}
+  .wrow,.wrow.tall{gap:5px}
+}
 
 /* Add to watchlist CTA */
 .wl-add-cta{display:flex;align-items:center;gap:8px;padding:12px 16px;cursor:pointer;margin:4px 12px;border-radius:10px;border:1px dashed var(--b2);transition:background .1s}
@@ -1078,23 +1102,22 @@ function buildRow(s) {
     const extBg=extDir>0?'rgba(48,209,88,.15)':'rgba(255,67,58,.15)';
     const regClr=ls.dir>0?'var(--green)':'var(--red)';
     const regBg=ls.dir>0?'rgba(48,209,88,.1)':'rgba(255,67,58,.1)';
-    const sessLbl={pre:'Pre-Market',ah:'After Market',on:'Overnight'}[usState]||usState;
     return `<div class="${rowCls}" data-id="${s.id}">
       <div class="wlogo" style="background:${s.color}">${s.id.slice(0,2)}${liveDotOnLogo}</div>
       <div class="winfo">
-        <div class="wticker-row"><span class="wticker">${s.id}</span>${typeChip(s.type,'#0a84ff',badge24h)}</div>
+        <div class="wticker-row"><span class="wticker">${s.id}</span>${typeChip(s.type,'#0a84ff')}</div>
         <div class="wname">${s.name}</div>
       </div>
       <div class="wspark" id="sk-${s.id}">${spark(s.id)}</div>
       <div class="us-pa">
         <div class="us-line">
-          <span class="us-sess" style="color:${us.color}">${sessLbl}</span>
+          <span class="us-chip">24h</span>
           <span class="us-p" data-f="ext-p">${fUSDp(ls.ep||ls.p)}</span>
           <span class="us-pct" style="background:${extBg};color:${extClr}" data-f="ext-pct">${fUSDpct(ls.epct)}</span>
           ${liveDotHtml(us.color)}
         </div>
         <div class="us-line" style="opacity:.5">
-          <span class="us-sess" style="color:var(--t2)">Reg. Close</span>
+          <span class="us-sess">last close</span>
           <span class="us-p" style="color:var(--t2)">${fUSDp(ls.close||ls.p)}</span>
           <span class="us-pct" style="background:${regBg};color:${regClr}">${fUSDpct(ls.pct)}</span>
           <div style="width:5px;flex-shrink:0"></div>
@@ -1133,7 +1156,7 @@ function buildRow(s) {
         <div class="wname">${s.name}</div>
       </div>
       <div class="wspark obl-text-col" id="sk-${s.id}">
-        <span style="font-size:9px;font-weight:500;color:var(--oblc);white-space:nowrap;padding-left:2px">Stabil · ${s.coupon}</span>
+        <span style="font-size:9px;font-weight:500;color:var(--oblc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding-left:2px">Stabil · ${s.coupon}</span>
       </div>
       <div class="wpa">
         <div class="wprice" style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;width:70px">
