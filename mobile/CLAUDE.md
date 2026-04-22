@@ -13,8 +13,8 @@ ajaib/
 │   └── topmovers/
 │       └── index.html   # Desktop stock list redesign
 └── mobile/
-    └── home/
-        └── index.html   # Mobile home screen redesign
+    └── homeconcept/
+        └── index.html   # Mobile home screen — canonical edit target + GitHub Pages
 ```
 
 ## Local dev server
@@ -25,7 +25,7 @@ python3 -m http.server 4444
 ```
 
 - Desktop prototype: http://localhost:4444/desktop/topmovers/
-- Mobile prototype:  http://localhost:4444/mobile/home/
+- Mobile prototype:  http://localhost:4444/mobile/homeconcept/
 
 ## Desktop Prototype (`desktop/topmovers/`)
 
@@ -48,7 +48,7 @@ Redesigned stock list for the Ajaib desktop app (column 3, top section).
 - Market closed: still show day's % and value change (traders analyze post-market)
 - Pre-opening: no auction; show portfolio/order position indicators
 
-## Mobile Prototype (`mobile/home/`)
+## Mobile Prototype (`mobile/homeconcept/`)
 
 Redesigned mobile home screen — optimized for watchlist density on first fold.
 
@@ -60,13 +60,19 @@ Redesigned mobile home screen — optimized for watchlist density on first fold.
 
 **Layout (top → bottom):**
 1. Status bar (iOS, 9:41)
-2. App bar: Ajaib lamp logo + "ajaib" wordmark | bell + avatar
-3. Total Aset: full `Rp X.XXX.XXX` (never abbreviated)
-4. Info carousel (auto-rotates 3s): Buying Power IDX / US / Kripto / Posisi Terbuka + Deposit CTA + shortcut icons
-5. Search bar: animated placeholder cycling `🪔 ajaib` → `Cari Saham IDX…` → `Cari BTC…` → etc.
+2. App bar: search bar (animated placeholder) + bell + avatar
+3. Total Aset: full `Rp X.XXX.XXX` (never abbreviated) + Deposit CTA
+4. Row 1 — contextual pills (scrollable): Buying Power (flips IDX/US/Kripto) | Posisi Terbuka | Order Terbuka | E-IPO
+5. Row 2 — product shortcuts (scrollable, icon + label): Saham IDX | Kripto | Saham AS | Reksa Dana | Obligasi | Day Trading | Futures | Gold ETF | Lainnya
 6. Watchlist (column headers + filter pills + rows)
 7. Recommendations (below fold, accessible via scroll)
 8. Bottom tab bar (sticky)
+
+**Shortcut row design:**
+- Row 1 = "what's happening" — reactive, portfolio-state items; pill format with contextual color (green/amber/blue)
+- Row 2 = "where to go" — product discovery; 40px tinted circle icon + 10px label, each asset uses its color token
+- Both rows collapse when user scrolls down to watchlist; neither appears in the scroll-mini sticky bar
+- Row 2 ordering: most accessible → most specialized (IDX → Kripto → US → RD → OBL → Day Trading → Futures → Gold ETF → Lainnya)
 
 **Watchlist column layout:** Aset | Grafik | Harga | Pergerakan
 
