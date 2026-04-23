@@ -304,6 +304,52 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .flash-u{animation:fu .55s ease-out forwards}
 .flash-d{animation:fd .55s ease-out forwards}
 ::-webkit-scrollbar{display:none}
+
+/* ── Market indices strip ── */
+.mkt-strip{height:32px;flex-shrink:0;overflow:hidden;position:relative;border-top:1px solid var(--b1);background:var(--s1);transition:background .5s}
+.mkt-strip-inner{height:100%;overflow:hidden;position:relative}
+.mkt-track{display:flex;align-items:center;height:100%;width:max-content;will-change:transform}
+.mkt-track.running{animation:mktScroll 36s linear infinite}
+.mkt-track.paused{animation-play-state:paused}
+@keyframes mktScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mkt-item{display:flex;align-items:center;gap:5px;padding:0 12px;height:100%;flex-shrink:0;user-select:none;border-right:1px solid var(--b1);cursor:pointer}
+.mkt-name{font-size:11px;font-weight:600;color:var(--t2);white-space:nowrap}
+.mkt-price{font-size:11px;color:var(--t1);white-space:nowrap}
+.mkt-arr{font-size:9px;flex-shrink:0;line-height:1}
+.mkt-pct{font-size:11px;font-weight:600;white-space:nowrap}
+.mkt-chev{font-size:11px;color:var(--t3);flex-shrink:0;opacity:.5;margin-left:1px;line-height:1}
+.mkt-strip::before,.mkt-strip::after{content:'';position:absolute;top:0;bottom:0;width:16px;z-index:2;pointer-events:none}
+.mkt-strip::before{left:0;background:linear-gradient(to right,#0d0d10,transparent)}
+.mkt-strip::after{right:0;background:linear-gradient(to left,#0d0d10,transparent)}
+
+/* ── Index detail bottom sheet ── */
+.idx-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.idx-overlay.open{opacity:1;pointer-events:auto}
+.idx-sheet{position:absolute;bottom:0;left:0;right:0;background:var(--s2);border-radius:20px 20px 0 0;border:1px solid var(--b2);border-bottom:none;z-index:50;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.idx-sheet.open{transform:translateY(0)}
+.idx-handle{width:36px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:10px auto 0}
+.idx-sh-head{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 20px 6px}
+.idx-sh-name{font-size:22px;font-weight:700;color:var(--t1);line-height:1}
+.idx-sh-sub{font-size:11px;color:var(--t3);margin-top:4px}
+.idx-sh-pricecol{text-align:right}
+.idx-sh-bigprice{font-size:22px;font-weight:700;color:var(--t1);line-height:1}
+.idx-sh-pct{font-size:13px;font-weight:600;margin-top:4px}
+.idx-sh-chart{height:96px;padding:4px 20px 0;overflow:hidden}
+.idx-tabs{display:flex;gap:4px;padding:8px 20px 0}
+.idx-tab{padding:4px 12px;border-radius:7px;border:1px solid var(--b2);background:transparent;color:var(--t3);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}
+.idx-tab.act{background:var(--s3);border-color:rgba(255,255,255,.2);color:var(--t1)}
+.idx-sh-stats{display:flex;padding:12px 16px 24px}
+.idx-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:1px solid var(--b1)}
+.idx-stat:last-child{border-right:none}
+.idx-stat-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
+.idx-stat-v{font-size:13px;font-weight:600;color:var(--t1)}
+/* ── Sheet carousel ── */
+.idx-carousel{display:flex;overflow-x:scroll;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.idx-carousel::-webkit-scrollbar{display:none}
+.idx-slide{flex:0 0 100%;scroll-snap-align:start;min-width:0}
+.idx-dots{display:flex;justify-content:center;gap:5px;padding:2px 0 10px}
+.idx-dot{width:5px;height:5px;border-radius:50%;background:var(--b2);transition:background .2s,width .2s}
+.idx-dot.act{background:var(--t2);width:14px;border-radius:3px}
 </style>
 </head>
 <body>
@@ -799,6 +845,13 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
         </div><!-- /below-fold -->
       </div><!-- /scroll-content -->
 
+      <!-- Market indices strip -->
+      <div class="mkt-strip" id="mkt-strip">
+        <div class="mkt-strip-inner">
+          <div class="mkt-track" id="mkt-track"></div>
+        </div>
+      </div>
+
       <!-- Bottom tabs — 6 tabs -->
       <div class="bottom-tabs">
         <div class="tabs-row">
@@ -828,6 +881,14 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
           </div>
         </div>
         <div class="home-ind"><div class="home-bar"></div></div>
+      </div>
+
+      <!-- Index detail bottom sheet (overlays tab bar when open) -->
+      <div class="idx-overlay" id="idx-overlay"></div>
+      <div class="idx-sheet" id="idx-sheet">
+        <div class="idx-handle"></div>
+        <div class="idx-carousel" id="idx-carousel"></div>
+        <div class="idx-dots" id="idx-dots"></div>
       </div>
 
     </div><!-- /screen -->
@@ -1454,9 +1515,9 @@ function tickOne() {
 function startSim() {
   function tick() {
     tickOne();
-    // 35% chance: fire a second tick for burst activity
     if (Math.random() < 0.35) tickOne();
-    // variable delay: 300–950ms for natural feel
+    tickIdxOnce();
+    if (Math.random() < 0.3) tickIdxOnce();
     const delay = 300 + Math.random() * 650;
     setTimeout(tick, delay);
   }
@@ -1493,17 +1554,265 @@ function updateClock() {
 }
 
 // ═══════════════════════════════════════════════════
+// MARKET INDICES STRIP
+// ═══════════════════════════════════════════════════
+
+const INDICES = [
+  {id:'IHSG',  label:'IHSG',    fmt:'id0',  p:6784,    pct:-1.21, dir:-1, open:6870, high:6883, low:6751,
+   d1:[6870,6865,6858,6862,6851,6844,6838,6845,6833,6825,6818,6810,6800,6784]},
+  {id:'SP500', label:'S&P 500', fmt:'us0',  p:5248,    pct:-0.82, dir:-1, open:5292, high:5298, low:5240,
+   d1:[5292,5285,5278,5281,5271,5265,5258,5262,5252,5248,5250,5248]},
+  {id:'NDX',   label:'NASDAQ',  fmt:'us0',  p:16344,   pct:-1.15, dir:-1, open:16535, high:16555, low:16320,
+   d1:[16535,16510,16490,16500,16470,16450,16430,16440,16410,16390,16370,16344]},
+  {id:'BTC',   label:'BTC',     fmt:'us0',  p:67832,   pct:0.54,  dir:1,  open:67468, high:68100, low:67320,
+   d1:[67468,67520,67490,67580,67620,67700,67680,67750,67800,67780,67820,67832]},
+  {id:'GOLD',  label:'Gold',    fmt:'us1',  p:2342.5,  pct:0.89,  dir:1,  open:2322, high:2348, low:2318,
+   d1:[2322,2326,2324,2330,2335,2332,2338,2342,2340,2344,2343,2342]},
+  {id:'SILVER',label:'Silver',  fmt:'us2',  p:27.84,   pct:-0.38, dir:-1, open:27.95, high:28.10, low:27.72,
+   d1:[27.95,27.98,27.90,27.85,27.88,27.80,27.82,27.78,27.75,27.80,27.84]},
+];
+
+const liveIdx = {};
+
+function initLiveIdx() {
+  INDICES.forEach(idx => {
+    liveIdx[idx.id] = {
+      p:   idx.p,
+      p0:  idx.p / (1 + idx.pct / 100),
+      pct: idx.pct,
+      dir: idx.dir,
+      d1:  [...idx.d1]
+    };
+  });
+}
+
+function fIdxFmt(idx, p) {
+  if (idx.fmt==='id0') return Math.round(p).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  if (idx.fmt==='us0') return '$'+Math.round(p).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  if (idx.fmt==='us1') return '$'+p.toFixed(1);
+  if (idx.fmt==='us2') return '$'+p.toFixed(2);
+  return ''+p;
+}
+function fIdxPct(pct) {
+  return (pct>=0?'+':'−')+Math.abs(pct).toFixed(2).replace('.',',')+' %';
+}
+function fIdxStat(idx, n) {
+  if (idx.fmt==='id0') return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return '$'+n.toLocaleString('en',{minimumFractionDigits:idx.fmt==='us2'?2:idx.fmt==='us1'?1:0,maximumFractionDigits:idx.fmt==='us2'?2:idx.fmt==='us1'?1:0});
+}
+
+function tickIdxOnce() {
+  const pool = INDICES.filter(idx => {
+    if ((idx.id==='SP500'||idx.id==='NDX') && usState==='on') return Math.random()<0.12;
+    return true;
+  });
+  if (!pool.length) return;
+  const idx = pool[Math.floor(Math.random()*pool.length)];
+  const li  = liveIdx[idx.id];
+  if (!li) return;
+
+  const volMap = {IHSG:4, SP500:1.5, NDX:6, BTC:90, GOLD:0.6, SILVER:0.04};
+  let vol = volMap[idx.id] || 1;
+  if ((idx.id==='SP500'||idx.id==='NDX') && usState!=='open') vol *= 0.45;
+
+  const burst = Math.floor(Math.random()*3)+1;
+  const move  = (Math.random()<0.52?1:-1) * vol * burst;
+  li.p   += move;
+  li.pct  = (li.p - li.p0) / li.p0 * 100;
+  li.dir  = li.pct >= 0 ? 1 : -1;
+  li.d1   = [...li.d1.slice(1), li.d1[li.d1.length-1] + move * 0.4];
+
+  updateIdxStrip(idx.id);
+  updateIdxSheetSlide(idx.id);
+}
+
+function updateIdxStrip(id) {
+  const idx = INDICES.find(x=>x.id===id);
+  const li  = liveIdx[id];
+  if (!idx || !li) return;
+  const clr = li.dir>0?'var(--green)':'var(--red)';
+  document.querySelectorAll(`[data-mkt-id="${id}"]`).forEach(item => {
+    const priceEl = item.querySelector('.mkt-price');
+    const pctEl   = item.querySelector('.mkt-pct');
+    const arrEl   = item.querySelector('.mkt-arr');
+    if (priceEl) priceEl.textContent = fIdxFmt(idx, li.p);
+    if (pctEl)   { pctEl.textContent = fIdxPct(li.pct); pctEl.style.color = clr; }
+    if (arrEl)   { arrEl.textContent = li.dir>0?'▲':'▼'; arrEl.style.color = clr; }
+  });
+}
+
+function updateIdxSheetSlide(id) {
+  const sheet = document.getElementById('idx-sheet');
+  if (!sheet?.classList.contains('open')) return;
+  const carousel = document.getElementById('idx-carousel');
+  if (!carousel) return;
+  const w = carousel.clientWidth;
+  if (!w) return;
+  if (INDICES[Math.round(carousel.scrollLeft/w)]?.id !== id) return;
+  const idx  = INDICES.find(x=>x.id===id);
+  const li   = liveIdx[id];
+  if (!idx || !li) return;
+  const slide = carousel.querySelector(`[data-slide="${id}"]`);
+  if (!slide) return;
+  const clr = li.dir>0?'var(--green)':'var(--red)';
+  const priceEl = slide.querySelector('.sh-price');
+  const pctEl   = slide.querySelector('.sh-pct');
+  if (priceEl) priceEl.textContent = fIdxFmt(idx, li.p);
+  if (pctEl)   { pctEl.textContent = (li.dir>0?'▲':'▼')+' '+fIdxPct(li.pct); pctEl.style.color = clr; }
+}
+
+const IDX_SUB = {IHSG:'IDX · Terbuka',SP500:'US Market',NDX:'US Market',BTC:'Kripto · Live',GOLD:'Komoditas',SILVER:'Komoditas'};
+
+function idxSlideChart(idx) {
+  const li  = liveIdx[idx.id] || idx;
+  const W=320, H=80, uid='shc'+idx.id;
+  const ps  = normPts(li.d1, W, H);
+  const lp  = curve(ps);
+  const fp  = lp+` L${ps[ps.length-1][0].toFixed(1)},${H} L${ps[0][0].toFixed(1)},${H} Z`;
+  const clr = li.dir>0?'#30d158':'#ff453a';
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+    <defs><linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${clr}" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="${clr}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${fp}" fill="url(#${uid})"/>
+    <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.8"/>
+  </svg>`;
+}
+
+function buildSheetCarousel() {
+  const carousel = document.getElementById('idx-carousel');
+  const dotsEl   = document.getElementById('idx-dots');
+  if (!carousel || !dotsEl) return;
+
+  carousel.innerHTML = INDICES.map(idx => {
+    const li  = liveIdx[idx.id] || idx;
+    const clr = li.dir>0?'var(--green)':'var(--red)';
+    const arr = li.dir>0?'▲':'▼';
+    return `<div class="idx-slide" data-slide="${idx.id}">
+      <div class="idx-sh-head">
+        <div>
+          <div class="idx-sh-name">${idx.label}</div>
+          <div class="idx-sh-sub">${IDX_SUB[idx.id]||''}</div>
+        </div>
+        <div class="idx-sh-pricecol">
+          <div class="idx-sh-bigprice sh-price">${fIdxFmt(idx,li.p)}</div>
+          <div class="idx-sh-pct sh-pct" style="color:${clr}">${arr} ${fIdxPct(li.pct)}</div>
+        </div>
+      </div>
+      <div class="idx-sh-chart">${idxSlideChart(idx)}</div>
+      <div class="idx-tabs">
+        <button class="idx-tab" data-t="1H">1H</button>
+        <button class="idx-tab act" data-t="1D">1D</button>
+        <button class="idx-tab" data-t="1W">1W</button>
+        <button class="idx-tab" data-t="1M">1M</button>
+      </div>
+      <div class="idx-sh-stats">
+        <div class="idx-stat"><div class="idx-stat-l">Open</div><div class="idx-stat-v">${fIdxStat(idx,idx.open)}</div></div>
+        <div class="idx-stat"><div class="idx-stat-l">Tertinggi</div><div class="idx-stat-v" style="color:var(--green)">${fIdxStat(idx,idx.high)}</div></div>
+        <div class="idx-stat"><div class="idx-stat-l">Terendah</div><div class="idx-stat-v" style="color:var(--red)">${fIdxStat(idx,idx.low)}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  dotsEl.innerHTML = INDICES.map((_,i) =>
+    `<div class="idx-dot${i===0?' act':''}" data-dot="${i}"></div>`
+  ).join('');
+
+  carousel.addEventListener('click', e => {
+    const tab = e.target.closest('.idx-tab');
+    if (!tab) return;
+    tab.closest('.idx-slide')?.querySelectorAll('.idx-tab').forEach(t=>t.classList.remove('act'));
+    tab.classList.add('act');
+  });
+
+  carousel.addEventListener('scroll', () => {
+    const i = Math.round(carousel.scrollLeft / (carousel.clientWidth||1));
+    dotsEl.querySelectorAll('.idx-dot').forEach((d,j)=>d.classList.toggle('act',j===i));
+  }, {passive:true});
+}
+
+function buildMktStrip() {
+  const track = document.getElementById('mkt-track');
+  const strip = document.getElementById('mkt-strip');
+  if (!track || !strip) return;
+
+  function itemHtml(idx, ghost) {
+    const li  = liveIdx[idx.id] || idx;
+    const clr = li.dir>0?'var(--green)':'var(--red)';
+    const arr = li.dir>0?'▲':'▼';
+    const attr = ghost ? '' : `data-mkt-id="${idx.id}"`;
+    return `<div class="mkt-item" ${attr}>`+
+      `<span class="mkt-name">${idx.label}</span>`+
+      `<span class="mkt-price">${fIdxFmt(idx,li.p)}</span>`+
+      `<span class="mkt-arr" style="color:${clr}">${arr}</span>`+
+      `<span class="mkt-pct" style="color:${clr}">${fIdxPct(li.pct)}</span>`+
+      `<span class="mkt-chev">›</span>`+
+      `</div>`;
+  }
+
+  track.innerHTML = INDICES.map(i=>itemHtml(i,false)).join('') +
+                    INDICES.map(i=>itemHtml(i,true)).join('');
+
+  const reds = INDICES.filter(x=>(liveIdx[x.id]?.dir??x.dir)<0).length;
+  strip.style.background = reds>=4?'#17100e':reds<=2?'#0b1510':'#0d0d10';
+
+  setTimeout(()=>track.classList.add('running'), 80);
+
+  let px=0, pt=0;
+  track.addEventListener('pointerdown', e=>{ px=e.clientX; pt=Date.now(); track.classList.add('paused'); });
+  track.addEventListener('pointerup', e=>{
+    if (Math.abs(e.clientX-px)<6 && Date.now()-pt<280) {
+      const item = e.target.closest('[data-mkt-id]');
+      if (item) openIdxSheet(item.dataset.mktId);
+    }
+    track.classList.remove('paused');
+  });
+  track.addEventListener('pointercancel', ()=>track.classList.remove('paused'));
+}
+
+function openIdxSheet(id) {
+  const i = INDICES.findIndex(x=>x.id===id);
+  if (i < 0) return;
+  buildSheetCarousel();
+  document.getElementById('idx-sheet').classList.add('open');
+  document.getElementById('idx-overlay').classList.add('open');
+  setTimeout(() => {
+    const carousel = document.getElementById('idx-carousel');
+    if (carousel && i > 0) carousel.scrollLeft = i * carousel.clientWidth;
+    const dotsEl = document.getElementById('idx-dots');
+    dotsEl?.querySelectorAll('.idx-dot').forEach((d,j)=>d.classList.toggle('act',j===i));
+  }, 0);
+}
+
+function closeIdxSheet() {
+  document.getElementById('idx-sheet').classList.remove('open');
+  document.getElementById('idx-overlay').classList.remove('open');
+}
+
+function wireIdxSheet() {
+  document.getElementById('idx-overlay')?.addEventListener('click', closeIdxSheet);
+  const sheet = document.getElementById('idx-sheet');
+  let sy=0;
+  sheet?.addEventListener('pointerdown', e=>{ sy=e.clientY; });
+  sheet?.addEventListener('pointerup',   e=>{ if(e.clientY-sy>60) closeIdxSheet(); });
+}
+
+// ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
 
 renderStateBtns();
 initLive();
+initLiveIdx();
 renderRows();
 updateSortUI();
 wireScreener();
 renderBpPill();
 renderSearchPhs();
 wireScrollMini();
+buildMktStrip();
+wireIdxSheet();
 updateClock();
 startSim();
 

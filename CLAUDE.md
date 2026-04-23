@@ -15,13 +15,14 @@ When the user says **"update .md"** or **"update CLAUDE.md"**:
 
 ## Current state
 
-**Last worked on:** 2026-04-22  
+**Last worked on:** 2026-04-23  
 **Active file:** `concepts/mobile/home/index.html`  
-**What's done:** Watchlist line items — responsive layout for narrow screens (Fold outer/inner, iPhone mini). Sparkline hides at ≤295px. Price + % column is flex-shrink:0 protected.  
+**What's done:** Market indices strip (IHSG, S&P 500, NASDAQ, BTC, Gold, Silver) — sticky 32px bar above bottom nav. Slow auto-scroll (36s loop) with sentiment tint, chevron tap hint, live price simulation tied to US state controller. Tap any index → bottom sheet carousel with per-slide chart, 1H/1D/1W/1M tabs, Open/High/Low stats. Swipe horizontally to browse all indices; drag down or tap overlay to dismiss.  
 **Known issues / open work:**
 - [ ] Watchlist filter pills not yet built
 - [ ] Recommendations section below fold is placeholder only
 - [ ] Desktop topmovers: US overnight state needs review
+- [ ] Sheet chart does not yet update live as prices tick (price/% update, chart line is static per open)
 
 **How to resume:** Read this file, then open `concepts/mobile/home/index.html`. No need to re-share Figma links — they're above.
 
