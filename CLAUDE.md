@@ -2,6 +2,29 @@
 
 This repo contains clickable HTML prototypes for the Ajaib investment app, used for internal design exploration and team reference.
 
+## Figma sources
+
+- Desktop stock list: https://www.figma.com/design/qBOOXR9BcEQRIyH1xB8QY7/-Desktop-App--ID-Stocks-Phase-1?node-id=11358-409390
+- Mobile home screen: https://www.figma.com/design/FqZ8Rnk2nhYOLRFZ2z5IWP/Homepage-
+
+## Handoff ritual
+
+When the user says **"update .md"** or **"update CLAUDE.md"**:
+1. Update the "Current state" block below — set today's date, write 1–2 sentences on what was just finished, update the known issues / open work checklist
+2. Commit everything (all edited files + this CLAUDE.md) with a descriptive message summarising the session's work
+
+## Current state
+
+**Last worked on:** 2026-04-22  
+**Active file:** `concepts/mobile/home/index.html`  
+**What's done:** Watchlist line items — responsive layout for narrow screens (Fold outer/inner, iPhone mini). Sparkline hides at ≤295px. Price + % column is flex-shrink:0 protected.  
+**Known issues / open work:**
+- [ ] Watchlist filter pills not yet built
+- [ ] Recommendations section below fold is placeholder only
+- [ ] Desktop topmovers: US overnight state needs review
+
+**How to resume:** Read this file, then open `concepts/mobile/home/index.html`. No need to re-share Figma links — they're above.
+
 ## Live URL
 GitHub Pages: https://michaeljwilliem.github.io/ajaib/
 
@@ -9,12 +32,13 @@ GitHub Pages: https://michaeljwilliem.github.io/ajaib/
 
 ```
 ajaib/
-├── desktop/
-│   └── topmovers/
-│       └── index.html      # Desktop stock list redesign
-└── mobile/
-    └── homeconcept/
-        └── index.html      # Mobile home screen — canonical edit target + GitHub Pages
+└── concepts/
+    ├── desktop/
+    │   └── topmovers/
+    │       └── index.html      # Desktop stock list redesign
+    └── mobile/
+        └── home/
+            └── index.html      # Mobile home screen — canonical edit target + GitHub Pages
 ```
 
 ## Local dev server
@@ -24,8 +48,8 @@ Run from `/Users/liem/ajaib`:
 python3 -m http.server 4444
 ```
 
-- Desktop prototype: http://localhost:4444/desktop/topmovers/
-- Mobile prototype:  http://localhost:4444/mobile/homeconcept/
+- Desktop prototype: http://localhost:4444/concepts/desktop/topmovers/
+- Mobile prototype:  http://localhost:4444/concepts/mobile/home/
 
 ## Desktop Prototype (`desktop/topmovers/`)
 
