@@ -1759,16 +1759,14 @@ function buildMktStrip() {
 
   setTimeout(()=>track.classList.add('running'), 80);
 
-  let px=0, pt=0;
-  track.addEventListener('pointerdown', e=>{ px=e.clientX; pt=Date.now(); track.classList.add('paused'); });
-  track.addEventListener('pointerup', e=>{
-    if (Math.abs(e.clientX-px)<6 && Date.now()-pt<280) {
-      const item = e.target.closest('[data-mkt-id]');
-      if (item) openIdxSheet(item.dataset.mktId);
-    }
-    track.classList.remove('paused');
+  // Pause animation on touch; click handles tap on both desktop and mobile
+  track.addEventListener('touchstart', ()=>track.classList.add('paused'),    {passive:true});
+  track.addEventListener('touchend',   ()=>track.classList.remove('paused'), {passive:true});
+  track.addEventListener('touchcancel',()=>track.classList.remove('paused'));
+  track.addEventListener('click', e => {
+    const item = e.target.closest('[data-mkt-id]');
+    if (item) openIdxSheet(item.dataset.mktId);
   });
-  track.addEventListener('pointercancel', ()=>track.classList.remove('paused'));
 }
 
 function openIdxSheet(id) {
