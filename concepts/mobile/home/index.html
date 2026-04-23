@@ -307,11 +307,10 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 
 /* ── Market indices strip ── */
 .mkt-strip{height:32px;flex-shrink:0;overflow:hidden;position:relative;border-top:1px solid var(--b1);background:var(--s1);transition:background .5s}
-.mkt-strip-inner{height:100%;overflow:hidden;position:relative}
-.mkt-track{display:flex;align-items:center;height:100%;width:max-content;will-change:transform}
-.mkt-track.running{animation:mktScroll 36s linear infinite}
-.mkt-track.paused{animation-play-state:paused}
-@keyframes mktScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mkt-strip-inner{height:100%;overflow-x:scroll;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative;cursor:grab}
+.mkt-strip-inner:active{cursor:grabbing}
+.mkt-strip-inner::-webkit-scrollbar{display:none}
+.mkt-track{display:flex;align-items:center;height:100%;width:max-content}
 .mkt-item{display:flex;align-items:center;gap:5px;padding:0 12px;height:100%;flex-shrink:0;user-select:none;border-right:1px solid var(--b1);cursor:pointer}
 .mkt-name{font-size:11px;font-weight:600;color:var(--t2);white-space:nowrap}
 .mkt-price{font-size:11px;color:var(--t1);white-space:nowrap}
@@ -1757,13 +1756,35 @@ function buildMktStrip() {
   const reds = INDICES.filter(x=>(liveIdx[x.id]?.dir??x.dir)<0).length;
   strip.style.background = reds>=4?'#17100e':reds<=2?'#0b1510':'#0d0d10';
 
-  setTimeout(()=>track.classList.add('running'), 80);
+  // RAF auto-scroll on a native scroll container — user can grab and drag at any time
+  const inner = strip.querySelector('.mkt-strip-inner');
+  let rafId = null, scrollActive = false, lastTs = 0;
+  const PX_PER_SEC = 35;
 
-  // Pause animation on touch; click handles tap on both desktop and mobile
-  track.addEventListener('touchstart', ()=>track.classList.add('paused'),    {passive:true});
-  track.addEventListener('touchend',   ()=>track.classList.remove('paused'), {passive:true});
-  track.addEventListener('touchcancel',()=>track.classList.remove('paused'));
-  track.addEventListener('click', e => {
+  function scrollFrame(ts) {
+    const dt = lastTs ? (ts - lastTs) / 1000 : 0;
+    lastTs = ts;
+    inner.scrollLeft += dt * PX_PER_SEC;
+    const half = track.scrollWidth / 2;
+    if (half > 0 && inner.scrollLeft >= half) inner.scrollLeft -= half;
+    if (scrollActive) rafId = requestAnimationFrame(scrollFrame);
+  }
+  function startAutoScroll() {
+    if (scrollActive) return;
+    scrollActive = true; lastTs = 0;
+    rafId = requestAnimationFrame(scrollFrame);
+  }
+  function stopAutoScroll() {
+    scrollActive = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  setTimeout(startAutoScroll, 80);
+  inner.addEventListener('pointerdown', stopAutoScroll);
+  window.addEventListener('pointerup',     startAutoScroll);
+  window.addEventListener('pointercancel', startAutoScroll);
+
+  inner.addEventListener('click', e => {
     const item = e.target.closest('[data-mkt-id]');
     if (item) openIdxSheet(item.dataset.mktId);
   });
