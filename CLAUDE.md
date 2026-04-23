@@ -17,7 +17,7 @@ When the user says **"update .md"** or **"update CLAUDE.md"**:
 
 **Last worked on:** 2026-04-23  
 **Active file:** `concepts/mobile/home/index.html`  
-**What's done:** Market indices strip (IHSG, S&P 500, NASDAQ, BTC, Gold, Silver) — sticky 32px bar above bottom nav. Slow auto-scroll (36s loop) with sentiment tint, chevron tap hint, live price simulation tied to US state controller. Tap any index → bottom sheet carousel with per-slide chart, 1H/1D/1W/1M tabs, Open/High/Low stats. Swipe horizontally to browse all indices; drag down or tap overlay to dismiss.  
+**What's done:** Market indices strip (IHSG, S&P 500, NASDAQ, BTC, Gold, Silver) — sticky 32px bar above bottom nav. RAF-driven auto-scroll (35px/s) with seamless loop; user can grab and drag left/right at any time to skim faster, auto-scroll resumes on release. Sentiment tint, chevron tap hint, live price simulation tied to US state controller. Tap any index → bottom sheet carousel with per-slide chart, 1H/1D/1W/1M tabs, Open/High/Low stats. Swipe horizontally to browse all indices; drag down or tap overlay to dismiss.  
 **Known issues / open work:**
 - [ ] Watchlist filter pills not yet built
 - [ ] Recommendations section below fold is placeholder only
