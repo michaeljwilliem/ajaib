@@ -15,9 +15,9 @@ When the user says **"update .md"** or **"update CLAUDE.md"**:
 
 ## Current state
 
-**Last worked on:** 2026-04-23  
+**Last worked on:** 2026-04-24  
 **Active file:** `concepts/mobile/home/index.html`  
-**What's done:** Market indices strip (IHSG, S&P 500, NASDAQ, BTC, Gold, Silver) — sticky 32px bar above bottom nav. RAF-driven auto-scroll (35px/s) with seamless loop; user can grab and drag left/right at any time to skim faster, auto-scroll resumes on release. Sentiment tint, chevron tap hint, live price simulation tied to US state controller. Tap any index → bottom sheet carousel with per-slide chart, 1H/1D/1W/1M tabs, Open/High/Low stats. Swipe horizontally to browse all indices; drag down or tap overlay to dismiss.  
+**What's done:** Fixed IHSG (and all indices) tap-to-sheet: ghost items in the seamless scroll loop now carry `data-mkt-id` so clicks register regardless of scroll position. Previously only the first copy had the attribute, so once auto-scroll passed the midpoint tapping any index did nothing.  
 **Known issues / open work:**
 - [ ] Watchlist filter pills not yet built
 - [ ] Recommendations section below fold is placeholder only

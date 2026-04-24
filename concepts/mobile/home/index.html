@@ -1740,7 +1740,7 @@ function buildMktStrip() {
     const li  = liveIdx[idx.id] || idx;
     const clr = li.dir>0?'var(--green)':'var(--red)';
     const arr = li.dir>0?'▲':'▼';
-    const attr = ghost ? '' : `data-mkt-id="${idx.id}"`;
+    const attr = `data-mkt-id="${idx.id}"`;
     return `<div class="mkt-item" ${attr}>`+
       `<span class="mkt-name">${idx.label}</span>`+
       `<span class="mkt-price">${fIdxFmt(idx,li.p)}</span>`+
