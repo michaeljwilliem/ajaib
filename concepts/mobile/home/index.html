@@ -103,17 +103,14 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .hadiah-cta{display:flex;align-items:center;gap:4px;background:linear-gradient(135deg,#b8852a 0%,#d4a843 100%);border:1px solid rgba(218,165,50,.5);border-radius:10px;padding:8px 12px;cursor:pointer;flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,210,80,.2)}
 .hadiah-cta span{font-size:11px;font-weight:700;color:#fff4cc;white-space:nowrap}
 
-/* Action pills */
-.action-pills{display:flex;gap:7px;padding:0 16px 10px;overflow-x:auto}
-.action-pills::-webkit-scrollbar{display:none}
-.ap{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--b2);background:var(--s1);cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:11px;color:var(--t2);transition:opacity .2s,transform .2s}
-.ap:hover{border-color:rgba(255,255,255,.22)}
-/* BP pill fixed-width so it doesn't reflow during flip */
-#bp-pill{background:var(--s2);border-color:rgba(255,255,255,.18);justify-content:flex-start;flex-shrink:0}
-.ap.ap-alert{border-color:rgba(48,209,88,.28);background:rgba(48,209,88,.07)}
-.ap.ap-action{border-color:rgba(10,132,255,.3);background:rgba(10,132,255,.07)}
-.ap.ap-warn{border-color:rgba(255,214,10,.3);background:rgba(255,214,10,.07)}
-.ap-val{font-size:11px;font-weight:600;color:var(--t1)}
+/* ── Buying Power bar ── */
+.bp-bar{display:flex;align-items:center;padding:0 16px 10px;gap:10px}
+.bp-left{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.bp-label{font-size:10px;color:var(--t2);white-space:nowrap}
+.bp-flip{display:inline-flex;align-items:center;gap:5px;transition:opacity .18s ease,transform .18s ease}
+.bp-val{font-size:11px;font-weight:600;color:var(--t1);white-space:nowrap}
+.bp-deposit{display:flex;align-items:center;gap:3px;padding:5px 12px;background:var(--blue);border-radius:7px;cursor:pointer;flex-shrink:0}
+.bp-deposit span{font-size:10px;font-weight:700;color:#fff}
 .ap-tag{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.03em;flex-shrink:0}
 
 /* ── Product shortcut row (icon + label) ── */
@@ -129,18 +126,16 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .collapsible-top.collapsed{max-height:0;opacity:0}
 
 /* Scroll mini — replaces collapsible-top when scrolled */
-.scroll-mini{max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .24s ease;display:flex;align-items:center;padding:0 16px;gap:10px;background:rgba(0,0,0,.97);border-bottom:1px solid transparent}
+.scroll-mini{max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .24s ease;display:flex;align-items:stretch;padding:0 16px;gap:10px;background:rgba(0,0,0,.97);border-bottom:1px solid transparent}
 .scroll-mini.visible{max-height:60px;opacity:1;padding:8px 16px;border-bottom-color:var(--b1)}
-.sm-left{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sm-left,.sm-right{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
 .sm-label-row{display:flex;align-items:center;gap:4px}
 .sm-label{font-size:9px;color:var(--t2)}
-.sm-amount-row{display:flex;align-items:center;gap:8px}
+.sm-amount-row{display:flex;align-items:center;gap:6px}
 .sm-amount{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.3px;white-space:nowrap}
-.sm-deposit{display:flex;align-items:center;gap:3px;background:var(--blue);border-radius:6px;padding:3px 9px;cursor:pointer;flex-shrink:0}
-.sm-deposit span{font-size:10px;font-weight:700;color:#fff}
-.sm-sep{width:1px;height:30px;background:var(--b2);flex-shrink:0}
-.sm-bp{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
-.sm-bp-label{font-size:10px;color:var(--t2)}
+.sm-deposit{display:flex;align-items:center;gap:2px;background:var(--blue);border-radius:5px;padding:2px 7px;cursor:pointer;flex-shrink:0}
+.sm-deposit span{font-size:9px;font-weight:700;color:#fff}
+.sm-sep{width:1px;align-self:stretch;background:var(--b2);flex-shrink:0;margin:2px 0}
 
 /* ── Watchlist ── */
 .wl{padding-bottom:4px}
@@ -421,23 +416,15 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
           </div>
         </div>
 
-        <!-- Action pills: BP (flips IDX/US/₿) + contextual actions -->
-        <div class="action-pills">
-          <div class="ap" id="bp-pill"></div>
-          <div class="ap ap-alert">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-            <span>Posisi Terbuka</span>
-            <span style="font-size:11px;font-weight:700;color:var(--green)">+2,1%</span>
+        <!-- Buying Power bar -->
+        <div class="bp-bar">
+          <div class="bp-left">
+            <span class="bp-label">Buying Power</span>
+            <div class="bp-flip" id="bp-flip"></div>
           </div>
-          <div class="ap ap-warn">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>Order Terbuka</span>
-            <span style="font-size:11px;font-weight:700;color:var(--amber)">3</span>
-          </div>
-          <div class="ap ap-action">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span style="color:var(--blue);font-weight:600">E-IPO</span>
-            <span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:rgba(10,132,255,.2);color:var(--blue)">2</span>
+          <div class="bp-deposit">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Deposit</span>
           </div>
         </div>
 
@@ -510,30 +497,28 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
         </div>
         </div><!-- /collapsible-top -->
 
-        <!-- Scroll mini — slides in when scrolled, replaces total-row + pills -->
+        <!-- Scroll mini -->
         <div class="scroll-mini" id="scroll-mini">
-          <!-- Left: Total Aset + Deposit -->
           <div class="sm-left">
             <div class="sm-label-row">
               <span class="sm-label">Total Aset</span>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </div>
+            <span class="sm-amount" id="mini-aset">Rp100.567.890</span>
+          </div>
+          <div class="sm-sep"></div>
+          <div class="sm-right">
+            <div class="sm-label-row">
+              <span class="sm-label">Buying Power</span>
+              <span id="mini-bp-tag" style="font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px">IDX</span>
+            </div>
             <div class="sm-amount-row">
-              <span class="sm-amount" id="mini-aset">Rp100.567.890</span>
+              <span class="sm-amount" id="mini-bp-val">Rp32.000.000</span>
               <div class="sm-deposit">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                 <span>Deposit</span>
               </div>
             </div>
-          </div>
-          <!-- Divider -->
-          <div class="sm-sep"></div>
-          <!-- Right: BP flipping -->
-          <div class="sm-bp">
-            <span id="mini-bp-tag" style="font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px">IDX</span>
-            <span class="sm-bp-label">BP</span>
-            <span class="sm-amount" id="mini-bp-val">Rp32.000.000</span>
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
 
@@ -1326,28 +1311,25 @@ const BP_DATA = [
 let bpIdx = 0;
 
 function renderBpPill() {
-  const pill = document.getElementById('bp-pill');
-  if (!pill) return;
+  const flip = document.getElementById('bp-flip');
+  if (!flip) return;
   const d = BP_DATA[bpIdx];
-  pill.innerHTML = `
-    <span class="ap-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>
-    <span style="font-size:10px;color:var(--t2)">BP</span>
-    <span style="font-size:11px;font-weight:600;color:var(--t1)">${d.val}</span>
-    <span style="display:inline-flex;align-items:center;gap:2px;padding:2px 7px;background:var(--blue);border-radius:5px;font-size:9px;font-weight:700;color:#fff;margin-left:8px;flex-shrink:0"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Deposit</span>
-  `;
+  flip.innerHTML =
+    `<span class="ap-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>`+
+    `<span class="bp-val">${d.val}</span>`;
   updateScrollMini();
 }
 
 function advanceBpPill() {
-  const pill = document.getElementById('bp-pill');
-  if (!pill) return;
-  pill.style.opacity = '0';
-  pill.style.transform = 'translateY(4px)';
+  const flip = document.getElementById('bp-flip');
+  if (!flip) return;
+  flip.style.opacity = '0';
+  flip.style.transform = 'translateY(4px)';
   setTimeout(() => {
     bpIdx = (bpIdx + 1) % BP_DATA.length;
     renderBpPill();
-    pill.style.opacity = '1';
-    pill.style.transform = 'translateY(0)';
+    flip.style.opacity = '1';
+    flip.style.transform = 'translateY(0)';
   }, 180);
 }
 
