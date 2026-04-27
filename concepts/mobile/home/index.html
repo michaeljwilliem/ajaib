@@ -80,13 +80,14 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 
 /* App bar */
 .app-bar{display:flex;align-items:center;padding:6px 16px;gap:10px}
-.app-bar-search{flex:1;display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:8px 12px;cursor:text;overflow:hidden;min-width:0;height:36px}
+.app-bar-search{flex:1;display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:8px 12px;cursor:text;overflow:hidden;min-width:0;height:36px}
+.search-brand-icon{flex-shrink:0;display:flex;align-items:center}
+.search-divider{width:1px;height:12px;background:rgba(255,255,255,.15);flex-shrink:0}
 .search-icon{color:var(--t2);flex-shrink:0}
 .search-ph-wrap{flex:1;position:relative;height:18px;overflow:hidden}
-.search-ph{position:absolute;inset:0;display:flex;align-items:center;font-size:13px;color:var(--t3);transition:opacity .3s,transform .3s;white-space:nowrap}
+.search-ph{position:absolute;inset:0;display:flex;align-items:center;gap:0;font-size:13px;color:var(--t3);transition:opacity .3s,transform .3s;white-space:nowrap;overflow:hidden}
 .search-ph.hidden{opacity:0;transform:translateY(6px)}
 .search-ph.visible{opacity:1;transform:translateY(0)}
-.search-ph .brand{color:#2563eb;font-weight:700;font-size:13px}
 .app-bar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .icon-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
 .notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--s0)}
@@ -99,8 +100,8 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .total-label{font-size:10px;color:var(--t2)}
 .eye-btn{color:var(--t3);cursor:pointer;flex-shrink:0}
 .total-amount{font-size:20px;font-weight:700;letter-spacing:-.5px;color:var(--t1)}
-.deposit-cta{display:flex;align-items:center;gap:4px;background:var(--blue);border-radius:10px;padding:8px 14px;cursor:pointer;flex-shrink:0}
-.deposit-cta span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.hadiah-cta{display:flex;align-items:center;gap:4px;background:linear-gradient(135deg,#b8852a 0%,#d4a843 100%);border:1px solid rgba(218,165,50,.5);border-radius:10px;padding:8px 12px;cursor:pointer;flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,210,80,.2)}
+.hadiah-cta span{font-size:11px;font-weight:700;color:#fff4cc;white-space:nowrap}
 
 /* Action pills */
 .action-pills{display:flex;gap:7px;padding:0 16px 10px;overflow-x:auto}
@@ -108,7 +109,7 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .ap{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--b2);background:var(--s1);cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:11px;color:var(--t2);transition:opacity .2s,transform .2s}
 .ap:hover{border-color:rgba(255,255,255,.22)}
 /* BP pill fixed-width so it doesn't reflow during flip */
-#bp-pill{background:var(--s2);border-color:rgba(255,255,255,.18);width:172px;justify-content:flex-start}
+#bp-pill{background:var(--s2);border-color:rgba(255,255,255,.18);justify-content:flex-start;flex-shrink:0}
 .ap.ap-alert{border-color:rgba(48,209,88,.28);background:rgba(48,209,88,.07)}
 .ap.ap-action{border-color:rgba(10,132,255,.3);background:rgba(10,132,255,.07)}
 .ap.ap-warn{border-color:rgba(255,214,10,.3);background:rgba(255,214,10,.07)}
@@ -305,21 +306,15 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .flash-d{animation:fd .55s ease-out forwards}
 ::-webkit-scrollbar{display:none}
 
-/* ── Market indices strip ── */
-.mkt-strip{height:32px;flex-shrink:0;overflow:hidden;position:relative;border-top:1px solid var(--b1);background:var(--s1);transition:background .5s}
-.mkt-strip-inner{height:100%;overflow-x:scroll;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative;cursor:grab}
-.mkt-strip-inner:active{cursor:grabbing}
-.mkt-strip-inner::-webkit-scrollbar{display:none}
-.mkt-track{display:flex;align-items:center;height:100%;width:max-content}
-.mkt-item{display:flex;align-items:center;gap:5px;padding:0 12px;height:100%;flex-shrink:0;user-select:none;border-right:1px solid var(--b1);cursor:pointer}
-.mkt-name{font-size:11px;font-weight:600;color:var(--t2);white-space:nowrap}
-.mkt-price{font-size:11px;color:var(--t1);white-space:nowrap}
-.mkt-arr{font-size:9px;flex-shrink:0;line-height:1}
-.mkt-pct{font-size:11px;font-weight:600;white-space:nowrap}
-.mkt-chev{font-size:11px;color:var(--t3);flex-shrink:0;opacity:.5;margin-left:1px;line-height:1}
-.mkt-strip::before,.mkt-strip::after{content:'';position:absolute;top:0;bottom:0;width:16px;z-index:2;pointer-events:none}
-.mkt-strip::before{left:0;background:linear-gradient(to right,#0d0d10,transparent)}
-.mkt-strip::after{right:0;background:linear-gradient(to left,#0d0d10,transparent)}
+/* ── Market indices strip — flip cycle ── */
+.mkt-strip{height:36px;flex-shrink:0;overflow:hidden;position:relative;border-top:1px solid var(--b1);background:var(--s1);transition:background .5s;cursor:pointer}
+.mkt-flip-wrap{height:100%;overflow:hidden;position:relative}
+.mkt-flip-item{display:flex;align-items:center;width:100%;height:100%;padding:0 12px 0 14px;gap:0;transition:opacity .2s ease,transform .2s ease;user-select:none}
+.mkt-name{font-size:11px;font-weight:700;color:var(--t2);white-space:nowrap;flex:1;min-width:0}
+.mkt-price{font-size:11px;font-weight:500;color:var(--t1);white-space:nowrap;margin-right:8px}
+.mkt-abs{font-size:10.5px;font-weight:500;white-space:nowrap;margin-right:5px}
+.mkt-pct{font-size:10.5px;font-weight:600;white-space:nowrap}
+.mkt-chev{font-size:13px;color:var(--t3);opacity:.45;margin-left:6px;flex-shrink:0;line-height:1}
 
 /* ── Index detail bottom sheet ── */
 .idx-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
@@ -327,25 +322,16 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .idx-sheet{position:absolute;bottom:0;left:0;right:0;background:var(--s2);border-radius:20px 20px 0 0;border:1px solid var(--b2);border-bottom:none;z-index:50;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
 .idx-sheet.open{transform:translateY(0)}
 .idx-handle{width:36px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:10px auto 0}
-.idx-sh-head{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 20px 6px}
-.idx-sh-name{font-size:22px;font-weight:700;color:var(--t1);line-height:1}
-.idx-sh-sub{font-size:11px;color:var(--t3);margin-top:4px}
-.idx-sh-pricecol{text-align:right}
-.idx-sh-bigprice{font-size:22px;font-weight:700;color:var(--t1);line-height:1}
-.idx-sh-pct{font-size:13px;font-weight:600;margin-top:4px}
-.idx-sh-chart{height:96px;padding:4px 20px 0;overflow:hidden}
-.idx-tabs{display:flex;gap:4px;padding:8px 20px 0}
-.idx-tab{padding:4px 12px;border-radius:7px;border:1px solid var(--b2);background:transparent;color:var(--t3);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}
-.idx-tab.act{background:var(--s3);border-color:rgba(255,255,255,.2);color:var(--t1)}
-.idx-sh-stats{display:flex;padding:12px 16px 24px}
-.idx-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:1px solid var(--b1)}
-.idx-stat:last-child{border-right:none}
-.idx-stat-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
-.idx-stat-v{font-size:13px;font-weight:600;color:var(--t1)}
-/* ── Sheet carousel ── */
-.idx-carousel{display:flex;overflow-x:scroll;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+/* ── Sheet carousel — free scroll card peek ── */
+.idx-carousel{display:flex;overflow-x:scroll;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:10px;padding:0 16px}
 .idx-carousel::-webkit-scrollbar{display:none}
-.idx-slide{flex:0 0 100%;scroll-snap-align:start;min-width:0}
+.idx-slide{flex:0 0 82%;scroll-snap-align:none;min-width:0;flex-shrink:0;background:var(--s3);border:1px solid var(--b2);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.idx-card-top{padding:14px 16px 10px}
+.idx-card-name{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:5px}
+.idx-card-price{font-size:26px;font-weight:700;line-height:1.1;margin-bottom:4px;letter-spacing:-.5px}
+.idx-card-change{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.idx-card-chart{flex:1;min-height:96px;overflow:hidden}
+.idx-card-chart svg{width:100%;height:100%;display:block}
 .idx-dots{display:flex;justify-content:center;gap:5px;padding:2px 0 10px}
 .idx-dot{width:5px;height:5px;border-radius:50%;background:var(--b2);transition:background .2s,width .2s}
 .idx-dot.act{background:var(--t2);width:14px;border-radius:3px}
@@ -401,8 +387,12 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
         <!-- App bar: search + bell + avatar -->
         <div class="app-bar">
           <div class="app-bar-search">
-            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span class="search-brand-icon">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="4" r="2.4" fill="#e8334a" opacity=".9"/><circle cx="10" cy="4" r="2.4" fill="#f7931a" opacity=".9"/><circle cx="4" cy="10" r="2.4" fill="#0a84ff" opacity=".9"/><circle cx="10" cy="10" r="2.4" fill="#bf5af2" opacity=".9"/></svg>
+            </span>
+            <div class="search-divider"></div>
             <div class="search-ph-wrap" id="search-ph-wrap"></div>
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           </div>
           <div class="app-bar-actions">
             <div class="icon-btn">
@@ -425,9 +415,9 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
             </div>
             <span class="total-amount" id="total-aset">Rp100.567.890</span>
           </div>
-          <div class="deposit-cta">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Deposit</span>
+          <div class="hadiah-cta">
+            <svg width="11" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff4cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+            <span>Hadiah 100jt</span>
           </div>
         </div>
 
@@ -844,10 +834,10 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
         </div><!-- /below-fold -->
       </div><!-- /scroll-content -->
 
-      <!-- Market indices strip -->
+      <!-- Market indices strip — flip cycle -->
       <div class="mkt-strip" id="mkt-strip">
-        <div class="mkt-strip-inner">
-          <div class="mkt-track" id="mkt-track"></div>
+        <div class="mkt-flip-wrap">
+          <div class="mkt-flip-item" id="mkt-flip-item"></div>
         </div>
       </div>
 
@@ -1343,7 +1333,7 @@ function renderBpPill() {
     <span class="ap-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>
     <span style="font-size:10px;color:var(--t2)">BP</span>
     <span style="font-size:11px;font-weight:600;color:var(--t1)">${d.val}</span>
-    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" style="margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+    <span style="display:inline-flex;align-items:center;gap:2px;padding:2px 7px;background:var(--blue);border-radius:5px;font-size:9px;font-weight:700;color:#fff;margin-left:8px;flex-shrink:0"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Deposit</span>
   `;
   updateScrollMini();
 }
@@ -1394,11 +1384,11 @@ function wireScrollMini() {
 // ═══════════════════════════════════════════════════
 
 const SEARCH_PHS = [
-  `<span class="brand">🪔 ajaib</span>`,
-  `Cari <span style="color:var(--t2)">Saham IDX…</span>`,
-  `Cari <span style="color:var(--t2)">BTC, ETH, kripto…</span>`,
-  `Cari <span style="color:var(--t2)">NVDA, TSLA, US stocks…</span>`,
-  `Cari <span style="color:var(--t2)">Reksa Dana, Obligasi…</span>`,
+  `<span style="font-weight:700;color:var(--t1)">Ajaib</span>`,
+  `<span style="color:var(--t3)">Cari</span><span style="color:var(--t2)"> BBCA, TLKM, saham IDX…</span>`,
+  `<span style="color:var(--t3)">Cari</span><span style="color:var(--t2)"> BTC, ETH, kripto…</span>`,
+  `<span style="color:var(--t3)">Cari</span><span style="color:var(--t2)"> NVDA, TSLA, saham AS…</span>`,
+  `<span style="color:var(--t3)">Cari</span><span style="color:var(--t2)"> Reksa Dana, Obligasi…</span>`,
 ];
 let searchPhIdx = 0;
 
@@ -1595,6 +1585,15 @@ function fIdxFmt(idx, p) {
 function fIdxPct(pct) {
   return (pct>=0?'+':'−')+Math.abs(pct).toFixed(2).replace('.',',')+' %';
 }
+function fIdxAbs(idx, li) {
+  const diff = li.p - (li.p0 || li.p);
+  const sign = diff >= 0 ? '+' : '−';
+  const abs  = Math.abs(diff);
+  if (idx.fmt==='id0') return sign+Math.round(abs).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  if (idx.fmt==='us0') return sign+Math.round(abs).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  if (idx.fmt==='us1') return sign+abs.toFixed(1);
+  return sign+abs.toFixed(2);
+}
 function fIdxStat(idx, n) {
   if (idx.fmt==='id0') return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
   return '$'+n.toLocaleString('en',{minimumFractionDigits:idx.fmt==='us2'?2:idx.fmt==='us1'?1:0,maximumFractionDigits:idx.fmt==='us2'?2:idx.fmt==='us1'?1:0});
@@ -1626,18 +1625,18 @@ function tickIdxOnce() {
 }
 
 function updateIdxStrip(id) {
-  const idx = INDICES.find(x=>x.id===id);
-  const li  = liveIdx[id];
-  if (!idx || !li) return;
-  const clr = li.dir>0?'var(--green)':'var(--red)';
-  document.querySelectorAll(`[data-mkt-id="${id}"]`).forEach(item => {
-    const priceEl = item.querySelector('.mkt-price');
-    const pctEl   = item.querySelector('.mkt-pct');
-    const arrEl   = item.querySelector('.mkt-arr');
-    if (priceEl) priceEl.textContent = fIdxFmt(idx, li.p);
-    if (pctEl)   { pctEl.textContent = fIdxPct(li.pct); pctEl.style.color = clr; }
-    if (arrEl)   { arrEl.textContent = li.dir>0?'▲':'▼'; arrEl.style.color = clr; }
-  });
+  if (INDICES[mktStripIdx]?.id !== id) return;
+  const item = document.getElementById('mkt-flip-item');
+  const idx  = INDICES.find(x=>x.id===id);
+  const li   = liveIdx[id];
+  if (!item || !idx || !li) return;
+  const clr     = li.dir>0?'var(--green)':'var(--red)';
+  const priceEl = item.querySelector('.mkt-price');
+  const absEl   = item.querySelector('.mkt-abs');
+  const pctEl   = item.querySelector('.mkt-pct');
+  if (priceEl) priceEl.textContent = fIdxFmt(idx, li.p);
+  if (absEl)   { absEl.textContent = fIdxAbs(idx, li); absEl.style.color = clr; }
+  if (pctEl)   { pctEl.textContent = fIdxPct(li.pct); pctEl.style.color = clr; }
 }
 
 function updateIdxSheetSlide(id) {
@@ -1645,37 +1644,40 @@ function updateIdxSheetSlide(id) {
   if (!sheet?.classList.contains('open')) return;
   const carousel = document.getElementById('idx-carousel');
   if (!carousel) return;
-  const w = carousel.clientWidth;
+  const slideEl2 = carousel.querySelector('.idx-slide');
+  const w = slideEl2 ? (slideEl2.offsetWidth + 10) : (carousel.clientWidth * 0.82 + 10);
   if (!w) return;
-  if (INDICES[Math.round(carousel.scrollLeft/w)]?.id !== id) return;
+  if (INDICES[Math.min(Math.round(carousel.scrollLeft/w), INDICES.length-1)]?.id !== id) return;
   const idx  = INDICES.find(x=>x.id===id);
   const li   = liveIdx[id];
   if (!idx || !li) return;
   const slide = carousel.querySelector(`[data-slide="${id}"]`);
   if (!slide) return;
-  const clr = li.dir>0?'var(--green)':'var(--red)';
+  const clr     = li.dir>0?'var(--green)':'var(--red)';
   const priceEl = slide.querySelector('.sh-price');
+  const absEl   = slide.querySelector('.sh-abs');
   const pctEl   = slide.querySelector('.sh-pct');
-  if (priceEl) priceEl.textContent = fIdxFmt(idx, li.p);
-  if (pctEl)   { pctEl.textContent = (li.dir>0?'▲':'▼')+' '+fIdxPct(li.pct); pctEl.style.color = clr; }
+  if (priceEl) { priceEl.textContent = fIdxFmt(idx, li.p); priceEl.style.color = clr; }
+  if (absEl)   { absEl.textContent = fIdxAbs(idx, li); absEl.style.color = clr; }
+  if (pctEl)   { pctEl.textContent = fIdxPct(li.pct); pctEl.style.color = clr; }
 }
 
 const IDX_SUB = {IHSG:'IDX · Terbuka',SP500:'US Market',NDX:'US Market',BTC:'Kripto · Live',GOLD:'Komoditas',SILVER:'Komoditas'};
 
-function idxSlideChart(idx) {
+function idxCardChart(idx) {
   const li  = liveIdx[idx.id] || idx;
-  const W=320, H=80, uid='shc'+idx.id;
+  const W=300, H=100, uid='cc'+idx.id+(Math.random()*1e4|0);
   const ps  = normPts(li.d1, W, H);
   const lp  = curve(ps);
   const fp  = lp+` L${ps[ps.length-1][0].toFixed(1)},${H} L${ps[0][0].toFixed(1)},${H} Z`;
   const clr = li.dir>0?'#30d158':'#ff453a';
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
     <defs><linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${clr}" stop-opacity=".22"/>
-      <stop offset="100%" stop-color="${clr}" stop-opacity="0"/>
+      <stop offset="0%" stop-color="${clr}" stop-opacity=".38"/>
+      <stop offset="100%" stop-color="${clr}" stop-opacity=".04"/>
     </linearGradient></defs>
     <path d="${fp}" fill="url(#${uid})"/>
-    <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.8"/>
+    <path d="${lp}" fill="none" stroke="${clr}" stroke-width="1.6"/>
   </svg>`;
 }
 
@@ -1687,30 +1689,16 @@ function buildSheetCarousel() {
   carousel.innerHTML = INDICES.map(idx => {
     const li  = liveIdx[idx.id] || idx;
     const clr = li.dir>0?'var(--green)':'var(--red)';
-    const arr = li.dir>0?'▲':'▼';
     return `<div class="idx-slide" data-slide="${idx.id}">
-      <div class="idx-sh-head">
-        <div>
-          <div class="idx-sh-name">${idx.label}</div>
-          <div class="idx-sh-sub">${IDX_SUB[idx.id]||''}</div>
-        </div>
-        <div class="idx-sh-pricecol">
-          <div class="idx-sh-bigprice sh-price">${fIdxFmt(idx,li.p)}</div>
-          <div class="idx-sh-pct sh-pct" style="color:${clr}">${arr} ${fIdxPct(li.pct)}</div>
+      <div class="idx-card-top">
+        <div class="idx-card-name">${idx.label} <span style="font-size:9px;color:var(--t3);font-weight:400">${IDX_SUB[idx.id]||''}</span></div>
+        <div class="idx-card-price sh-price" style="color:${clr}">${fIdxFmt(idx,li.p)}</div>
+        <div class="idx-card-change">
+          <span class="sh-abs" style="color:${clr}">${fIdxAbs(idx,li)}</span>
+          <span class="sh-pct" style="color:${clr}">${fIdxPct(li.pct)}</span>
         </div>
       </div>
-      <div class="idx-sh-chart">${idxSlideChart(idx)}</div>
-      <div class="idx-tabs">
-        <button class="idx-tab" data-t="1H">1H</button>
-        <button class="idx-tab act" data-t="1D">1D</button>
-        <button class="idx-tab" data-t="1W">1W</button>
-        <button class="idx-tab" data-t="1M">1M</button>
-      </div>
-      <div class="idx-sh-stats">
-        <div class="idx-stat"><div class="idx-stat-l">Open</div><div class="idx-stat-v">${fIdxStat(idx,idx.open)}</div></div>
-        <div class="idx-stat"><div class="idx-stat-l">Tertinggi</div><div class="idx-stat-v" style="color:var(--green)">${fIdxStat(idx,idx.high)}</div></div>
-        <div class="idx-stat"><div class="idx-stat-l">Terendah</div><div class="idx-stat-v" style="color:var(--red)">${fIdxStat(idx,idx.low)}</div></div>
-      </div>
+      <div class="idx-card-chart">${idxCardChart(idx)}</div>
     </div>`;
   }).join('');
 
@@ -1718,76 +1706,57 @@ function buildSheetCarousel() {
     `<div class="idx-dot${i===0?' act':''}" data-dot="${i}"></div>`
   ).join('');
 
-  carousel.addEventListener('click', e => {
-    const tab = e.target.closest('.idx-tab');
-    if (!tab) return;
-    tab.closest('.idx-slide')?.querySelectorAll('.idx-tab').forEach(t=>t.classList.remove('act'));
-    tab.classList.add('act');
-  });
-
   carousel.addEventListener('scroll', () => {
-    const i = Math.round(carousel.scrollLeft / (carousel.clientWidth||1));
+    const slideEl = carousel.querySelector('.idx-slide');
+    const slideW  = slideEl ? (slideEl.offsetWidth + 10) : (carousel.clientWidth * 0.82 + 10);
+    const i = Math.min(Math.round(carousel.scrollLeft / slideW), INDICES.length-1);
     dotsEl.querySelectorAll('.idx-dot').forEach((d,j)=>d.classList.toggle('act',j===i));
   }, {passive:true});
 }
 
-function buildMktStrip() {
-  const track = document.getElementById('mkt-track');
+let mktStripIdx = 0;
+
+function renderMktStripItem() {
+  const item  = document.getElementById('mkt-flip-item');
   const strip = document.getElementById('mkt-strip');
-  if (!track || !strip) return;
-
-  function itemHtml(idx, ghost) {
-    const li  = liveIdx[idx.id] || idx;
-    const clr = li.dir>0?'var(--green)':'var(--red)';
-    const arr = li.dir>0?'▲':'▼';
-    const attr = `data-mkt-id="${idx.id}"`;
-    return `<div class="mkt-item" ${attr}>`+
-      `<span class="mkt-name">${idx.label}</span>`+
-      `<span class="mkt-price">${fIdxFmt(idx,li.p)}</span>`+
-      `<span class="mkt-arr" style="color:${clr}">${arr}</span>`+
-      `<span class="mkt-pct" style="color:${clr}">${fIdxPct(li.pct)}</span>`+
-      `<span class="mkt-chev">›</span>`+
-      `</div>`;
+  if (!item) return;
+  const idx = INDICES[mktStripIdx];
+  const li  = liveIdx[idx.id] || idx;
+  const clr = li.dir>0?'var(--green)':'var(--red)';
+  item.innerHTML =
+    `<span class="mkt-name">${idx.label}</span>`+
+    `<span class="mkt-price">${fIdxFmt(idx,li.p)}</span>`+
+    `<span class="mkt-abs" style="color:${clr}">${fIdxAbs(idx,li)}</span>`+
+    `<span class="mkt-pct" style="color:${clr}">${fIdxPct(li.pct)}</span>`+
+    `<span class="mkt-chev">›</span>`;
+  if (strip) {
+    const reds = INDICES.filter(x=>(liveIdx[x.id]?.dir??x.dir)<0).length;
+    strip.style.background = reds>=4?'#17100e':reds<=2?'#0b1510':'#0d0d10';
   }
+}
 
-  track.innerHTML = INDICES.map(i=>itemHtml(i,false)).join('') +
-                    INDICES.map(i=>itemHtml(i,true)).join('');
+function advanceMktStrip() {
+  const item = document.getElementById('mkt-flip-item');
+  if (!item) return;
+  item.style.opacity = '0';
+  item.style.transform = 'translateY(-7px)';
+  setTimeout(() => {
+    mktStripIdx = (mktStripIdx + 1) % INDICES.length;
+    item.style.transition = 'none';
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(7px)';
+    renderMktStripItem();
+    void item.offsetWidth;
+    item.style.transition = '';
+    item.style.opacity = '1';
+    item.style.transform = 'translateY(0)';
+  }, 200);
+}
 
-  const reds = INDICES.filter(x=>(liveIdx[x.id]?.dir??x.dir)<0).length;
-  strip.style.background = reds>=4?'#17100e':reds<=2?'#0b1510':'#0d0d10';
-
-  // RAF auto-scroll on a native scroll container — user can grab and drag at any time
-  const inner = strip.querySelector('.mkt-strip-inner');
-  let rafId = null, scrollActive = false, lastTs = 0;
-  const PX_PER_SEC = 35;
-
-  function scrollFrame(ts) {
-    const dt = lastTs ? (ts - lastTs) / 1000 : 0;
-    lastTs = ts;
-    inner.scrollLeft += dt * PX_PER_SEC;
-    const half = track.scrollWidth / 2;
-    if (half > 0 && inner.scrollLeft >= half) inner.scrollLeft -= half;
-    if (scrollActive) rafId = requestAnimationFrame(scrollFrame);
-  }
-  function startAutoScroll() {
-    if (scrollActive) return;
-    scrollActive = true; lastTs = 0;
-    rafId = requestAnimationFrame(scrollFrame);
-  }
-  function stopAutoScroll() {
-    scrollActive = false;
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-  }
-
-  setTimeout(startAutoScroll, 80);
-  inner.addEventListener('pointerdown', stopAutoScroll);
-  window.addEventListener('pointerup',     startAutoScroll);
-  window.addEventListener('pointercancel', startAutoScroll);
-
-  inner.addEventListener('click', e => {
-    const item = e.target.closest('[data-mkt-id]');
-    if (item) openIdxSheet(item.dataset.mktId);
-  });
+function buildMktStrip() {
+  renderMktStripItem();
+  const strip = document.getElementById('mkt-strip');
+  if (strip) strip.addEventListener('click', () => openIdxSheet(INDICES[mktStripIdx].id));
 }
 
 function openIdxSheet(id) {
@@ -1798,7 +1767,11 @@ function openIdxSheet(id) {
   document.getElementById('idx-overlay').classList.add('open');
   setTimeout(() => {
     const carousel = document.getElementById('idx-carousel');
-    if (carousel && i > 0) carousel.scrollLeft = i * carousel.clientWidth;
+    if (carousel && i > 0) {
+      const slideEl = carousel.querySelector('.idx-slide');
+      const slideW  = slideEl ? (slideEl.offsetWidth + 10) : (carousel.clientWidth * 0.82 + 10);
+      carousel.scrollLeft = i * slideW;
+    }
     const dotsEl = document.getElementById('idx-dots');
     dotsEl?.querySelectorAll('.idx-dot').forEach((d,j)=>d.classList.toggle('act',j===i));
   }, 0);
@@ -1838,6 +1811,7 @@ startSim();
 setInterval(updateClock, 1000);
 setInterval(advanceBpPill, 2800);
 setInterval(advanceSearchPh, 2500);
+setInterval(advanceMktStrip, 3200);
 
 // ── Ctrl toggle via Dynamic Island pill (mobile fullscreen mode) ──
 (function(){
