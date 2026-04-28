@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib — Peta Investor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060608;
+  --s0:#000;--s1:#0d0d10;--s2:#1c1c1f;--s3:#242428;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t1:#f2f2f7;--t2:#8e8e93;--t3:#48484a;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;
+  --amber:#ffd60a;--purple:#bf5af2;--teal:#5ac8fa;
+  --dom:#0a84ff;--for:#ffd60a;
+  --safe-top:54px;--safe-bot:34px;
+}
+body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var(--t1);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px;gap:16px}
+
+@media(max-width:500px),(pointer:coarse){
+  body{padding:0;background:#000;justify-content:flex-start}
+  .phone-wrap{width:100%!important;filter:none!important}
+  .phone-shell{width:100%!important;background:none!important;border-radius:0!important;padding:0!important}
+  .phone-shell::before{display:none}
+  .btn-vol,.btn-vol2,.btn-pwr{display:none}
+  .screen{width:100%!important;height:100svh!important;border-radius:0!important}
+}
+
+.phone-wrap{position:relative;width:407px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.phone-shell{width:407px;background:linear-gradient(170deg,#2a2a2e 0%,#1a1a1e 60%,#111 100%);border-radius:56px;padding:10px;position:relative}
+.phone-shell::before{content:'';position:absolute;inset:0;border-radius:56px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.btn-vol{position:absolute;left:-3px;top:130px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-vol2{position:absolute;left:-3px;top:178px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-pwr{position:absolute;right:-3px;top:158px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+.screen{width:387px;height:839px;border-radius:48px;background:#000;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* status bar */
+.sbar{height:var(--safe-top);display:flex;align-items:flex-end;padding:0 28px 10px;justify-content:space-between;flex-shrink:0;position:relative;z-index:10;background:#000}
+.sbar-time{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;border:1px solid #1c1c1e}
+.sbar-icons{display:flex;align-items:center;gap:6px}
+
+/* app bar */
+.app-bar{height:44px;display:flex;align-items:center;padding:0 16px;flex-shrink:0;background:#000;border-bottom:1px solid var(--b1)}
+.ab-back{display:flex;align-items:center;justify-content:center;width:32px;height:32px;cursor:pointer;color:var(--blue);flex-shrink:0}
+.ab-title{flex:1;font-size:16px;font-weight:700;letter-spacing:-.3px;padding-left:8px}
+.ab-info{width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+
+/* graph */
+#graph{flex:1;position:relative;overflow:hidden;background:#000}
+#graph svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* highlight bar — floating pill above bottom sheet */
+.hl-bar{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:35;display:flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(13,13,16,0.92);border:1px solid rgba(255,255,255,.18);border-radius:24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.hl-bar::-webkit-scrollbar{display:none}
+.hlp{flex-shrink:0;padding:4px 12px;border-radius:14px;font-size:11px;font-weight:600;background:var(--s2);border:1px solid var(--b2);color:var(--t2);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;display:flex;align-items:center;gap:5px}
+.hlp .hlp-dot{width:7px;height:7px;border-radius:50%}
+.hlp .hlp-sq{width:7px;height:7px;border-radius:1.5px}
+.hlp.active-emiten{background:rgba(48,209,88,.18);border-color:rgba(48,209,88,.5);color:#30d158}
+.hlp.active-dom{background:rgba(10,132,255,.18);border-color:rgba(10,132,255,.5);color:#0a84ff}
+.hlp.active-for{background:rgba(255,214,10,.18);border-color:rgba(255,214,10,.5);color:#ffd60a}
+.hlp.active-ubo{background:rgba(242,242,247,.12);border-color:rgba(242,242,247,.35);color:#f2f2f7}
+
+/* bottom sheet */
+.bsheet{position:absolute;left:0;right:0;bottom:0;background:var(--s1);border-top:1px solid var(--b2);border-radius:20px 20px 0 0;transform:translateY(calc(100% - 80px));transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:30;display:flex;flex-direction:column;max-height:68%;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.bsheet.open{transform:translateY(0)}
+
+.bsheet-header{flex-shrink:0;padding:8px 16px 10px;cursor:pointer}
+.bsheet-handle{width:36px;height:4px;background:var(--t3);border-radius:2px;margin:0 auto 10px}
+.bsheet-nav{display:flex;align-items:center;gap:8px}
+.bsheet-nav-btns{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.bsnav-btn{width:28px;height:28px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);transition:color .15s,background .15s}
+.bsnav-btn:not(.disabled):hover{background:var(--s3);color:var(--t1)}
+.bsnav-btn.disabled{opacity:.3;pointer-events:none}
+.bsheet-node-pill{flex:1;display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b2);border-radius:20px;padding:5px 10px;min-width:0}
+.bsnp-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.bsnp-name{font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.bsnp-mode{font-size:10px;font-weight:500;color:var(--t2);flex-shrink:0}
+.bsheet-chevron{flex-shrink:0;color:var(--t2);transition:transform .3s}
+.bsheet.open .bsheet-chevron{transform:rotate(180deg)}
+
+.bsheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:var(--safe-bot)}
+.bsheet-body::-webkit-scrollbar{display:none}
+.bsheet-section-label{padding:8px 16px 4px;font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em}
+.bsh-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s}
+.bsh-row:active{background:var(--s2)}
+.bsh-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.bsh-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.bsh-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.bsh-name{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bsh-sub{font-size:10px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bsh-pct{font-size:12px;font-weight:700;color:var(--t2);flex-shrink:0}
+.bsh-badge{flex-shrink:0;padding:2px 5px;border-radius:5px;font-size:9px;font-weight:700;background:var(--s3);color:var(--t2)}
+.bsh-origin{flex-shrink:0;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px}
+.bsh-origin.dom{background:rgba(10,132,255,.15);color:var(--dom)}
+.bsh-origin.for{background:rgba(255,214,10,.15);color:var(--for)}
+
+/* node tooltip (desktop hover) */
+.node-tip{position:absolute;pointer-events:none;background:rgba(28,28,31,.96);border:1px solid var(--b2);border-radius:10px;padding:8px 12px;font-size:11px;color:var(--t1);max-width:170px;line-height:1.6;z-index:40;opacity:0;transition:opacity .12s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);white-space:nowrap}
+.node-tip.show{opacity:1}
+.tip-name{font-weight:700;font-size:12px}
+.tip-sub{color:var(--t2);font-size:11px}
+
+/* home indicator */
+.home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,.25);border-radius:3px;z-index:50;pointer-events:none}
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+<div class="phone-shell">
+<div class="btn-vol"></div><div class="btn-vol2"></div><div class="btn-pwr"></div>
+<div class="screen">
+
+  <!-- status bar -->
+  <div class="sbar">
+    <span class="sbar-time">9:41</span>
+    <div class="di"></div>
+    <div class="sbar-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="white" opacity=".4"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="white" opacity=".6"/><rect x="9" y="0" width="3" height="12" rx="1" fill="white" opacity=".8"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 2.4C10.67 2.4 13.07 3.47 14.83 5.23L16 4.07C13.92 1.98 11.1.8 8 .8S2.08 1.98 0 4.07l1.17 1.16C2.93 3.47 5.33 2.4 8 2.4Z" fill="white"/><path d="M8 5.6c1.78 0 3.39.72 4.56 1.89L13.73 6.33C12.24 4.83 10.22 3.93 8 3.93S3.76 4.83 2.27 6.33L3.44 7.49C4.61 6.32 6.22 5.6 8 5.6Z" fill="white"/><circle cx="8" cy="10.4" r="1.6" fill="white"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/><rect x="1.5" y="1.5" width="18" height="9" rx="2.5" fill="white" fill-opacity=".9"/><path d="M23 4v4a2 2 0 0 0 0-4Z" fill="white" fill-opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <!-- app bar -->
+  <div class="app-bar">
+    <div class="ab-back" id="btnBack">
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M7 1L1 7l6 6" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="ab-title">Peta Investor</div>
+    <div class="ab-info">
+      <svg width="3" height="11" viewBox="0 0 3 13" fill="none"><circle cx="1.5" cy="1.5" r="1.5" fill="#8e8e93"/><rect x=".5" y="4.5" width="2" height="8" rx="1" fill="#8e8e93"/></svg>
+    </div>
+  </div>
+
+  <!-- graph canvas -->
+  <div id="graph"></div>
+
+  <!-- node tooltip -->
+  <div class="node-tip" id="nodeTip">
+    <div class="tip-name" id="tipName"></div>
+    <div class="tip-sub" id="tipSub"></div>
+  </div>
+
+  <!-- floating highlight bar -->
+  <div class="hl-bar" id="hlBar">
+    <div class="hlp" data-hl="emiten"><div class="hlp-dot" style="background:#30d158"></div>Emiten</div>
+    <div class="hlp" data-hl="dom"><div class="hlp-dot" style="background:#0a84ff"></div>Domestik</div>
+    <div class="hlp" data-hl="for"><div class="hlp-dot" style="background:#ffd60a"></div>Asing</div>
+    <div class="hlp" data-hl="ubo"><div class="hlp-sq" style="background:#f2f2f7;border-radius:1.5px"></div>UBO</div>
+  </div>
+
+  <!-- bottom sheet -->
+  <div class="bsheet" id="bsheet">
+    <div class="bsheet-header" id="bsheetHeader">
+      <div class="bsheet-handle"></div>
+      <div class="bsheet-nav">
+        <div class="bsheet-nav-btns">
+          <div class="bsnav-btn disabled" id="bsBack" title="Kembali">
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="bsnav-btn disabled" id="bsFwd" title="Maju">
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="bsheet-node-pill">
+          <div class="bsnp-dot" id="bsnpDot"></div>
+          <div class="bsnp-name" id="bsnpName"></div>
+          <div class="bsnp-mode" id="bsnpMode"></div>
+        </div>
+        <svg class="bsheet-chevron" width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 7l6-6 6 6" stroke="#8e8e93" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="bsheet-body" id="bsheetBody"></div>
+  </div>
+
+  <div class="home-ind"></div>
+</div>
+</div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const STOCKS = {
+  BBCA: { id:'BBCA', name:'Bank Central Asia', initials:'BC', logoBg:'#003479', logoLabel:'bca', logoLabelSize:0.38 },
+  DNET: { id:'DNET', name:'Indoritel Makmur', initials:'DN', logoBg:'#E31E25', logoLabel:'DN', logoLabelSize:0.38 },
+  MPMX: { id:'MPMX', name:'Mitra Pinasthika', initials:'MP', logoBg:'#F7941D', logoLabel:'MPM', logoLabelSize:0.32 },
+  TLKM: { id:'TLKM', name:'Telkom Indonesia', initials:'TL', logoBg:'#e40521', logoLabel:'TLK', logoLabelSize:0.32 },
+  BMRI: { id:'BMRI', name:'Bank Mandiri', initials:'BM', logoBg:'#003d7c', logoLabel:'BRI', logoLabelSize:0.32 },
+  BYAN: { id:'BYAN', name:'Bayan Resources', initials:'BY', logoBg:'#1b5e20', logoLabel:'BY', logoLabelSize:0.38 },
+};
+
+const UBOS = {
+  RH: { id:'RH', name:'Robert Hartono', initials:'RH', origin:'DOM', stocks:['BBCA','DNET','MPMX','BYAN'] },
+  MH: { id:'MH', name:'Michael Hartono', initials:'MH', origin:'DOM', stocks:['BBCA','DNET'] },
+};
+
+const SHAREHOLDERS = {
+  BBCA:[
+    { id:'FAR', name:'Farindo Investments', pct:54.94, type:'CP', origin:'DOM', ubo:'RH', holdings:['DNET','MPMX'] },
+    { id:'DWI', name:'PT Dwimuria Investama', pct:12.10, type:'CP', origin:'DOM', ubo:'MH', holdings:['DNET'] },
+    { id:'GIC', name:'GIC Private Limited', pct:4.80, type:'IB', origin:'FOR', ubo:null, holdings:['TLKM','BMRI'] },
+    { id:'VAG', name:'Vanguard Group', pct:2.31, type:'MF', origin:'FOR', ubo:null, holdings:[] },
+    { id:'PUB', name:'Publik', pct:25.85, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+  ],
+  DNET:[
+    { id:'FAR', name:'Farindo Investments', pct:60.10, type:'CP', origin:'DOM', ubo:'RH', holdings:['BBCA','MPMX'] },
+    { id:'DWI', name:'PT Dwimuria Investama', pct:8.50, type:'CP', origin:'DOM', ubo:'MH', holdings:['BBCA'] },
+    { id:'PUB2', name:'Publik', pct:31.40, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+  ],
+  TLKM:[
+    { id:'GOI', name:'Pemerintah RI', pct:52.09, type:'CP', origin:'DOM', ubo:null, holdings:['BMRI'] },
+    { id:'GIC', name:'GIC Private Limited', pct:3.21, type:'IB', origin:'FOR', ubo:null, holdings:['BBCA','BMRI'] },
+    { id:'PUB3', name:'Publik', pct:44.70, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+  ],
+  BMRI:[
+    { id:'GOI', name:'Pemerintah RI', pct:60.00, type:'CP', origin:'DOM', ubo:null, holdings:['TLKM'] },
+    { id:'GIC', name:'GIC Private Limited', pct:2.10, type:'IB', origin:'FOR', ubo:null, holdings:['BBCA','TLKM'] },
+    { id:'PUB4', name:'Publik', pct:37.90, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+  ],
+};
+
+const INVESTOR_HOLDINGS = {
+  FAR:[{stockId:'BBCA',pct:54.94},{stockId:'DNET',pct:60.10},{stockId:'MPMX',pct:35.20}],
+  DWI:[{stockId:'BBCA',pct:12.10},{stockId:'DNET',pct:8.50}],
+  GIC:[{stockId:'BBCA',pct:4.80},{stockId:'TLKM',pct:3.21},{stockId:'BMRI',pct:2.10}],
+  VAG:[{stockId:'BBCA',pct:2.31}],
+  GOI:[{stockId:'TLKM',pct:52.09},{stockId:'BMRI',pct:60.00}],
+};
+
+const TYPE_LABELS = {
+  ID:'Individual',CP:'Corporation',MF:'Mutual Fund',
+  IB:'Investment Bank',IS:'Insurance',SC:'Securities Co.',
+  PF:'Pension Fund',FD:'Foundation',OT:'Other',
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let mode = 'company';
+let centerData = { type:'stock', id:'BBCA' };
+let navStack = [];
+let fwdStack = [];
+let activeHighlights = new Set();
+let sim = null;
+let currentNodes = [], currentLinks = [];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function nodeRadius(pct, isCenter) {
+  if (isCenter) return 38;
+  if (pct === null || pct === undefined) return 14;
+  if (pct >= 15) return 26;
+  if (pct >= 5)  return 19;
+  if (pct >= 2)  return 13;
+  return 8;
+}
+
+function linkWidth(pct) {
+  if (!pct || pct < 2)  return 1.0;
+  if (pct >= 15) return 3.0;
+  if (pct >= 5)  return 2.0;
+  return 1.4;
+}
+
+function originColor(origin) {
+  return origin === 'FOR' ? '#ffd60a' : '#0a84ff';
+}
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function truncate(str, n) {
+  return str.length > n ? str.slice(0, n - 1) + '…' : str;
+}
+
+// ── Build graph data ──────────────────────────────────────────────────────────
+
+function buildGraphData() {
+  const nodes = [], links = [];
+  const nodeMap = {};
+  let linkIdx = 0;
+
+  function addNode(n) {
+    if (!nodeMap[n.id]) { nodeMap[n.id] = n; nodes.push(n); }
+    return nodeMap[n.id];
+  }
+  function addLink(srcId, tgtId, opts = {}) {
+    links.push({ source: srcId, target: tgtId, _sign: (linkIdx++ % 2 === 0 ? 1 : -1), ...opts });
+  }
+
+  if (mode === 'company') {
+    const stockId = centerData.id;
+    addNode({ id: stockId, label: stockId, sublabel: STOCKS[stockId]?.name, kind:'stock', isCenter:true, r:38, color:'#f2f2f7', fill:'#14141a', initials: STOCKS[stockId]?.initials || stockId.slice(0,2) });
+
+    for (const sh of (SHAREHOLDERS[stockId] || [])) {
+      const r = nodeRadius(sh.pct, false);
+      const col = originColor(sh.origin);
+      const nodeFill = sh.origin === 'FOR' ? '#1a1508' : '#0d1829';
+      const inv = addNode({ id:sh.id, label:sh.name, kind:'investor', pct:sh.pct, type:sh.type, origin:sh.origin, r, color:col, fill:nodeFill, investorData:sh, initials:initials(sh.name) });
+      addLink(stockId, sh.id, { color: col, width: linkWidth(sh.pct), pct: sh.pct });
+
+      if (sh.ubo && UBOS[sh.ubo]) {
+        const u = UBOS[sh.ubo];
+        const uboFill = u.origin === 'FOR' ? '#1a1508' : '#0d1829';
+        const uboN = addNode({ id:u.id, label:u.name, kind:'ubo', origin:u.origin, r:11, color:originColor(u.origin), fill:uboFill, uboData:u, initials:u.initials });
+        addLink(sh.id, u.id, { color:'rgba(200,200,200,0.40)', width:1.2, secondary:true });
+      }
+
+      if (sh.pct >= 5) {
+        for (const hId of (sh.holdings||[]).filter(h=>h!==stockId).slice(0,2)) {
+          const s = STOCKS[hId];
+          if (!s) continue;
+          const co = addNode({ id:'co_'+hId, label:hId, sublabel:s.name, kind:'stock', r:13, color:'#8e8e93', fill:'#14141a', stockId:hId, initials:s.initials });
+          addLink(sh.id, 'co_'+hId, { color:'rgba(160,160,170,0.40)', width:1.2, secondary:true });
+        }
+      }
+    }
+  }
+
+  else if (mode === 'investor') {
+    const invId = centerData.id;
+    const meta = centerData.meta;
+    const col = originColor(meta.origin);
+    const cFill = meta.origin === 'FOR' ? '#1a1508' : '#0d1829';
+    addNode({ id:invId, label:meta.name, kind:'investor', isCenter:true, r:35, color:col, fill:cFill, origin:meta.origin, initials:initials(meta.name) });
+
+    for (const h of (INVESTOR_HOLDINGS[invId]||[])) {
+      const s = STOCKS[h.stockId];
+      if (!s) continue;
+      const co = addNode({ id:'co_'+h.stockId, label:h.stockId, sublabel:s.name, kind:'stock', r:18, color:'#8e8e93', fill:'#14141a', stockId:h.stockId, pct:h.pct, initials:s.initials });
+      addLink(invId, 'co_'+h.stockId, { color:'rgba(160,160,170,0.45)', width:linkWidth(h.pct), pct:h.pct });
+
+      for (const sh2 of (SHAREHOLDERS[h.stockId]||[]).filter(s2=>s2.id!==invId).slice(0,2)) {
+        const r2 = nodeRadius(sh2.pct, false);
+        const col2 = originColor(sh2.origin);
+        const f2 = sh2.origin === 'FOR' ? '#1a1508' : '#0d1829';
+        const uid = h.stockId+'_'+sh2.id;
+        const shN = addNode({ id:uid, label:sh2.name, kind:'investor', r:r2, color:col2, fill:f2, pct:sh2.pct, type:sh2.type, origin:sh2.origin, investorData:sh2, initials:initials(sh2.name) });
+        addLink('co_'+h.stockId, uid, { color:col2, width:linkWidth(sh2.pct)*0.7, secondary:true });
+      }
+    }
+  }
+
+  else if (mode === 'ubo') {
+    const ubo = UBOS[centerData.id];
+    const col = originColor(ubo.origin);
+    const cFill = ubo.origin === 'FOR' ? '#1a1508' : '#0d1829';
+    addNode({ id:centerData.id, label:ubo.name, kind:'ubo', isCenter:true, r:32, color:col, fill:cFill, origin:ubo.origin, uboData:ubo, initials:ubo.initials });
+
+    for (const sid of (ubo.stocks||[])) {
+      const s = STOCKS[sid];
+      if (!s) continue;
+      const co = addNode({ id:'co_'+sid, label:sid, sublabel:s.name, kind:'stock', r:16, color:'#8e8e93', fill:'#14141a', stockId:sid, initials:s.initials });
+      addLink(centerData.id, 'co_'+sid, { color:'rgba(180,180,190,0.45)', width:1.4 });
+    }
+  }
+
+  return { nodes, links };
+}
+
+// ── SVG setup ─────────────────────────────────────────────────────────────────
+
+const svgEl = d3.select('#graph').append('svg');
+const defs = svgEl.append('defs');
+
+const glowFilter = defs.append('filter').attr('id','glow').attr('x','-60%').attr('y','-60%').attr('width','220%').attr('height','220%');
+glowFilter.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','4').attr('result','blur');
+const fm = glowFilter.append('feMerge');
+fm.append('feMergeNode').attr('in','blur');
+fm.append('feMergeNode').attr('in','SourceGraphic');
+
+const glowSm = defs.append('filter').attr('id','glowSm').attr('x','-40%').attr('y','-40%').attr('width','180%').attr('height','180%');
+glowSm.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','2').attr('result','blur2');
+const fm2 = glowSm.append('feMerge');
+fm2.append('feMergeNode').attr('in','blur2');
+fm2.append('feMergeNode').attr('in','SourceGraphic');
+
+const zoomLayer = svgEl.append('g');
+const linksG = zoomLayer.append('g');
+const nodesG = zoomLayer.append('g');
+
+const zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', e => zoomLayer.attr('transform', e.transform));
+svgEl.call(zoom).on('dblclick.zoom', null);
+
+function graphSize() {
+  const el = document.getElementById('graph');
+  return { w: el.clientWidth || 387, h: el.clientHeight || 480 };
+}
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+
+const tip = document.getElementById('nodeTip');
+function showTip(e, d) {
+  const rect = document.getElementById('graph').getBoundingClientRect();
+  let x = e.clientX - rect.left + 14, y = e.clientY - rect.top - 14;
+  if (x + 180 > rect.width) x -= 180;
+  document.getElementById('tipName').textContent = d.label;
+  document.getElementById('tipSub').textContent = [
+    d.pct != null ? d.pct.toFixed(2)+'%' : '',
+    d.type ? TYPE_LABELS[d.type] : (d.kind==='ubo' ? 'UBO' : d.kind==='stock' ? 'Emiten' : ''),
+    d.origin ? (d.origin==='DOM'?'Domestik':'Asing') : '',
+  ].filter(Boolean).join(' · ');
+  tip.style.left = x+'px'; tip.style.top = y+'px';
+  tip.classList.add('show');
+}
+function hideTip() { tip.classList.remove('show'); }
+
+// ── Bezier path ───────────────────────────────────────────────────────────────
+
+function linkPath(d) {
+  const sx = d.source.x, sy = d.source.y, tx = d.target.x, ty = d.target.y;
+  const dx = tx - sx, dy = ty - sy;
+  const len = Math.sqrt(dx*dx + dy*dy) || 1;
+  const offset = Math.min(len * 0.22, 50) * (d._sign || 1);
+  const mx = (sx+tx)/2 - (dy/len)*offset;
+  const my = (sy+ty)/2 + (dx/len)*offset;
+  return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function renderGraph() {
+  const { w, h } = graphSize();
+  const { nodes, links } = buildGraphData();
+  currentNodes = nodes; currentLinks = links;
+
+  if (sim) sim.stop();
+
+  const center = nodes.find(n => n.isCenter);
+  if (center) { center.fx = w/2; center.fy = h/2; center.x = w/2; center.y = h/2; }
+
+  // links
+  const link = linksG.selectAll('path.link').data(links, (d,i) => i);
+  link.exit().remove();
+  const linkEnter = link.enter().append('path').attr('class','link').attr('fill','none');
+  const linkMerge = linkEnter.merge(link)
+    .attr('stroke', d => d.color)
+    .attr('stroke-width', d => d.width || 1)
+    .attr('stroke-linecap','round');
+
+  // nodes
+  const node = nodesG.selectAll('g.node').data(nodes, d => d.id);
+  node.exit().transition().duration(180).attr('opacity',0).remove();
+
+  const nodeEnter = node.enter().append('g').attr('class','node')
+    .attr('opacity', 0)
+    .style('cursor', d => d.isCenter ? 'default' : 'pointer')
+    .call(d3.drag()
+      .on('start', (e,d) => { if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end',   (e,d) => { if(!e.active) sim.alphaTarget(0); if(!d.isCenter){d.fx=null;d.fy=null;} })
+    )
+    .on('click', handleNodeClick)
+    .on('mouseover', showTip)
+    .on('mousemove', showTip)
+    .on('mouseout', hideTip);
+
+  nodeEnter.each(function(d) {
+    const g = d3.select(this);
+    const stockMeta = d.kind === 'stock' ? STOCKS[d.stockId || d.id] : null;
+    const hasLogo = stockMeta && stockMeta.logoBg;
+
+    // avatar background (opaque, occludes lines behind node)
+    g.append('circle').attr('class','av-bg')
+      .attr('r', d.r - 1.5)
+      .attr('fill', hasLogo ? stockMeta.logoBg : (d.fill || '#14141a'));
+
+    if (hasLogo) {
+      // branded logo label (white text on brand color)
+      g.append('text').attr('class','av-init')
+        .attr('dy', d.r >= 19 ? 5 : 4)
+        .attr('text-anchor','middle')
+        .attr('font-size', Math.max(6, Math.floor(d.r * stockMeta.logoLabelSize)))
+        .attr('font-weight', 800)
+        .attr('fill', '#ffffff')
+        .attr('font-family', 'Inter,-apple-system,sans-serif')
+        .text(stockMeta.logoLabel);
+    } else {
+      // initials avatar
+      g.append('text').attr('class','av-init')
+        .attr('dy', d.r >= 19 ? 5 : 4)
+        .attr('text-anchor','middle')
+        .attr('font-size', d.r >= 26 ? 13 : d.r >= 19 ? 10 : 7)
+        .attr('font-weight', 700)
+        .attr('fill', d.kind === 'stock' ? '#8e8e93' : d.color)
+        .attr('font-family', 'Inter,-apple-system,sans-serif')
+        .text(d.initials || '?');
+    }
+
+    // stroke ring (drawn on top so it's always crisp)
+    g.append('circle').attr('class','ring')
+      .attr('r', d.r)
+      .attr('fill','none')
+      .attr('stroke', hasLogo ? 'rgba(255,255,255,0.3)' : d.color)
+      .attr('stroke-width', d.isCenter ? 2.5 : 1.8)
+      .attr('filter', d.isCenter ? 'url(#glow)' : (d.r >= 19 ? 'url(#glowSm)' : null));
+
+    // UBO badge: small rounded square top-right corner of circle
+    if (d.kind === 'ubo') {
+      g.append('rect')
+        .attr('x', d.r * 0.52).attr('y', -(d.r * 1.05))
+        .attr('width', 8).attr('height', 8)
+        .attr('rx', 2)
+        .attr('fill', '#f2f2f7')
+        .attr('stroke', '#000').attr('stroke-width', 1);
+    }
+
+    // % inside large investor nodes (not stock — logo already fills those)
+    if (d.kind !== 'stock' && d.r >= 19 && d.pct != null) {
+      g.append('text')
+        .attr('dy', d.r >= 26 ? 18 : 13)
+        .attr('text-anchor','middle')
+        .attr('font-size', d.r >= 26 ? 8 : 7)
+        .attr('font-weight', 600)
+        .attr('fill', d.color)
+        .attr('font-family','Inter,-apple-system,sans-serif')
+        .attr('opacity', 0.85)
+        .text(d.pct.toFixed(1)+'%');
+    }
+
+    // label + % below node
+    const labelY = d.r + 11;
+    g.append('text').attr('class','lbl-name')
+      .attr('dy', labelY)
+      .attr('text-anchor','middle')
+      .attr('font-size', d.isCenter ? 10 : 8)
+      .attr('font-weight', d.isCenter ? 700 : 500)
+      .attr('fill', d.isCenter ? '#f2f2f7' : '#b0b0b8')
+      .attr('font-family','Inter,-apple-system,sans-serif')
+      .text(truncate(d.label, d.isCenter ? 10 : 9));
+
+    if (d.pct != null) {
+      g.append('text').attr('class','lbl-pct')
+        .attr('dy', labelY + 11)
+        .attr('text-anchor','middle')
+        .attr('font-size', 7)
+        .attr('font-weight', 600)
+        .attr('fill', hasLogo ? '#8e8e93' : d.color)
+        .attr('font-family','Inter,-apple-system,sans-serif')
+        .attr('opacity', 0.9)
+        .text(d.pct.toFixed(2)+'%');
+    }
+  });
+
+  nodeEnter.transition().duration(280).attr('opacity', 1);
+  const nodeMerge = nodeEnter.merge(node);
+
+  // simulation
+  sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d=>d.id).distance(d => {
+      const s = d.source.r||10, t = d.target.r||10;
+      return s + t + 55 + (d.secondary ? 20 : 0);
+    }).strength(0.5))
+    .force('charge', d3.forceManyBody().strength(d => d.isCenter ? -700 : -180))
+    .force('center', d3.forceCenter(w/2, h/2))
+    .force('collide', d3.forceCollide(d => d.r + 20).iterations(3))
+    .on('tick', () => {
+      linkMerge.attr('d', linkPath);
+      nodeMerge.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+  if (center) { center.fx = w/2; center.fy = h/2; }
+
+  applyHighlight();
+  updateBottomSheet();
+  updateNavUI();
+}
+
+// ── Node click ────────────────────────────────────────────────────────────────
+
+function navigate(newMode, newCenter) {
+  navStack.push({ mode, centerData: JSON.parse(JSON.stringify(centerData)) });
+  fwdStack = [];
+  mode = newMode;
+  centerData = newCenter;
+  renderGraph();
+}
+
+function handleNodeClick(e, d) {
+  e.stopPropagation();
+  hideTip();
+  if (d.isCenter) return;
+
+  if (d.kind === 'ubo') {
+    navigate('ubo', { id: d.id });
+  } else if (d.kind === 'investor') {
+    const inv = d.investorData || { id:d.id, name:d.label, origin:d.origin, type:d.type };
+    navigate('investor', { id: inv.id, meta: inv });
+  } else if (d.kind === 'stock') {
+    navigate('company', { type:'stock', id: d.stockId || d.id });
+  }
+}
+
+document.getElementById('btnBack').addEventListener('click', () => {
+  if (navStack.length) {
+    fwdStack.push({ mode, centerData: JSON.parse(JSON.stringify(centerData)) });
+    const prev = navStack.pop();
+    mode = prev.mode; centerData = prev.centerData;
+    renderGraph();
+  }
+});
+
+document.getElementById('bsBack').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (navStack.length) {
+    fwdStack.push({ mode, centerData: JSON.parse(JSON.stringify(centerData)) });
+    const prev = navStack.pop();
+    mode = prev.mode; centerData = prev.centerData;
+    renderGraph();
+  }
+});
+
+document.getElementById('bsFwd').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (fwdStack.length) {
+    navStack.push({ mode, centerData: JSON.parse(JSON.stringify(centerData)) });
+    const nxt = fwdStack.pop();
+    mode = nxt.mode; centerData = nxt.centerData;
+    renderGraph();
+  }
+});
+
+function updateNavUI() {
+  document.getElementById('bsBack').classList.toggle('disabled', navStack.length === 0);
+  document.getElementById('bsFwd').classList.toggle('disabled', fwdStack.length === 0);
+}
+
+// ── Highlight bar ─────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.hlp').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const hl = pill.dataset.hl;
+    if (activeHighlights.has(hl)) {
+      activeHighlights.delete(hl);
+      pill.classList.remove('active-'+hl);
+    } else {
+      activeHighlights.add(hl);
+      pill.classList.add('active-'+hl);
+    }
+    applyHighlight();
+  });
+});
+
+function nodeMatchesHL(d) {
+  if (activeHighlights.size === 0) return true;
+  if (activeHighlights.has('emiten') && d.kind === 'stock') return true;
+  if (activeHighlights.has('dom') && d.kind === 'investor' && d.origin === 'DOM') return true;
+  if (activeHighlights.has('for') && d.kind === 'investor' && d.origin === 'FOR') return true;
+  if (activeHighlights.has('ubo') && d.kind === 'ubo') return true;
+  return false;
+}
+
+function applyHighlight() {
+  if (activeHighlights.size === 0) {
+    nodesG.selectAll('g.node').attr('opacity', 1);
+    linksG.selectAll('path.link').attr('opacity', 1);
+    return;
+  }
+
+  const hlIds = new Set(currentNodes.filter(n => n.isCenter || nodeMatchesHL(n)).map(n => n.id));
+
+  // bridge: non-highlighted node connected to ≥2 highlighted nodes
+  const bridgeIds = new Set();
+  currentNodes.forEach(n => {
+    if (hlIds.has(n.id)) return;
+    const hlNeighbours = currentLinks.filter(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      return (s === n.id && hlIds.has(t)) || (t === n.id && hlIds.has(s));
+    });
+    if (hlNeighbours.length >= 2) bridgeIds.add(n.id);
+  });
+
+  nodesG.selectAll('g.node').attr('opacity', d => {
+    if (hlIds.has(d.id)) return 1;
+    if (bridgeIds.has(d.id)) return 0.35;
+    return 0.08;
+  });
+
+  linksG.selectAll('path.link').attr('opacity', d => {
+    const s = typeof d.source === 'object' ? d.source.id : d.source;
+    const t = typeof d.target === 'object' ? d.target.id : d.target;
+    const sHL = hlIds.has(s), tHL = hlIds.has(t);
+    const sBR = bridgeIds.has(s), tBR = bridgeIds.has(t);
+    if (sHL && tHL) return 1;
+    if ((sHL && tBR) || (sBR && tHL)) return 0.55;
+    if (sBR && tBR) return 0.25;
+    return 0.06;
+  });
+}
+
+// ── UBO ownership helper ──────────────────────────────────────────────────────
+
+function getUBOStockInfo(uboId, stockId) {
+  const sh = (SHAREHOLDERS[stockId] || []).find(s => s.ubo === uboId);
+  return sh ? { pct: sh.pct, via: sh.name } : null;
+}
+
+// ── Bottom sheet ──────────────────────────────────────────────────────────────
+
+document.getElementById('bsheetHeader').addEventListener('click', () => {
+  document.getElementById('bsheet').classList.toggle('open');
+});
+
+function centerNodeColor() {
+  if (mode === 'company') return '#8e8e93';
+  if (mode === 'ubo') return originColor(UBOS[centerData.id]?.origin || 'DOM');
+  return originColor(centerData.meta?.origin || 'DOM');
+}
+
+function centerNodeLabel() {
+  if (mode === 'company') return centerData.id;
+  if (mode === 'investor') return centerData.meta?.name || centerData.id;
+  if (mode === 'ubo') return UBOS[centerData.id]?.name || centerData.id;
+  return '';
+}
+
+function centerNodeModeLabel() {
+  if (mode === 'company') return 'Emiten';
+  if (mode === 'investor') return centerData.meta?.origin === 'FOR' ? 'Asing' : 'Domestik';
+  return 'UBO';
+}
+
+function updateBottomSheet() {
+  // update pill
+  document.getElementById('bsnpDot').style.background = centerNodeColor();
+  document.getElementById('bsnpName').textContent = centerNodeLabel();
+  document.getElementById('bsnpMode').textContent = centerNodeModeLabel();
+
+  const body = document.getElementById('bsheetBody');
+  let rows = [], heading = '';
+
+  if (mode === 'company') {
+    heading = 'Pemegang Saham';
+    rows = (SHAREHOLDERS[centerData.id] || []).map(s => ({
+      color: originColor(s.origin), label: s.name, pct: s.pct.toFixed(2)+'%',
+      badge: s.type, origin: s.origin, isUBO: false,
+      onClick: () => navigate('investor', { id:s.id, meta:s }),
+    }));
+  } else if (mode === 'investor') {
+    heading = 'Portofolio';
+    rows = (INVESTOR_HOLDINGS[centerData.id] || []).map(h => ({
+      color: '#8e8e93', label: STOCKS[h.stockId]?.name || h.stockId,
+      pct: h.pct.toFixed(2)+'%', badge: null, origin: null, isUBO: false,
+      onClick: () => navigate('company', { type:'stock', id:h.stockId }),
+    }));
+  } else if (mode === 'ubo') {
+    heading = 'Saham Terkait';
+    rows = (UBOS[centerData.id]?.stocks || []).map(sid => {
+      const info = getUBOStockInfo(centerData.id, sid);
+      return {
+        color: '#8e8e93', label: STOCKS[sid]?.name || sid,
+        pct: info ? info.pct.toFixed(2)+'%' : null,
+        sub: info ? 'via '+info.via : null,
+        badge: null, origin: null, isUBO: false,
+        onClick: () => navigate('company', { type:'stock', id:sid }),
+      };
+    });
+  }
+
+  body.innerHTML = `<div class="bsheet-section-label">${heading}</div>` +
+    rows.map((r, i) => `
+      <div class="bsh-row" data-idx="${i}">
+        <div class="${r.isUBO?'bsh-sq':'bsh-dot'}" style="background:${r.color}"></div>
+        <div class="bsh-info">
+          <div class="bsh-name">${r.label}</div>
+          ${r.sub ? `<div class="bsh-sub">${r.sub}</div>` : ''}
+        </div>
+        ${r.pct ? `<div class="bsh-pct">${r.pct}</div>` : ''}
+        ${r.badge ? `<div class="bsh-badge">${r.badge}</div>` : ''}
+        ${r.origin ? `<div class="bsh-origin ${r.origin.toLowerCase()}">${r.origin}</div>` : ''}
+      </div>
+    `).join('');
+
+  // bind row clicks
+  body.querySelectorAll('.bsh-row').forEach((el, i) => {
+    el.addEventListener('click', () => rows[i].onClick());
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+renderGraph();
+</script>
+</body>
+</html>
