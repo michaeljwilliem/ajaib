@@ -93,25 +93,51 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--s0)}
 .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer}
 
-/* Total aset row */
-.total-row{display:flex;align-items:center;padding:2px 16px 8px;gap:10px}
-.total-left{flex:1;min-width:0}
-.total-label-row{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.total-label{font-size:10px;color:var(--t2)}
+/* ── Portfolio strip — two-layer morph card ── */
 .eye-btn{color:var(--t3);cursor:pointer;flex-shrink:0}
-.total-amount{font-size:20px;font-weight:700;letter-spacing:-.5px;color:var(--t1)}
-.hadiah-cta{display:flex;align-items:center;gap:4px;background:linear-gradient(135deg,#b8852a 0%,#d4a843 100%);border:1px solid rgba(218,165,50,.5);border-radius:10px;padding:8px 12px;cursor:pointer;flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,210,80,.2)}
-.hadiah-cta span{font-size:11px;font-weight:700;color:#fff4cc;white-space:nowrap}
-
-/* ── Buying Power bar ── */
-.bp-bar{display:flex;align-items:center;margin:0 16px 10px;padding:8px 12px;background:var(--s2);border:1px solid rgba(255,255,255,.18);border-radius:10px;gap:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
-.bp-left{flex:1;display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden}
-.bp-label{font-size:10px;color:var(--t2);white-space:nowrap}
-.bp-flip{display:inline-flex;align-items:center;gap:5px;transition:opacity .18s ease,transform .18s ease}
-.bp-val{font-size:11px;font-weight:600;color:var(--t1);white-space:nowrap}
-.bp-deposit{display:flex;align-items:center;gap:3px;padding:5px 12px;background:var(--blue);border-radius:7px;cursor:pointer;flex-shrink:0}
-.bp-deposit span{font-size:10px;font-weight:700;color:#fff}
+.portfolio-strip{position:relative;overflow:hidden;background:var(--s0)}
+/* Compact layer — in normal flow so it gives the strip its natural height */
+.psc{display:flex;align-items:stretch;padding:8px 16px;gap:10px;cursor:ns-resize}
+.ps-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.ps-row1{display:flex;align-items:center;gap:4px}
+.ps-label{font-size:9px;color:var(--t2);white-space:nowrap}
+.ps-hadiah{display:inline-flex;align-items:center;gap:3px;background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.35);border-radius:5px;padding:2px 7px;margin-left:auto;cursor:pointer;flex-shrink:0}
+.ps-hadiah span{font-size:9px;font-weight:700;color:#d4a843;white-space:nowrap}
+.ps-row2{display:flex;align-items:center;gap:6px;min-width:0}
+.ps-amount{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.ps-return{display:flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;flex-shrink:0;white-space:nowrap}
+.ps-sep{width:1px;align-self:stretch;background:var(--b2);flex-shrink:0;margin:2px 0}
+.ps-right{display:flex;flex-direction:column;gap:3px;justify-content:center;flex-shrink:0;width:152px}
+.ps-bp-row{display:flex;align-items:center;gap:4px}
+.ps-bp-label{font-size:9px;color:var(--t2);white-space:nowrap}
+.ps-bp-tag{display:inline-flex;align-items:center;transition:opacity .18s ease,transform .18s ease}
+.ps-act-row{display:flex;align-items:center;gap:4px}
+.ps-bp-val{font-size:11px;font-weight:600;color:var(--t1);white-space:nowrap;flex:1;transition:opacity .18s ease,transform .18s ease}
+.ps-deposit{display:inline-flex;align-items:center;gap:2px;background:var(--blue);border-radius:5px;padding:3px 9px;cursor:pointer;flex-shrink:0;margin-left:auto}
+.ps-deposit span{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
 .ap-tag{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.03em;flex-shrink:0}
+/* Expanded layer */
+.pse{position:absolute;inset:0;padding:12px 16px 8px;opacity:0;pointer-events:none;display:flex;flex-direction:column;gap:5px}
+.pse-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.pse-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pse-label-row{display:flex;align-items:center;gap:5px}
+.pse-label{font-size:10px;color:var(--t2)}
+.pse-amount{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--t1)}
+.pse-ret-row{display:flex;align-items:center;gap:6px}
+.pse-ret-amt{font-size:12px;font-weight:600}
+.pse-ret-pct{font-size:11px;font-weight:600}
+.pse-period{background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:10px;font-weight:600;padding:2px 7px;cursor:pointer;font-family:inherit}
+.pse-hadiah{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#b8852a,#d4a843);border:1px solid rgba(218,165,50,.5);border-radius:10px;padding:8px 11px;cursor:pointer;flex-shrink:0;align-self:flex-start;box-shadow:inset 0 1px 0 rgba(255,210,80,.2)}
+.pse-hadiah span{font-size:11px;font-weight:700;color:#fff4cc;white-space:nowrap}
+.pse-divider{height:1px;background:var(--b1);margin:1px 0}
+.pse-bps{display:flex;flex-direction:column;gap:5px}
+.pse-bp-row{display:flex;align-items:center;gap:8px;transition:opacity .18s ease}
+.pse-bp-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;letter-spacing:.03em}
+.pse-bp-name{font-size:11px;color:var(--t2);flex:1}
+.pse-bp-val{font-size:12px;font-weight:600;color:var(--t1)}
+.pse-deposit{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:var(--blue);border-radius:9px;cursor:pointer}
+.pse-deposit span{font-size:13px;font-weight:700;color:#fff}
+.pse-handle{width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:3px auto 0;cursor:pointer}
 
 /* ── Product shortcut row (icon + label) ── */
 .shortcut-row{display:flex;gap:2px;padding:4px 16px 10px;overflow-x:auto}
@@ -120,22 +146,6 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .sc-item:hover{background:rgba(255,255,255,.05)}
 .sc-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sc-label{font-size:10px;font-weight:500;color:var(--t2);text-align:center;line-height:1.3;white-space:nowrap}
-
-/* Collapsible wrapper — total-row + action-pills collapse on scroll */
-.collapsible-top{overflow:hidden;transition:max-height .28s ease,opacity .24s ease;max-height:200px;opacity:1}
-.collapsible-top.collapsed{max-height:0;opacity:0}
-
-/* Scroll mini — replaces collapsible-top when scrolled */
-.scroll-mini{max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .24s ease;display:flex;align-items:stretch;padding:0 16px;gap:10px;background:rgba(0,0,0,.97);border-bottom:1px solid transparent}
-.scroll-mini.visible{max-height:60px;opacity:1;padding:8px 16px;border-bottom-color:var(--b1)}
-.sm-left,.sm-right{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
-.sm-label-row{display:flex;align-items:center;gap:4px}
-.sm-label{font-size:9px;color:var(--t2)}
-.sm-amount-row{display:flex;align-items:center;gap:6px;min-width:0}
-.sm-amount{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
-.sm-deposit{display:flex;align-items:center;gap:2px;background:var(--blue);border-radius:5px;padding:2px 7px;cursor:pointer;flex-shrink:0;margin-left:auto}
-.sm-deposit span{font-size:9px;font-weight:700;color:#fff}
-.sm-sep{width:1px;align-self:stretch;background:var(--b2);flex-shrink:0;margin:2px 0}
 
 /* ── Watchlist ── */
 .wl{padding-bottom:4px}
@@ -398,37 +408,80 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
           </div>
         </div>
 
-        <!-- Collapsible: total-row + action-pills (hides on scroll) -->
-        <div class="collapsible-top" id="collapsible-top">
+        <!-- Portfolio strip: two-layer morph card (compact ↔ expanded) -->
+        <div class="portfolio-strip" id="portfolio-strip">
 
-        <!-- Total Aset -->
-        <div class="total-row">
-          <div class="total-left">
-            <div class="total-label-row">
-              <span class="total-label">Total Aset</span>
-              <svg class="eye-btn" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <!-- Compact layer -->
+          <div class="psc" id="psc">
+            <div class="ps-left">
+              <div class="ps-row1">
+                <span class="ps-label">Total Aset</span>
+                <svg class="eye-btn" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="ps-hadiah">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+                  <span>Hadiah 100jt</span>
+                </div>
+              </div>
+              <div class="ps-row2">
+                <span class="ps-amount" id="total-aset">Rp100.567.890</span>
+                <span class="ps-return" id="ps-return" style="color:var(--green);background:rgba(48,209,88,.12)">▲ +2,3%</span>
+              </div>
             </div>
-            <span class="total-amount" id="total-aset">Rp100.567.890</span>
+            <div class="ps-sep"></div>
+            <div class="ps-right">
+              <div class="ps-bp-row">
+                <span class="ps-bp-label">Buying Power</span>
+                <div class="ps-bp-tag" id="pc-bp-tag"></div>
+              </div>
+              <div class="ps-act-row">
+                <span class="ps-bp-val" id="pc-bp-val"></span>
+                <div class="ps-deposit"><span>+ Deposit</span></div>
+              </div>
+            </div>
           </div>
-          <div class="hadiah-cta">
-            <svg width="11" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff4cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-            <span>Hadiah 100jt</span>
+
+          <!-- Expanded layer -->
+          <div class="pse" id="pse">
+            <div class="pse-top">
+              <div class="pse-left">
+                <div class="pse-label-row">
+                  <span class="pse-label">Total Aset</span>
+                  <svg class="eye-btn" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="pse-amount">Rp100.567.890</div>
+                <div class="pse-ret-row">
+                  <span class="pse-ret-amt" style="color:var(--green)">▲ +Rp2.234.567</span>
+                  <span class="pse-ret-pct" style="color:var(--green)">+2,3%</span>
+                  <button class="pse-period">Hari ini ▾</button>
+                </div>
+              </div>
+              <div class="pse-hadiah">
+                <svg width="11" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff4cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+                <span>Hadiah 100jt</span>
+              </div>
+            </div>
+            <div class="pse-divider"></div>
+            <div class="pse-bps">
+              <div class="pse-bp-row" id="pse-bp-row" style="transition:opacity .18s ease,transform .18s ease">
+                <span id="pse-bp-tag"></span>
+                <span class="pse-bp-name" id="pse-bp-name"></span>
+                <span class="pse-bp-val" id="pse-bp-val"></span>
+              </div>
+            </div>
+            <div class="pse-deposit">
+              <span>+ Deposit</span>
+            </div>
+            <div class="pse-handle"></div>
           </div>
+
         </div>
 
-        <!-- Buying Power bar -->
-        <div class="bp-bar">
-          <div class="bp-left">
-            <span class="bp-label">Buying Power</span>
-            <div class="bp-flip" id="bp-flip"></div>
-          </div>
-          <div class="bp-deposit">
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Deposit</span>
-          </div>
-        </div>
+      </div><!-- /fixed-top -->
 
-        <!-- Product shortcuts: navigate to offered products (icon + label) -->
+      <!-- Scrollable content -->
+      <div class="scroll-content" id="scroll-content">
+
+        <!-- Product shortcuts: scrolls with content -->
         <div class="shortcut-row">
 
           <div class="sc-item">
@@ -495,37 +548,6 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
           </div>
 
         </div>
-        </div><!-- /collapsible-top -->
-
-        <!-- Scroll mini -->
-        <div class="scroll-mini" id="scroll-mini">
-          <div class="sm-left">
-            <div class="sm-label-row">
-              <span class="sm-label">Total Aset</span>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </div>
-            <span class="sm-amount" id="mini-aset">Rp100.567.890</span>
-          </div>
-          <div class="sm-sep"></div>
-          <div class="sm-right">
-            <div class="sm-label-row">
-              <span class="sm-label">Buying Power</span>
-              <span id="mini-bp-tag" style="font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px">IDX</span>
-            </div>
-            <div class="sm-amount-row">
-              <span class="sm-amount" id="mini-bp-val">Rp32.000.000</span>
-              <div class="sm-deposit">
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                <span>Deposit</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /fixed-top -->
-
-      <!-- Scrollable content -->
-      <div class="scroll-content" id="scroll-content">
 
         <!-- Watchlist -->
         <div class="wl">
@@ -1310,55 +1332,137 @@ const BP_DATA = [
 ];
 let bpIdx = 0;
 
+const BP_NAMES = ['Buying Power IDX', 'Buying Power US', 'Buying Power Kripto'];
+
 function renderBpPill() {
-  const flip = document.getElementById('bp-flip');
-  if (!flip) return;
   const d = BP_DATA[bpIdx];
-  flip.innerHTML =
-    `<span class="ap-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>`+
-    `<span class="bp-val">${d.val}</span>`;
-  updateScrollMini();
+  // compact strip
+  const tag = document.getElementById('pc-bp-tag');
+  const val = document.getElementById('pc-bp-val');
+  if (tag && val) {
+    tag.innerHTML = `<span class="ap-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>`;
+    val.textContent = d.val;
+  }
+  // expanded single row
+  const eTag  = document.getElementById('pse-bp-tag');
+  const eName = document.getElementById('pse-bp-name');
+  const eVal  = document.getElementById('pse-bp-val');
+  if (eTag && eName && eVal) {
+    eTag.innerHTML  = `<span class="pse-bp-tag" style="background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40">${d.tag}</span>`;
+    eName.textContent = BP_NAMES[bpIdx];
+    eVal.textContent  = d.val;
+  }
 }
 
 function advanceBpPill() {
-  const flip = document.getElementById('bp-flip');
-  if (!flip) return;
-  flip.style.opacity = '0';
-  flip.style.transform = 'translateY(4px)';
+  const tag  = document.getElementById('pc-bp-tag');
+  const val  = document.getElementById('pc-bp-val');
+  const eRow = document.getElementById('pse-bp-row');
+  // fade out
+  [tag, val, eRow].forEach(el => { if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(4px)'; } });
   setTimeout(() => {
     bpIdx = (bpIdx + 1) % BP_DATA.length;
     renderBpPill();
-    flip.style.opacity = '1';
-    flip.style.transform = 'translateY(0)';
+    [tag, val, eRow].forEach(el => { if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } });
   }, 180);
 }
 
 // ═══════════════════════════════════════════════════
-// SCROLL MINI HEADER
+// PULL-TO-EXPAND CARD
 // ═══════════════════════════════════════════════════
 
-function updateScrollMini() {
-  const d = BP_DATA[bpIdx];
-  const miniTag = document.getElementById('mini-bp-tag');
-  const miniVal = document.getElementById('mini-bp-val');
-  if (miniTag) {
-    miniTag.textContent = d.tag;
-    miniTag.style.cssText = `font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:${d.tagColor}20;color:${d.tagColor};border:1px solid ${d.tagColor}40`;
-  }
-  if (miniVal) miniVal.textContent = d.val;
-}
+function wirePullReveal() {
+  const sc       = document.getElementById('scroll-content');
+  const strip    = document.getElementById('portfolio-strip');
+  const compact  = document.getElementById('psc');
+  const expandEl = document.getElementById('pse');
+  if (!sc || !strip || !compact || !expandEl) return;
 
-function wireScrollMini() {
-  const sc = document.getElementById('scroll-content');
-  const mini = document.getElementById('scroll-mini');
-  const collapsible = document.getElementById('collapsible-top');
-  if (!sc || !mini || !collapsible) return;
-  sc.addEventListener('scroll', () => {
-    const scrolled = sc.scrollTop > 52;
-    mini.classList.toggle('visible', scrolled);
-    collapsible.classList.toggle('collapsed', scrolled);
-    if (scrolled) updateScrollMini();
+  const compactH  = strip.offsetHeight;
+  // measure pse natural content height — it's position:absolute over compactH so content overflows into scrollHeight
+  const expandedH = expandEl.scrollHeight + 4;
+  const MAX_DRAG  = expandedH - compactH;
+  const SNAP_AT   = 0.35;
+  let isOpen = false, dragging = false, progress = 0;
+
+  function applyProgress(p, animated) {
+    progress = Math.max(0, Math.min(1, p));
+    const h = compactH + MAX_DRAG * progress;
+    strip.style.transition    = animated ? 'height .3s cubic-bezier(.32,.72,0,1)' : 'none';
+    compact.style.transition  = animated ? 'opacity .2s ease' : 'none';
+    expandEl.style.transition = animated ? 'opacity .2s ease' : 'none';
+    strip.style.height        = h + 'px';
+    compact.style.opacity     = String(Math.max(0, 1 - progress * 2));
+    expandEl.style.opacity    = String(Math.max(0, progress * 2 - 1));
+    expandEl.style.pointerEvents = progress > 0.5 ? 'auto' : 'none';
+    isOpen = progress >= 0.9;
+    renderBpPill();
+  }
+
+  function snapTo(open) { applyProgress(open ? 1 : 0, true); }
+
+  // Scroll wheel: overscroll up at top → expand; scroll down when open → collapse
+  sc.addEventListener('wheel', e => {
+    if (e.deltaY < 0 && sc.scrollTop === 0 && !isOpen) {
+      e.preventDefault();
+      snapTo(true);
+    } else if (e.deltaY > 0 && isOpen) {
+      e.preventDefault();
+      snapTo(false);
+    }
+  }, { passive: false });
+
+  // Touch: pull down sc at top to open
+  let startY = 0;
+  sc.addEventListener('touchstart', e => {
+    if (sc.scrollTop > 0 || isOpen) return;
+    startY = e.touches[0].clientY; dragging = false;
   }, { passive: true });
+  sc.addEventListener('touchmove', e => {
+    if (sc.scrollTop > 0 || isOpen) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 4) return;
+    dragging = true; e.preventDefault();
+    applyProgress(dy / MAX_DRAG, false);
+  }, { passive: false });
+  sc.addEventListener('touchend', () => {
+    if (dragging) { dragging = false; snapTo(progress >= SNAP_AT); }
+  });
+
+  // Touch: swipe up on expanded to close
+  let closeStartY = 0;
+  expandEl.addEventListener('touchstart', e => { closeStartY = e.touches[0].clientY; }, { passive: true });
+  expandEl.addEventListener('touchmove', e => {
+    if (!isOpen) return;
+    const dy = e.touches[0].clientY - closeStartY;
+    if (dy >= 0) return;
+    e.preventDefault(); applyProgress(1 + dy / MAX_DRAG, false);
+  }, { passive: false });
+  expandEl.addEventListener('touchend', () => { if (isOpen) snapTo(progress >= SNAP_AT); });
+
+  // Mouse: drag compact strip down to open
+  let mouseDown = false, closeMode = false, mStartY = 0;
+  compact.addEventListener('mousedown', e => {
+    if (isOpen) return;
+    mouseDown = true; closeMode = false; mStartY = e.clientY; dragging = false;
+    e.preventDefault();
+  });
+  expandEl.addEventListener('mousedown', e => {
+    if (!isOpen) return;
+    mouseDown = true; closeMode = true; mStartY = e.clientY; e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!mouseDown) return;
+    const dy = e.clientY - mStartY;
+    if (closeMode) { if (dy < 0) applyProgress(1 + dy / MAX_DRAG, false); }
+    else { if (dy > 4) { dragging = true; applyProgress(dy / MAX_DRAG, false); } }
+  });
+  window.addEventListener('mouseup', () => {
+    if (!mouseDown) return;
+    mouseDown = false;
+    if (closeMode) { if (isOpen) snapTo(progress >= SNAP_AT); }
+    else if (dragging) { dragging = false; snapTo(progress >= SNAP_AT); }
+  });
 }
 
 // ═══════════════════════════════════════════════════
@@ -1784,7 +1888,7 @@ updateSortUI();
 wireScreener();
 renderBpPill();
 renderSearchPhs();
-wireScrollMini();
+wirePullReveal();
 buildMktStrip();
 wireIdxSheet();
 updateClock();
