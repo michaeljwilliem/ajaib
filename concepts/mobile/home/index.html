@@ -101,8 +101,6 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .ps-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
 .ps-row1{display:flex;align-items:center;gap:4px}
 .ps-label{font-size:9px;color:var(--t2);white-space:nowrap}
-.ps-hadiah{display:inline-flex;align-items:center;gap:3px;background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.35);border-radius:5px;padding:2px 7px;margin-left:auto;cursor:pointer;flex-shrink:0}
-.ps-hadiah span{font-size:9px;font-weight:700;color:#d4a843;white-space:nowrap}
 .ps-row2{display:flex;align-items:center;gap:6px;min-width:0}
 .ps-amount{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .ps-return{display:flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;flex-shrink:0;white-space:nowrap}
@@ -126,9 +124,7 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 .pse-ret-row{display:flex;align-items:center;gap:6px}
 .pse-ret-amt{font-size:12px;font-weight:600}
 .pse-ret-pct{font-size:11px;font-weight:600}
-.pse-period{background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:10px;font-weight:600;padding:2px 7px;cursor:pointer;font-family:inherit}
-.pse-hadiah{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#b8852a,#d4a843);border:1px solid rgba(218,165,50,.5);border-radius:10px;padding:8px 11px;cursor:pointer;flex-shrink:0;align-self:flex-start;box-shadow:inset 0 1px 0 rgba(255,210,80,.2)}
-.pse-hadiah span{font-size:11px;font-weight:700;color:#fff4cc;white-space:nowrap}
+.pse-period{background:var(--s3);border:1px solid var(--b2);border-radius:6px;color:var(--t2);font-size:10px;font-weight:600;padding:2px 7px;cursor:pointer;font-family:inherit;margin-left:auto}
 .pse-divider{height:1px;background:var(--b1);margin:1px 0}
 .pse-bps{display:flex;flex-direction:column;gap:5px}
 .pse-bp-row{display:flex;align-items:center;gap:8px;transition:opacity .18s ease}
@@ -237,6 +233,16 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
   .us-p{width:42px;font-size:9px}
   .us-pct{width:34px}
   .wrow,.wrow.tall{gap:5px}
+}
+@media(max-width:340px){
+  .ps-right{width:136px}
+  .ps-deposit{padding:3px 7px}
+}
+@media(max-width:295px){
+  .ps-right{width:116px}
+  .ps-deposit{padding:3px 5px}
+  .ps-deposit span{font-size:9px}
+  .ps-bp-val{font-size:10px}
 }
 
 /* Add to watchlist CTA */
@@ -417,10 +423,6 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
               <div class="ps-row1">
                 <span class="ps-label">Total Aset</span>
                 <svg class="eye-btn" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <div class="ps-hadiah">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-                  <span>Hadiah 100jt</span>
-                </div>
               </div>
               <div class="ps-row2">
                 <span class="ps-amount" id="total-aset">Rp100.567.890</span>
@@ -455,10 +457,6 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
                   <button class="pse-period">Hari ini ▾</button>
                 </div>
               </div>
-              <div class="pse-hadiah">
-                <svg width="11" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff4cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-                <span>Hadiah 100jt</span>
-              </div>
             </div>
             <div class="pse-divider"></div>
             <div class="pse-bps">
@@ -483,6 +481,13 @@ body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var
 
         <!-- Product shortcuts: scrolls with content -->
         <div class="shortcut-row">
+
+          <div class="sc-item">
+            <div class="sc-icon" style="background:rgba(212,168,67,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+            </div>
+            <span class="sc-label" style="font-size:9px;color:#d4a843;font-weight:600;white-space:nowrap">Hadiah 100jt</span>
+          </div>
 
           <div class="sc-item">
             <div class="sc-icon" style="background:rgba(232,51,74,.15)">
