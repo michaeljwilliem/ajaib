@@ -193,6 +193,8 @@ const STOCKS = {
   TLKM: { id:'TLKM', name:'Telkom Indonesia', initials:'TL', logoBg:'#e40521', logoLabel:'TLK', logoLabelSize:0.32 },
   BMRI: { id:'BMRI', name:'Bank Mandiri', initials:'BM', logoBg:'#003d7c', logoLabel:'BRI', logoLabelSize:0.32 },
   BYAN: { id:'BYAN', name:'Bayan Resources', initials:'BY', logoBg:'#1b5e20', logoLabel:'BY', logoLabelSize:0.38 },
+  DCII: { id:'DCII', name:'DCI Indonesia', initials:'DC', logoBg:'#1E3A6E', logoLabel:'DC', logoLabelSize:0.40 },
+  EMTK: { id:'EMTK', name:'Elang Mahkota Teknologi', initials:'EM', logoBg:'#8B6914', logoLabel:'EMTK', logoLabelSize:0.30 },
 };
 
 const UBOS = {
@@ -207,11 +209,48 @@ const SHAREHOLDERS = {
     { id:'GIC', name:'GIC Private Limited', pct:4.80, type:'IB', origin:'FOR', ubo:null, holdings:['TLKM','BMRI'] },
     { id:'VAG', name:'Vanguard Group', pct:2.31, type:'MF', origin:'FOR', ubo:null, holdings:[] },
     { id:'PUB', name:'Publik', pct:25.85, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+    { id:'ANT', name:'Anthoni Salim', pct:1.15, type:'CP', origin:'DOM', ubo:null, holdings:['DNET','DCII','EMTK'] },
   ],
   DNET:[
-    { id:'FAR', name:'Farindo Investments', pct:60.10, type:'CP', origin:'DOM', ubo:'RH', holdings:['BBCA','MPMX'] },
-    { id:'DWI', name:'PT Dwimuria Investama', pct:8.50, type:'CP', origin:'DOM', ubo:'MH', holdings:['BBCA'] },
-    { id:'PUB2', name:'Publik', pct:31.40, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+    { id:'ANT',      name:'Anthoni Salim',                                    pct:25.30, type:'CP', origin:'DOM', ubo:null, holdings:['BBCA','DCII','EMTK'] },
+    { id:'HAR',      name:'Han Arming Hanafia',                               pct:14.80, type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'PEAK',     name:'Peak Harvest',                                      pct:11.20, type:'CP', origin:'FOR', ubo:null, holdings:[] },
+    { id:'BING',     name:'Bing Moniaga',                                      pct:8.40,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'DIA',      name:'Dwimuria Investama Andalan',                        pct:6.30,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'CATUR',    name:'Caturguwiratna Sumapala',                           pct:4.90,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'TRIMANGU', name:'Tricipta Mandhala Gumilang',                        pct:3.20,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'PIET',     name:'Piet Yaury',                                        pct:2.40,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'STCH',     name:'Standard Chartered Bank',                           pct:1.80,  type:'IB', origin:'FOR', ubo:null, holdings:[] },
+    { id:'DEUTS',    name:'Deutsche BK AG (Private Banking) Spore WM Client',  pct:1.50,  type:'IB', origin:'FOR', ubo:null, holdings:[] },
+    { id:'INAWATI',  name:'Inawati Ningsih Juwono',                            pct:1.10,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'PUBDNET',  name:'Publik',                                            pct:19.10, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+  ],
+  DCII:[
+    { id:'ANT',      name:'Anthoni Salim',                  pct:11.12, type:'CP', origin:'DOM', ubo:null, holdings:['BBCA','DNET','EMTK'] },
+    { id:'OTTO',     name:'Otto Toto Sugiri',                pct:20.50, type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'MARINA',   name:'Marina Budiman',                  pct:12.30, type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'SKYHILLS', name:'Skyhills Capital SPC',            pct:8.20,  type:'IB', origin:'FOR', ubo:null, holdings:[] },
+    { id:'MEGAH',    name:'Megah Eraraharja',                pct:5.10,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'CHANG',    name:'Chang Cheng Investment Holding',  pct:6.40,  type:'CP', origin:'FOR', ubo:null, holdings:[] },
+    { id:'FORTUNE',  name:'Fortune Yield Investment SPC',    pct:4.80,  type:'IB', origin:'FOR', ubo:null, holdings:[] },
+    { id:'GRAHA',    name:'Graha Sentosa Aditama Maju',      pct:3.20,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'STREAM',   name:'Stream Topaz',                    pct:2.80,  type:'CP', origin:'FOR', ubo:null, holdings:[] },
+    { id:'CHEMINV',  name:'Cheminvest',                      pct:1.90,  type:'CP', origin:'FOR', ubo:null, holdings:[] },
+    { id:'PUBDCII',  name:'Publik',                          pct:23.68, type:'OT', origin:'DOM', ubo:null, holdings:[] },
+  ],
+  EMTK:[
+    { id:'ANT',       name:'Anthoni Salim',             pct:8.97,  type:'CP', origin:'DOM', ubo:null, holdings:['BBCA','DNET','DCII'] },
+    { id:'FOFO',      name:'RD Fofo Sariaatmadja',       pct:15.20, type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'EDDY',      name:'RD Eddy K Sariaatmadja',     pct:12.40, type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'HANNAWELL', name:'Hannawell Group',             pct:10.30, type:'CP', origin:'FOR', ubo:null, holdings:[] },
+    { id:'ADIK',      name:'Adikarsa Sarana',             pct:6.10,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'INDOLIFE',  name:'Indolife Pensiontama',        pct:5.40,  type:'IS', origin:'DOM', ubo:null, holdings:[] },
+    { id:'PRIMA',     name:'Prima Visualindo',             pct:4.20,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'CAKRA',     name:'Cakra Bakti Wira Semesta',    pct:3.10,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'SUSANTO',   name:'Ir. Susanto Suwarto',         pct:2.60,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'GP',        name:'GP Network Asia',              pct:2.10,  type:'CP', origin:'DOM', ubo:null, holdings:[] },
+    { id:'CRIS',      name:'Cris Developments',            pct:1.80,  type:'CP', origin:'FOR', ubo:null, holdings:[] },
+    { id:'PUBEMTK',   name:'Publik',                       pct:27.83, type:'OT', origin:'DOM', ubo:null, holdings:[] },
   ],
   TLKM:[
     { id:'GOI', name:'Pemerintah RI', pct:52.09, type:'CP', origin:'DOM', ubo:null, holdings:['BMRI'] },
@@ -231,6 +270,7 @@ const INVESTOR_HOLDINGS = {
   GIC:[{stockId:'BBCA',pct:4.80},{stockId:'TLKM',pct:3.21},{stockId:'BMRI',pct:2.10}],
   VAG:[{stockId:'BBCA',pct:2.31}],
   GOI:[{stockId:'TLKM',pct:52.09},{stockId:'BMRI',pct:60.00}],
+  ANT:[{stockId:'BBCA',pct:1.15},{stockId:'DNET',pct:25.30},{stockId:'DCII',pct:11.12},{stockId:'EMTK',pct:8.97}],
 };
 
 const TYPE_LABELS = {
@@ -338,7 +378,7 @@ function buildGraphData() {
       const co = addNode({ id:'co_'+h.stockId, label:h.stockId, sublabel:s.name, kind:'stock', r:18, color:'#8e8e93', fill:'#14141a', stockId:h.stockId, pct:h.pct, initials:s.initials });
       addLink(invId, 'co_'+h.stockId, { color:'rgba(160,160,170,0.45)', width:linkWidth(h.pct), pct:h.pct });
 
-      for (const sh2 of (SHAREHOLDERS[h.stockId]||[]).filter(s2=>s2.id!==invId).slice(0,2)) {
+      for (const sh2 of (SHAREHOLDERS[h.stockId]||[]).filter(s2=>s2.id!==invId).slice(0,12)) {
         const r2 = nodeRadius(sh2.pct, false);
         const col2 = originColor(sh2.origin);
         const f2 = sh2.origin === 'FOR' ? '#1a1508' : '#0d1829';
