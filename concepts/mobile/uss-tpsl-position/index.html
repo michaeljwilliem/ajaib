@@ -405,6 +405,40 @@ body{background:var(--bg);font-family:'Inter',-apple-system,BlinkMacSystemFont,s
 .toggle-sw.on .toggle-knob{transform:translateX(18px)}
 
 ::-webkit-scrollbar{display:none}
+
+/* ── REDESIGNED SETUP SHEET ROWS ──────────────────────────── */
+.setup-order-rows{border-top:1px solid var(--b1)}
+.setup-order-row{display:flex;align-items:center;gap:9px;padding:12px 16px;transition:opacity .18s}
+.setup-order-row+.setup-order-row{border-top:1px solid var(--b1)}
+.setup-order-row.inactive{opacity:.38}
+.setup-order-row.inactive input{pointer-events:none;color:var(--t3)!important;background:transparent!important;border-color:transparent!important}
+.setup-order-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;cursor:pointer;transition:all .18s;border:2px solid transparent}
+.setup-order-dot-tp{background:var(--green);box-shadow:0 0 0 2.5px rgba(48,209,88,.22)}
+.setup-order-dot-sl{background:var(--red);box-shadow:0 0 0 2.5px rgba(255,69,58,.22)}
+.setup-order-row.inactive .setup-order-dot-tp{background:transparent;border-color:var(--green);box-shadow:none}
+.setup-order-row.inactive .setup-order-dot-sl{background:transparent;border-color:var(--red);box-shadow:none}
+/* 2-line label */
+.setup-order-label-wrap{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.setup-order-title{font-size:13px;font-weight:600;color:var(--t2);transition:color .18s;white-space:nowrap}
+.setup-order-sub{font-size:10px;color:var(--t3);transition:color .18s;white-space:nowrap}
+.setup-order-row:not(.inactive) .setup-order-title{color:var(--t1)}
+.setup-order-row:not(.inactive) .setup-order-sub{color:var(--t2)}
+.setup-order-inputs{display:flex;align-items:center;gap:5px;flex:1;justify-content:flex-end}
+.setup-price-input-sm{background:var(--s3);border:1px solid var(--b2);border-radius:9px;padding:7px 8px;font-size:14px;font-weight:700;color:var(--t1);font-family:inherit;width:78px;text-align:right;outline:none}
+.setup-price-input-sm:focus{border-color:var(--blue)}
+.setup-pct-input{background:var(--s3);border:1px solid var(--b2);border-radius:9px;padding:7px 6px;font-size:13px;font-weight:700;font-family:inherit;width:60px;text-align:right;outline:none}
+.setup-pct-input:focus{border-color:var(--blue)}
+/* always-visible SL info note */
+.setup-order-info{display:flex;align-items:flex-start;gap:5px;padding:8px 16px 10px;border-top:1px solid var(--b1)}
+.setup-order-info-text{font-size:11px;color:var(--t3);line-height:1.45}
+/* ── QUANTITY ONE-LINE ROW ────────────────────────────────── */
+.setup-qty-row{display:flex;align-items:center;gap:9px;padding:12px 16px 6px;border-top:1px solid var(--b1)}
+.setup-qty-label{font-size:13px;font-weight:600;color:var(--t2);flex-shrink:0}
+.qty-controls-wrap{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.qty-mode-toggle{display:flex;background:var(--s3);border-radius:8px;padding:2px;gap:2px}
+.qty-mode-btn{font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer;border:none;background:transparent;color:var(--t2);transition:background .15s,color .15s;font-family:inherit}
+.qty-mode-btn.act{background:var(--s1);color:var(--t1)}
+.qty-context{font-size:10px;color:var(--t3);text-align:right;padding:1px 16px 10px}
 </style>
 </head>
 <body>
@@ -1255,76 +1289,60 @@ body{background:var(--bg);font-family:'Inter',-apple-system,BlinkMacSystemFont,s
           <button class="setup-dismiss" onclick="hideFsSheet()">×</button>
         </div>
 
-        <!-- Mode selector -->
-        <div class="setup-mode-tabs">
-          <div class="setup-mode-tab" id="fsm-tp" onclick="setTpslMode('tp')">Take Profit</div>
-          <div class="setup-mode-tab" id="fsm-sl" onclick="setTpslMode('sl')">Stop Loss</div>
-          <div class="setup-mode-tab act" id="fsm-both" onclick="setTpslMode('both')">Keduanya</div>
-        </div>
-
-        <!-- Price rows -->
-        <div class="setup-price-rows">
+        <!-- TP + SL rows: always both visible, dot toggles each on/off -->
+        <div class="setup-order-rows">
           <!-- TP row -->
-          <div class="setup-price-row" id="fs-tp-row">
-            <div class="setup-row-left">
-              <div class="tpsl-dot tpsl-dot-g"></div>
-              <span class="setup-row-label">Jual kalau naik ke</span>
+          <div class="setup-order-row" id="fs-tp-row">
+            <div class="setup-order-dot setup-order-dot-tp" id="fs-tp-dot" onclick="toggleOrderRow('tp')"></div>
+            <div class="setup-order-label-wrap">
+              <span class="setup-order-title">Take Profit</span>
+              <span class="setup-order-sub">Jual kalau naik ke</span>
             </div>
-            <div class="setup-row-right">
-              <span class="setup-price-prefix" id="fs-tp-prefix">$</span>
-              <input class="setup-price-input" id="fs-tp-price" value="150,00" oninput="fsOnPriceInput('tp')">
-              <span class="setup-hint up" id="fs-tp-hint">+15,4%</span>
+            <div class="setup-order-inputs">
+              <span style="font-size:13px;color:var(--t3);font-weight:500">$</span>
+              <input class="setup-price-input-sm" id="fs-tp-price" value="150,00" oninput="fsOnPriceInput('tp')">
+              <input class="setup-pct-input" id="fs-tp-pct" value="+15,4" oninput="fsOnPctInput('tp')" style="color:var(--green)">
+              <span style="font-size:12px;color:var(--t3);font-weight:500">%</span>
             </div>
           </div>
           <!-- SL row -->
-          <div class="setup-price-row" id="fs-sl-row">
-            <div class="setup-row-left">
-              <div class="tpsl-dot tpsl-dot-r"></div>
-              <span class="setup-row-label">Jual kalau turun ke</span>
+          <div class="setup-order-row" id="fs-sl-row">
+            <div class="setup-order-dot setup-order-dot-sl" id="fs-sl-dot" onclick="toggleOrderRow('sl')"></div>
+            <div class="setup-order-label-wrap">
+              <span class="setup-order-title">Stop Loss</span>
+              <span class="setup-order-sub">Jual kalau turun ke</span>
             </div>
-            <div class="setup-row-right">
-              <span class="setup-price-prefix" id="fs-sl-prefix">$</span>
-              <input class="setup-price-input" id="fs-sl-price" value="120,00" oninput="fsOnPriceInput('sl')">
-              <span class="setup-hint dn" id="fs-sl-hint">−7,7%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Advanced accordion -->
-        <div class="setup-advanced-hdr" onclick="toggleFsAdvanced()">
-          <span class="setup-advanced-hdr-label">
-            <svg id="fs-adv-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><path d="M9 18l6-6-6-6"/></svg>
-            Pengaturan lanjutan
-          </span>
-        </div>
-        <div id="fs-advanced" style="display:none">
-          <div class="setup-advanced-body">
-            <div class="setup-adv-row">
-              <span class="setup-adv-label">Masukan dalam</span>
-              <div class="input-toggle">
-                <button class="itog-btn act" id="fs-mode-price" onclick="setFsPriceMode(this,'price')">Harga $</button>
-                <button class="itog-btn" id="fs-mode-pct" onclick="setFsPriceMode(this,'pct')">Persentase %</button>
-              </div>
-            </div>
-            <div class="setup-adv-row">
-              <span class="setup-adv-label">Kuantitas</span>
-              <div style="display:flex;align-items:center;gap:8px">
-                <div class="qty-ctrl">
-                  <button class="qty-btn" onclick="changeQtyFs(-0.01)">−</button>
-                  <input class="qty-inp" id="fs-qty" value="0,23" oninput="fsOnQtyInput()">
-                  <button class="qty-btn" onclick="changeQtyFs(0.01)">+</button>
-                </div>
-                <span style="font-size:11px;color:var(--t3)">Maks 0,23 lem</span>
-              </div>
+            <div class="setup-order-inputs">
+              <span style="font-size:13px;color:var(--t3);font-weight:500">$</span>
+              <input class="setup-price-input-sm" id="fs-sl-price" value="120,00" oninput="fsOnPriceInput('sl')">
+              <input class="setup-pct-input" id="fs-sl-pct" value="−7,7" oninput="fsOnPctInput('sl')" style="color:var(--red)">
+              <span style="font-size:12px;color:var(--t3);font-weight:500">%</span>
             </div>
           </div>
         </div>
 
-        <!-- SL market note (shown when SL visible) -->
-        <div class="setup-sl-note" id="fs-sl-note">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span class="setup-sl-note-text">Stop Loss dieksekusi sebagai market order — harga aktual bisa berbeda saat terpicu.</span>
+        <!-- Always-visible SL info (subtle, not alarming) -->
+        <div class="setup-order-info">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;opacity:.55"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span class="setup-order-info-text">Stop loss dieksekusi sebagai market order untuk melindungi posisimu. Harga aktual bisa berbeda saat terpicu.</span>
         </div>
+
+        <!-- Quantity — one line: label + mode toggle + stepper -->
+        <div class="setup-qty-row">
+          <span class="setup-qty-label">Kuantitas</span>
+          <div class="qty-controls-wrap">
+            <div class="qty-mode-toggle">
+              <button class="qty-mode-btn act" id="qm-shares" onclick="toggleQtyMode('shares')">Lembar</button>
+              <button class="qty-mode-btn" id="qm-amount" onclick="toggleQtyMode('amount')">Jumlah $</button>
+            </div>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQtyFs(-1)">−</button>
+              <input class="qty-inp" id="fs-qty" value="0,23" oninput="fsOnQtyInput()">
+              <button class="qty-btn" onclick="changeQtyFs(1)">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="qty-context" id="qty-context-line">Nilai ≈ $31,89</div>
 
         <!-- CTA -->
         <div class="setup-cta">
@@ -1514,116 +1532,122 @@ function showToast(msg) {
 }
 
 // ── SETUP SHEET ───────────────────────────────────────────────
-const SF_AVG = 130.00, SF_OWN = 0.23;
-let fsMode = 'both';       // 'tp' | 'sl' | 'both'
-let fsEditMode = false;
-let fsPriceMode = 'price'; // 'price' | 'pct'
+const SF_AVG = 130.00, SF_CUR = 138.63, SF_OWN = 0.23;
+let fsTpActive = true;
+let fsSlActive = true;
+let fsQtyMode = 'shares'; // 'shares' | 'amount'
 
 function sfmt(n) { return Math.abs(n).toFixed(2).replace('.', ','); }
-function pfmt(p) { return (p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1).replace('.', ',') + '%'; }
-function pnum(s) { return parseFloat(String(s).replace(',', '.')); }
+function pfmt(p) { return (p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1).replace('.', ','); }
+function pnum(s) { return parseFloat(String(s).replace('−', '-').replace('+', '').replace(',', '.')); }
 
 function showFsSheet(mode) {
-  fsEditMode = (mode === 'edit');
-  // reset advanced accordion
-  document.getElementById('fs-advanced').style.display = 'none';
-  document.getElementById('fs-adv-arrow').style.transform = 'rotate(0deg)';
-  // reset price mode to 'price'
-  fsPriceMode = 'price';
-  document.getElementById('fs-mode-price').classList.add('act');
-  document.getElementById('fs-mode-pct').classList.remove('act');
-  document.getElementById('fs-tp-prefix').textContent = '$';
-  document.getElementById('fs-sl-prefix').textContent = '$';
+  const isEdit = (mode === 'edit');
+  fsTpActive = true;
+  fsSlActive = true;
+  fsQtyMode = 'shares';
+  // reset qty mode UI
+  document.getElementById('qm-shares').classList.add('act');
+  document.getElementById('qm-amount').classList.remove('act');
   // pre-fill defaults
   document.getElementById('fs-tp-price').value = '150,00';
   document.getElementById('fs-sl-price').value = '120,00';
   document.getElementById('fs-qty').value = sfmt(SF_OWN);
-  // set mode tabs
-  const m = (mode === 'create-sl') ? 'sl' : 'both';
-  setTpslMode(m);
-  // update title and CTA
-  document.getElementById('fs-title').textContent = fsEditMode ? 'Edit Stop Loss' : 'Atur TP/SL';
-  document.getElementById('fs-cta-btn').textContent = fsEditMode ? 'Simpan Perubahan' : 'Aktifkan TP/SL →';
-  // update hints
+  document.getElementById('qty-context-line').textContent = 'Nilai ≈ $' + sfmt(SF_OWN * SF_CUR);
+  // compute % values from prices
   fsOnPriceInput('tp');
   fsOnPriceInput('sl');
+  updateRowStates();
+  document.getElementById('fs-title').textContent = isEdit ? 'Edit TP/SL' : 'Atur TP/SL';
+  updateCtaLabel(isEdit);
   showSheet('setup');
 }
 
 function hideFsSheet() { hideSheet('setup'); }
 
-function setTpslMode(mode) {
-  fsMode = mode;
-  document.getElementById('fs-tp-row').style.display = (mode === 'sl') ? 'none' : 'flex';
-  document.getElementById('fs-sl-row').style.display = (mode === 'tp') ? 'none' : 'flex';
-  document.getElementById('fs-sl-note').style.display = (mode === 'tp') ? 'none' : 'flex';
-  ['fsm-tp','fsm-sl','fsm-both'].forEach(id => document.getElementById(id).classList.remove('act'));
-  document.getElementById('fsm-' + (mode === 'both' ? 'both' : mode)).classList.add('act');
+function toggleOrderRow(type) {
+  if (type === 'tp') fsTpActive = !fsTpActive;
+  else fsSlActive = !fsSlActive;
+  updateRowStates();
+  const isEdit = document.getElementById('fs-cta-btn').textContent.includes('Simpan');
+  updateCtaLabel(isEdit);
+}
+
+function updateRowStates() {
+  document.getElementById('fs-tp-row').classList.toggle('inactive', !fsTpActive);
+  document.getElementById('fs-sl-row').classList.toggle('inactive', !fsSlActive);
+}
+
+function updateCtaLabel(isEdit) {
+  const btn = document.getElementById('fs-cta-btn');
+  if (!fsTpActive && !fsSlActive) {
+    btn.className = 'btn btn-disabled';
+    btn.textContent = 'Pilih minimal satu';
+    return;
+  }
+  btn.className = 'btn btn-primary';
+  if (isEdit) { btn.textContent = 'Simpan Perubahan'; return; }
+  if (fsTpActive && fsSlActive) btn.textContent = 'Aktifkan TP/SL →';
+  else if (fsTpActive) btn.textContent = 'Aktifkan Take Profit →';
+  else btn.textContent = 'Aktifkan Stop Loss →';
 }
 
 function fsOnPriceInput(id) {
-  const inputEl = document.getElementById('fs-' + id + '-price');
-  const raw = pnum(inputEl.value);
-  let price, pct;
-  if (fsPriceMode === 'pct') {
-    pct = isNaN(raw) ? 0 : raw;
-    price = SF_AVG * (1 + pct / 100);
-  } else {
-    price = isNaN(raw) ? SF_AVG : raw;
-    pct = (price - SF_AVG) / SF_AVG * 100;
-  }
-  const hintEl = document.getElementById('fs-' + id + '-hint');
-  hintEl.textContent = fsPriceMode === 'price' ? pfmt(pct) : '$' + sfmt(price);
-  hintEl.className = 'setup-hint ' + (pct >= 0 ? 'up' : 'dn');
+  const price = pnum(document.getElementById('fs-' + id + '-price').value);
+  const pct = isNaN(price) ? 0 : (price - SF_AVG) / SF_AVG * 100;
+  const pctEl = document.getElementById('fs-' + id + '-pct');
+  pctEl.value = pfmt(pct);
+  pctEl.style.color = pct >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function fsOnPctInput(id) {
+  const pctEl = document.getElementById('fs-' + id + '-pct');
+  const raw = pnum(pctEl.value);
+  const pct = isNaN(raw) ? 0 : raw;
+  document.getElementById('fs-' + id + '-price').value = sfmt(SF_AVG * (1 + pct / 100));
+  pctEl.style.color = pct >= 0 ? 'var(--green)' : 'var(--red)';
 }
 
 function fsOnQtyInput() {
   const el = document.getElementById('fs-qty');
-  let v = pnum(el.value);
-  if (isNaN(v) || v <= 0) v = 0.01;
-  if (v > SF_OWN) { el.style.color = 'var(--red)'; } else { el.style.color = ''; }
+  const max = fsQtyMode === 'shares' ? SF_OWN : SF_OWN * SF_CUR;
+  const v = pnum(el.value);
+  el.style.color = (!isNaN(v) && v > max) ? 'var(--red)' : '';
+  const ctx = document.getElementById('qty-context-line');
+  if (!isNaN(v) && v > 0) {
+    ctx.textContent = fsQtyMode === 'shares'
+      ? 'Nilai ≈ $' + sfmt(v * SF_CUR)
+      : '≈ ' + (v / SF_CUR).toFixed(4).replace('.', ',') + ' lem';
+  }
 }
 
-function changeQtyFs(delta) {
+function changeQtyFs(dir) {
   const el = document.getElementById('fs-qty');
-  let v = Math.round((pnum(el.value) + delta) * 100) / 100;
-  v = Math.max(0.01, Math.min(SF_OWN, v));
-  el.value = sfmt(v);
+  const step = fsQtyMode === 'shares' ? 0.01 : 1.00;
+  const max = fsQtyMode === 'shares' ? SF_OWN : Math.floor(SF_OWN * SF_CUR * 100) / 100;
+  let v = Math.round((pnum(el.value) + dir * step) * 1000) / 1000;
+  v = Math.max(0.01, Math.min(max, v));
+  el.value = fsQtyMode === 'shares' ? sfmt(v) : v.toFixed(2).replace('.', ',');
   el.style.color = '';
+  fsOnQtyInput();
 }
 
-function setFsPriceMode(btn, mode) {
-  if (fsPriceMode === mode) return;
-  btn.closest('.input-toggle').querySelectorAll('.itog-btn').forEach(b => b.classList.remove('act'));
-  btn.classList.add('act');
-  // convert existing values
-  ['tp', 'sl'].forEach(id => {
-    const inputEl = document.getElementById('fs-' + id + '-price');
-    const prefixEl = document.getElementById('fs-' + id + '-prefix');
-    const raw = pnum(inputEl.value);
-    if (mode === 'pct') {
-      const price = isNaN(raw) ? SF_AVG : raw;
-      const pct = (price - SF_AVG) / SF_AVG * 100;
-      inputEl.value = pct.toFixed(1).replace('.', ',');
-      prefixEl.textContent = '%';
-    } else {
-      const pct = isNaN(raw) ? 0 : raw;
-      const price = SF_AVG * (1 + pct / 100);
-      inputEl.value = sfmt(price);
-      prefixEl.textContent = '$';
-    }
-  });
-  fsPriceMode = mode;
-  fsOnPriceInput('tp');
-  fsOnPriceInput('sl');
-}
-
-function toggleFsAdvanced() {
-  const el = document.getElementById('fs-advanced');
-  const arrow = document.getElementById('fs-adv-arrow');
-  const open = el.style.display === 'none';
-  el.style.display = open ? 'block' : 'none';
-  arrow.style.transform = open ? 'rotate(90deg)' : 'rotate(0deg)';
+function toggleQtyMode(mode) {
+  if (fsQtyMode === mode) return;
+  fsQtyMode = mode;
+  document.getElementById('qm-shares').classList.toggle('act', mode === 'shares');
+  document.getElementById('qm-amount').classList.toggle('act', mode === 'amount');
+  const el = document.getElementById('fs-qty');
+  const ctx = document.getElementById('qty-context-line');
+  if (mode === 'shares') {
+    el.value = sfmt(SF_OWN);
+    ctx.textContent = 'Nilai ≈ $' + sfmt(SF_OWN * SF_CUR);
+  } else {
+    const amt = Math.floor(SF_OWN * SF_CUR * 100) / 100;
+    el.value = amt.toFixed(2).replace('.', ',');
+    ctx.textContent = '≈ ' + sfmt(SF_OWN) + ' lem';
+  }
+  el.style.color = '';
 }
 
 // ── SCROLL: COLLAPSE PORTFOLIO CARD ──────────────────────────
