@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib — Take Profit / Stop Loss</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060608;
+  --s0:#000;--s1:#0d0d10;--s2:#1c1c1f;--s3:#242428;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t1:#f2f2f7;--t2:#8e8e93;--t3:#48484a;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;
+  --amber:#ffd60a;--purple:#bf5af2;--teal:#5ac8fa;
+  --safe-top:54px;--safe-bot:34px;
+  --tabs-h:44px;
+  --l2-bot:calc(var(--tabs-h) + var(--safe-bot) + 10px);
+}
+body{background:var(--bg);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px;gap:16px}
+@media(max-width:500px),(pointer:coarse){
+  body{padding:0;background:#000;justify-content:flex-start}
+  .phone-wrap{width:100%!important;filter:none!important}
+  .phone-shell{width:100%!important;background:none!important;border-radius:0!important;padding:0!important}
+  .phone-shell::before{display:none}
+  .btn-vol,.btn-vol2,.btn-pwr{display:none}
+  .screen{width:100%!important;height:100svh!important;border-radius:0!important}
+}
+
+/* ── PHONE FRAME ───────────────────────────────────────────── */
+.phone-wrap{position:relative;width:407px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.phone-shell{width:407px;background:linear-gradient(170deg,#2a2a2e 0%,#1a1a1e 60%,#111 100%);border-radius:56px;padding:10px;position:relative}
+.phone-shell::before{content:'';position:absolute;inset:0;border-radius:56px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.btn-vol{position:absolute;left:-3px;top:130px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-vol2{position:absolute;left:-3px;top:178px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-pwr{position:absolute;right:-3px;top:158px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+
+/* ── SCREEN ────────────────────────────────────────────────── */
+.screen{width:387px;height:839px;border-radius:48px;background:var(--s0);overflow:hidden;position:relative}
+
+/* ── GLOBAL STATUS BAR (always above subscreens) ──────────── */
+.screen-sbar{position:absolute;top:0;left:0;right:0;height:var(--safe-top);background:var(--s0);z-index:30;display:flex;align-items:flex-end;padding:0 28px 10px;justify-content:space-between;pointer-events:none}
+.sbar-time{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;border:1px solid #1c1c1e}
+.sbar-icons{display:flex;align-items:center;gap:6px}
+
+/* ── SUBSCREEN NAVIGATION ──────────────────────────────────── */
+.subscreen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--s0);padding-top:var(--safe-top);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);will-change:transform;overflow:hidden;z-index:1}
+.subscreen.nav-active{transform:translateX(0);z-index:2}
+.subscreen.nav-prev{transform:translateX(-30%)}
+
+/* ── SEARCH APP BAR (universe screens) ────────────────────── */
+.app-bar-search{display:flex;align-items:center;padding:6px 16px;gap:8px;flex-shrink:0;background:var(--s0)}
+.search-box{flex:1;display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:8px 12px;height:36px;overflow:hidden;cursor:text}
+.search-uni-icon{flex-shrink:0;display:flex;align-items:center}
+.search-divider{width:1px;height:12px;background:rgba(255,255,255,.15);flex-shrink:0}
+.search-ph-wrap{flex:1;position:relative;height:18px;overflow:hidden}
+.search-ph{position:absolute;inset:0;display:flex;align-items:center;font-size:13px;color:var(--t3);transition:opacity .3s,transform .3s;white-space:nowrap;overflow:hidden}
+.search-ph.hidden{opacity:0;transform:translateY(6px)}
+.search-ph.visible{opacity:1;transform:translateY(0)}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--s0)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer}
+
+/* ── BACK APP BAR (flow screens) ──────────────────────────── */
+.app-bar-back{height:44px;display:flex;align-items:center;padding:0 6px 0 4px;flex-shrink:0;background:var(--s0);border-bottom:1px solid var(--b1)}
+.ab-back{display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer;color:var(--blue);flex-shrink:0;border-radius:50%}
+.ab-back:active{background:rgba(255,255,255,.07)}
+.ab-title{flex:1;font-size:16px;font-weight:700;letter-spacing:-.3px;text-align:center}
+.ab-action{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);flex-shrink:0}
+
+/* ── PORTFOLIO CARD ────────────────────────────────────────── */
+.collapsible-top{overflow:hidden;transition:max-height .28s ease,opacity .24s ease;max-height:200px;opacity:1}
+.collapsible-top.collapsed{max-height:0;opacity:0}
+.inv-card{margin:4px 16px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:14px;overflow:hidden}
+.inv-card-top{padding:12px 16px 10px;border-bottom:1px solid var(--b1)}
+.inv-label-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.inv-label{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em}
+.inv-amount{font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-.5px;line-height:1.2;margin-bottom:3px}
+.inv-return{font-size:11px;color:var(--t2)}
+.inv-return-val{font-weight:600}
+.inv-card-bot{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.inv-bp-label{font-size:10px;color:var(--t2);margin-bottom:2px}
+.inv-bp-val{font-size:13px;font-weight:600;color:var(--t1)}
+.inv-deposit{display:flex;align-items:center;gap:4px;background:var(--blue);border-radius:10px;padding:8px 14px;cursor:pointer;flex-shrink:0}
+.inv-deposit span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+
+/* ── SCROLL MINI ───────────────────────────────────────────── */
+.scroll-mini{max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .24s ease;display:flex;align-items:center;padding:0 16px;gap:10px;background:rgba(0,0,0,.97);border-bottom:1px solid transparent}
+.scroll-mini.visible{max-height:60px;opacity:1;padding:8px 16px;border-bottom-color:var(--b1)}
+.sm-left{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sm-chip{display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:.05em;width:fit-content}
+.sm-amount{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.3px;white-space:nowrap}
+.sm-deposit{display:flex;align-items:center;gap:3px;background:var(--blue);border-radius:6px;padding:3px 9px;cursor:pointer;flex-shrink:0}
+.sm-deposit span{font-size:10px;font-weight:700;color:#fff}
+.sm-sep{width:1px;height:30px;background:var(--b2);flex-shrink:0}
+.sm-bp{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.sm-bp-label{font-size:9px;color:var(--t2)}
+.sm-bp-val{font-size:11px;font-weight:600;color:var(--t1)}
+
+/* ── L3 CONTENT TABS ───────────────────────────────────────── */
+.l3-tabs{display:flex;flex-shrink:0;background:var(--s0);border-bottom:1px solid var(--b1);height:40px;overflow-x:auto}
+.l3-tabs::-webkit-scrollbar{display:none}
+.l3-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 10px;cursor:pointer;position:relative;min-width:fit-content;white-space:nowrap;flex-shrink:0}
+.l3-label{font-size:13px;font-weight:500;color:var(--t2);padding-bottom:9px;transition:color .15s}
+.l3-tab.act .l3-label{color:var(--blue);font-weight:700}
+.l3-ind{position:absolute;bottom:0;left:10px;right:10px;height:3px;border-radius:2px 2px 0 0;background:var(--blue);opacity:0;transition:opacity .15s}
+.l3-tab.act .l3-ind{opacity:1}
+
+/* ── SCROLL CONTENT ────────────────────────────────────────── */
+.scroll-content{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+.scroll-content::-webkit-scrollbar{display:none}
+
+/* ── SECTION HEADERS ───────────────────────────────────────── */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 6px}
+.section-title{font-size:13px;font-weight:700;color:var(--t1)}
+.section-link{font-size:12px;color:var(--blue);cursor:pointer}
+
+/* ── STOCK ROWS ────────────────────────────────────────────── */
+.stock-row{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background .1s;-webkit-tap-highlight-color:transparent}
+.stock-row:active{background:var(--s2)}
+.stock-logo{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:0}
+.stock-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.stock-ticker{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-.2px}
+.stock-name{font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stock-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;gap:3px}
+.stock-value{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-.2px}
+.stock-change{font-size:12px;font-weight:600}
+.up{color:var(--green)}
+.dn{color:var(--red)}
+
+/* ── L2 UNIVERSE PILL ──────────────────────────────────────── */
+.l2-nav{position:absolute;left:16px;bottom:var(--l2-bot);z-index:20;display:flex;align-items:center;background:rgba(52,52,58,.96);border:1px solid rgba(255,255,255,.22);border-radius:24px;padding:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 1px 3px rgba(0,0,0,.4)}
+.l2-pill{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;background:rgba(255,255,255,.13);cursor:pointer}
+.l2-pill-label{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap}
+
+/* ── BOTTOM TABS ───────────────────────────────────────────── */
+.bottom-tabs{flex-shrink:0;background:rgba(6,6,8,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--b1)}
+.tabs-row{display:flex;align-items:flex-start}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 3px;cursor:pointer;min-width:0}
+.tab-item svg{flex-shrink:0}
+.tab-label{font-size:9px;font-weight:500;color:var(--t2);white-space:nowrap;letter-spacing:-.2px}
+.tab-item.act .tab-label{color:var(--blue)}
+.home-ind{height:var(--safe-bot);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;background:rgba(6,6,8,.94)}
+.home-bar{width:120px;height:4px;background:rgba(255,255,255,.25);border-radius:2px}
+
+/* ── BOTTOM SHEETS ─────────────────────────────────────────── */
+.sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:40;opacity:0;pointer-events:none;transition:opacity .3s;cursor:pointer}
+.sheet-backdrop.vis{opacity:1;pointer-events:auto}
+.bottom-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--s1);border-radius:20px 20px 0 0;border-top:1px solid var(--b2);z-index:41;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);max-height:90%;display:flex;flex-direction:column}
+.bottom-sheet.vis{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:var(--t3);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.sheet-scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.sheet-scroll::-webkit-scrollbar{display:none}
+
+/* ── MODALS ────────────────────────────────────────────────── */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 16px calc(var(--safe-bot) + 12px);opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.vis{opacity:1;pointer-events:auto}
+.modal-card{background:var(--s2);border-radius:18px;padding:20px;width:100%;border:1px solid var(--b2);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.modal-title{font-size:17px;font-weight:700;color:var(--t1);margin-bottom:8px}
+.modal-body{font-size:14px;color:var(--t2);line-height:1.5;margin-bottom:20px}
+.modal-actions{display:flex;flex-direction:column;gap:10px}
+
+/* ── TOAST ─────────────────────────────────────────────────── */
+.toast{position:absolute;top:calc(var(--safe-top) + 8px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--s3);border:1px solid var(--b2);border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;color:var(--t1);z-index:60;white-space:nowrap;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 20px rgba(0,0,0,.6);pointer-events:none}
+.toast.vis{transform:translateX(-50%) translateY(0)}
+
+/* ── BUTTONS ───────────────────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;height:50px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;user-select:none;transition:opacity .15s;font-family:inherit;width:100%}
+.btn:active{opacity:.8}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--blue);border:1.5px solid var(--b2)}
+.btn-green{background:var(--green);color:#fff}
+.btn-disabled{background:var(--s3)!important;color:var(--t3)!important;pointer-events:none}
+
+/* ── ACTION BAR (Jual / Beli) ──────────────────────────────── */
+.action-bar{display:flex;gap:10px;padding:12px 16px calc(var(--safe-bot) + 12px);background:var(--s0);border-top:1px solid var(--b1);flex-shrink:0}
+.action-bar .btn{flex:1;height:48px;font-size:15px}
+
+/* ── PORTFOLIO DETAIL ──────────────────────────────────────── */
+.pd-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pd-scroll::-webkit-scrollbar{display:none}
+.pd-stock-card{margin:12px 16px 0;background:var(--s2);border:1px solid var(--b2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.pd-stock-left{display:flex;align-items:center;gap:10px}
+.pd-ticker{font-size:16px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:5px}
+.pd-company{font-size:12px;color:var(--t2);margin-top:2px}
+.pd-price-right{text-align:right}
+.pd-price{font-size:18px;font-weight:700;letter-spacing:-.5px}
+.pd-change{font-size:12px;font-weight:600;margin-top:3px}
+.pd-stats{margin:10px 16px 0;background:var(--s2);border:1px solid var(--b1);border-radius:14px;overflow:hidden}
+.pd-stat-row{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)}
+.pd-stat-row:last-child{border-bottom:none}
+.pd-stat-label{font-size:13px;color:var(--t2)}
+.pd-stat-val{font-size:13px;font-weight:600;color:var(--t1)}
+
+/* ── TP/SL CTA CARD ────────────────────────────────────────── */
+.tpsl-cta{margin:10px 16px 0;border-radius:14px;overflow:hidden;cursor:pointer;background:var(--s2);border:1px solid var(--b2);position:relative;transition:background .1s}
+.tpsl-cta:active{background:var(--s3)}
+.tpsl-cta-accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--teal)}
+.tpsl-cta-inner{padding:13px 14px 13px 18px;display:flex;align-items:center;justify-content:space-between}
+.tpsl-cta-title{font-size:14px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.tpsl-cta-sub{font-size:11px;color:var(--t2)}
+
+/* ── TP/SL ACTIVE SECTION ──────────────────────────────────── */
+.tpsl-active{margin:10px 16px 0;background:var(--s2);border:1px solid var(--b2);border-radius:14px;overflow:hidden}
+.tpsl-active-hdr{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;border-bottom:1px solid var(--b1)}
+.tpsl-active-title{font-size:14px;font-weight:700;color:var(--t1);flex:1}
+.tpsl-status-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(48,209,88,.18);color:var(--green);border:1px solid rgba(48,209,88,.3)}
+.tpsl-add-link{font-size:12px;color:var(--blue);cursor:pointer;flex-shrink:0}
+.tpsl-order-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--b1)}
+.tpsl-order-row:last-child{border-bottom:none}
+.tpsl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.tpsl-dot-g{background:var(--green)}
+.tpsl-dot-r{background:var(--red)}
+.tpsl-order-info{flex:1;display:flex;flex-direction:column;gap:2px}
+.tpsl-order-type{font-size:10px;font-weight:600;color:var(--t2)}
+.tpsl-order-price-row{display:flex;align-items:baseline;gap:6px}
+.tpsl-order-price{font-size:14px;font-weight:700;color:var(--t1)}
+.tpsl-order-pct{font-size:11px;font-weight:600}
+.tpsl-order-qty{font-size:11px;color:var(--t2)}
+.tpsl-order-acts{display:flex;gap:6px;flex-shrink:0}
+.tpsl-act-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;border:1px solid var(--b2);background:transparent;color:var(--blue);font-family:inherit}
+.tpsl-act-btn:active{background:var(--s3)}
+.tpsl-act-btn.danger{color:var(--red);border-color:rgba(255,69,58,.3)}
+.tpsl-add-sl-row{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 16px;cursor:pointer}
+.tpsl-add-sl-dashed{margin:0 16px;border:1.5px dashed var(--b2);border-radius:10px}
+.tpsl-add-sl-text{font-size:13px;color:var(--blue);font-weight:600}
+
+/* ── MATCHED ORDERS ────────────────────────────────────────── */
+.matched-section{padding:12px 16px 0}
+.matched-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.matched-title{font-size:14px;font-weight:700}
+.matched-link{font-size:12px;color:var(--blue);cursor:pointer}
+.mc-hdr{display:flex;padding:0 0 6px;border-bottom:1px solid var(--b1)}
+.mc-time{font-size:10px;color:var(--t2);font-weight:500;width:52px;flex-shrink:0}
+.mc-action{font-size:10px;color:var(--t2);font-weight:500;flex:1}
+.mc-price{font-size:10px;color:var(--t2);font-weight:500;text-align:right;flex-shrink:0}
+.mc-row{display:flex;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--b1)}
+.mc-row:last-child{border-bottom:none}
+.mc-t{font-size:11px;color:var(--t2);width:52px;flex-shrink:0;line-height:1.35}
+.mc-a{flex:1;font-size:11px;line-height:1.35;color:var(--t1)}
+.mc-p{text-align:right;flex-shrink:0}
+.mc-pv{font-size:11px;font-weight:600;color:var(--t1);display:block}
+.mc-tot{font-size:10px;color:var(--t2);display:block}
+
+/* ── SETUP FORM ────────────────────────────────────────────── */
+.context-bar{background:var(--s2);border-bottom:1px solid var(--b1);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ctx-left{display:flex;align-items:center;gap:8px}
+.ctx-logo{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.ctx-ticker{font-size:13px;font-weight:700;color:var(--t1)}
+.ctx-sub{font-size:11px;color:var(--t2);margin-top:1px}
+.ctx-right{text-align:right}
+.ctx-price{font-size:14px;font-weight:700;color:var(--t1)}
+.ctx-holding{font-size:11px;color:var(--t2);margin-top:1px}
+.running-total{padding:8px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1);flex-shrink:0}
+.rt-label{font-size:11px;color:var(--t2)}
+.rt-val{font-size:12px;font-weight:700}
+.rt-ok{color:var(--green)}
+.rt-warn{color:var(--amber)}
+.rt-err{color:var(--red)}
+.form-scroll{flex:1;overflow-y:auto;padding:14px 16px 100px;-webkit-overflow-scrolling:touch}
+.form-scroll::-webkit-scrollbar{display:none}
+.form-section-label{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tpsl-form-card{background:var(--s2);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:12px}
+.itog-wrap{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.input-toggle{display:flex;background:var(--s3);border-radius:8px;padding:2px;gap:2px;flex-shrink:0}
+.itog-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;border:none;background:transparent;color:var(--t2);transition:background .15s,color .15s;font-family:inherit}
+.itog-btn.act{background:var(--s1);color:var(--t1)}
+.price-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.pir-label{font-size:12px;color:var(--t2);flex:1;min-width:60px}
+.pir-right{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.pir-prefix{font-size:14px;color:var(--t2);font-weight:500}
+.pir-input{background:var(--s3);border:1px solid var(--b2);border-radius:9px;padding:8px 10px;font-size:14px;font-weight:700;color:var(--t1);font-family:inherit;width:96px;text-align:right;outline:none}
+.pir-input:focus{border-color:var(--blue)}
+.pir-hint{font-size:12px;font-weight:600;flex-shrink:0;min-width:52px;text-align:right}
+.qty-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.qty-label{font-size:12px;color:var(--t2);flex:1}
+.qty-ctrl{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.qty-btn{width:32px;height:32px;border-radius:8px;background:var(--s3);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;color:var(--t1);user-select:none;font-family:inherit}
+.qty-btn:active{background:var(--s2)}
+.qty-inp{background:var(--s3);border:1px solid var(--b2);border-radius:8px;padding:5px;font-size:13px;font-weight:700;color:var(--t1);font-family:inherit;width:62px;text-align:center;outline:none}
+.qty-inp:focus{border-color:var(--blue)}
+.qty-max{font-size:11px;color:var(--t3);flex-shrink:0}
+.potential-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0 0;border-top:1px solid var(--b1);margin-top:2px}
+.pot-label{font-size:12px;color:var(--t2)}
+.pot-val{font-size:13px;font-weight:700}
+.pot-g{color:var(--green)}
+.pot-r{color:var(--red)}
+.sl-warn{display:flex;align-items:flex-start;gap:6px;margin-top:10px;padding:9px;background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.2);border-radius:8px}
+.sl-warn-text{font-size:11px;color:var(--amber);line-height:1.4}
+.remove-tp{display:flex;justify-content:flex-end;margin-top:8px}
+.remove-tp-btn{font-size:11px;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:3px}
+.add-tp-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border:1.5px dashed rgba(48,209,88,.4);border-radius:12px;cursor:pointer;margin-bottom:16px;color:var(--green);font-size:13px;font-weight:600;transition:background .15s}
+.add-tp-btn:active{background:rgba(48,209,88,.08)}
+.qty-exceeded-note{font-size:11px;color:var(--red);margin-top:6px;display:flex;align-items:flex-start;gap:4px;line-height:1.4}
+.fixed-cta{position:absolute;bottom:0;left:0;right:0;padding:12px 16px calc(var(--safe-bot) + 8px);background:linear-gradient(to top,var(--s0) 65%,transparent);z-index:5}
+
+/* ── SETUP SHEET ───────────────────────────────────────────── */
+.setup-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--b1)}
+.setup-hdr-info{flex:1;display:flex;flex-direction:column;gap:2px}
+.setup-hdr-title{font-size:16px;font-weight:700;color:var(--t1);letter-spacing:-.3px}
+.setup-hdr-chip{display:flex;align-items:baseline;gap:5px}
+.setup-hdr-price{font-size:13px;font-weight:600;color:var(--t1)}
+.setup-hdr-chg{font-size:12px;font-weight:600}
+.setup-dismiss{width:32px;height:32px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);flex-shrink:0;border:none;font-size:18px;font-family:inherit}
+.setup-dismiss:active{background:var(--b2)}
+.setup-mode-tabs{display:flex;background:var(--s3);border-radius:10px;padding:3px;margin:12px 16px;gap:2px}
+.setup-mode-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:background .15s,color .15s;user-select:none}
+.setup-mode-tab.act{background:var(--s1);color:var(--t1)}
+.setup-price-rows{padding:4px 16px 8px;display:flex;flex-direction:column;gap:2px}
+.setup-price-row{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--s2);border:1px solid var(--b2);border-radius:12px}
+.setup-price-row+.setup-price-row{margin-top:8px}
+.setup-row-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.setup-row-label{font-size:13px;color:var(--t2);white-space:nowrap}
+.setup-row-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.setup-price-prefix{font-size:14px;color:var(--t3);font-weight:500}
+.setup-price-input{background:var(--s3);border:1px solid var(--b2);border-radius:9px;padding:7px 10px;font-size:15px;font-weight:700;color:var(--t1);font-family:inherit;width:88px;text-align:right;outline:none}
+.setup-price-input:focus{border-color:var(--blue)}
+.setup-hint{font-size:12px;font-weight:600;min-width:52px;text-align:right}
+.setup-advanced-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;color:var(--t2)}
+.setup-advanced-hdr-label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.setup-advanced-body{padding:4px 16px 8px;display:flex;flex-direction:column;gap:12px}
+.setup-adv-row{display:flex;align-items:center;justify-content:space-between}
+.setup-adv-label{font-size:13px;color:var(--t2)}
+.setup-sl-note{margin:4px 16px 8px;display:flex;align-items:flex-start;gap:6px;padding:9px;background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.2);border-radius:8px}
+.setup-sl-note-text{font-size:11px;color:var(--amber);line-height:1.4}
+.setup-cta{padding:12px 16px calc(var(--safe-bot) + 12px)}
+
+/* ── REVIEW CARDS ──────────────────────────────────────────── */
+.review-scroll{flex:1;overflow-y:auto;padding:14px 16px 100px;-webkit-overflow-scrolling:touch}
+.review-scroll::-webkit-scrollbar{display:none}
+.review-card{background:var(--s2);border:1px solid var(--b2);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.review-card-hdr{padding:11px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.review-card-title{font-size:13px;font-weight:700;color:var(--t1)}
+.rtb{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
+.rtb-tp{background:rgba(48,209,88,.18);color:var(--green);border:1px solid rgba(48,209,88,.3)}
+.rtb-sl{background:rgba(255,69,58,.18);color:var(--red);border:1px solid rgba(255,69,58,.3)}
+.rtb-lim{background:rgba(10,132,255,.18);color:var(--blue);border:1px solid rgba(10,132,255,.3)}
+.review-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--b1)}
+.review-row:last-child{border-bottom:none}
+.rr-label{font-size:12px;color:var(--t2)}
+.rr-val{font-size:13px;font-weight:600;color:var(--t1)}
+.info-banner{background:rgba(10,132,255,.08);border:1px solid rgba(10,132,255,.25);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start}
+.info-banner-text{font-size:12px;color:var(--blue);line-height:1.5}
+.warn-banner{background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.3);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.warn-banner-text{font-size:12px;color:var(--amber);line-height:1.5}
+
+/* ── SUCCESS SCREEN ────────────────────────────────────────── */
+.success-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.success-circle{width:80px;height:80px;border-radius:50%;background:rgba(48,209,88,.18);border:2px solid rgba(48,209,88,.4);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pop-in .4s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes pop-in{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px}
+.success-sub{font-size:14px;color:var(--t2);line-height:1.5;margin-bottom:32px;max-width:280px}
+.success-actions{display:flex;flex-direction:column;gap:10px;width:100%}
+
+/* ── OPEN ORDERS ───────────────────────────────────────────── */
+.filter-pills{display:flex;gap:7px;padding:10px 16px;overflow-x:auto;flex-shrink:0}
+.filter-pills::-webkit-scrollbar{display:none}
+.fpill{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--b2);color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s,color .15s,border-color .15s}
+.fpill.act{background:rgba(10,132,255,.18);color:var(--blue);border-color:rgba(10,132,255,.4)}
+.order-row{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--b1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.order-row:active{background:var(--s2)}
+.order-type-col{flex-shrink:0;width:32px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.otc-chip{font-size:10px;font-weight:700;padding:3px 6px;border-radius:6px;white-space:nowrap}
+.otc-tp{background:rgba(48,209,88,.18);color:var(--green)}
+.otc-sl{background:rgba(255,69,58,.18);color:var(--red)}
+.order-info{flex:1;min-width:0}
+.order-ticker-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.order-ticker{font-size:14px;font-weight:700;color:var(--t1)}
+.order-subtype{font-size:11px;color:var(--t2)}
+.order-price{font-size:13px;font-weight:700;color:var(--t1)}
+.order-qty{font-size:11px;color:var(--t2)}
+.order-tif{font-size:10px;color:var(--t3)}
+.order-cancel-btn{flex-shrink:0;font-size:12px;font-weight:600;color:var(--red);padding:5px 11px;border:1px solid rgba(255,69,58,.3);border-radius:8px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.order-cancel-btn:active{background:rgba(255,69,58,.1)}
+
+/* ── EDUCATION OVERLAY ─────────────────────────────────────── */
+.edu-content{padding:16px 16px calc(var(--safe-bot) + 16px)}
+.edu-title{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.edu-sub{font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.4}
+.edu-cards{display:flex;gap:10px;margin-bottom:16px}
+.edu-card{flex:1;border-radius:12px;padding:14px 12px;display:flex;flex-direction:column;gap:8px}
+.edu-card-tp{background:rgba(48,209,88,.1);border:1px solid rgba(48,209,88,.3)}
+.edu-card-sl{background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.3)}
+.edu-card-icon{font-size:24px}
+.edu-card-title{font-size:13px;font-weight:700}
+.edu-card-tp .edu-card-title{color:var(--green)}
+.edu-card-sl .edu-card-title{color:var(--red)}
+.edu-card-desc{font-size:11px;color:var(--t2);line-height:1.4}
+.edu-diagram{background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.edu-diag-row{display:flex;align-items:center;gap:10px;padding:4px 0}
+.edu-diag-label{font-size:11px;font-weight:700;width:36px;flex-shrink:0}
+.edu-diag-line{flex:1;height:1px;background:var(--b2)}
+.edu-diag-price{font-size:12px;font-weight:700;flex-shrink:0;min-width:54px;text-align:right}
+.edu-diag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.edu-oco-note{background:rgba(10,132,255,.08);border:1px solid rgba(10,132,255,.2);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--blue);line-height:1.5}
+.edu-jt-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0 14px;border-top:1px solid var(--b1)}
+.edu-jt-label{font-size:13px;color:var(--t2)}
+.toggle-sw{width:42px;height:24px;border-radius:12px;background:var(--s3);border:1px solid var(--b2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle-sw.on{background:var(--green)}
+.toggle-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--t1);border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.toggle-sw.on .toggle-knob{transform:translateX(18px)}
+
+::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-shell">
+    <div class="btn-vol"></div>
+    <div class="btn-vol2"></div>
+    <div class="btn-pwr"></div>
+
+    <div class="screen">
+
+      <!-- ══ GLOBAL STATUS BAR ══════════════════════════════════ -->
+      <div class="screen-sbar">
+        <span class="sbar-time">12:30</span>
+        <div class="di"></div>
+        <div class="sbar-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="4" width="3" height="8" rx="1" fill="white"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1" fill="white"/><rect x="9" y="1" width="3" height="11" rx="1" fill="white"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM1.5 4.5C3.4 2.6 5.6 1.5 8 1.5s4.6 1.1 6.5 3l1.5-1.5C13.7 1.1 11 0 8 0S2.3 1.1.0 3l1.5 1.5zM8 4.5c-1.5 0-2.9.6-3.9 1.6L5.6 7.6C6.2 7 7.1 6.5 8 6.5s1.8.5 2.4 1.1l1.5-1.5C10.9 5.1 9.5 4.5 8 4.5z"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/><rect x="2" y="2" width="17" height="8" rx="2" fill="white"/><path d="M23 4v4a2 2 0 000-4z" fill="white" opacity=".4"/></svg>
+        </div>
+      </div>
+
+      <!-- ══ SCREEN 1: ASET TAB ══════════════════════════════════ -->
+      <div class="subscreen nav-active" id="s-aset">
+
+        <!-- Fixed header -->
+        <div style="flex-shrink:0">
+
+          <!-- App bar: search -->
+          <div class="app-bar-search">
+            <div class="search-box">
+              <span class="search-uni-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+              </span>
+              <div class="search-divider"></div>
+              <div class="search-ph-wrap">
+                <div class="search-ph visible" id="aset-ph">
+                  <span style="color:var(--t3)">Cari</span><span style="color:var(--t2)">&nbsp;TSLA, NVDA, AAPL…</span>
+                </div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
+            <div class="icon-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <div class="notif-dot"></div>
+            </div>
+            <div class="avatar">M</div>
+          </div>
+
+          <!-- Portfolio card (collapsible) -->
+          <div class="collapsible-top" id="aset-collapsible">
+            <div class="inv-card">
+              <div class="inv-card-top">
+                <div class="inv-label-row">
+                  <span class="inv-label">Total Saham AS</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="inv-amount">$1.700,00</div>
+                <div class="inv-return">Return <span class="inv-return-val" style="color:var(--green)">+$338,00 (+24%)</span></div>
+              </div>
+              <div class="inv-card-bot">
+                <div>
+                  <div class="inv-bp-label">Buying Power USD</div>
+                  <div class="inv-bp-val">$500,00</div>
+                </div>
+                <div class="inv-deposit">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                  <span>Deposit</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scroll mini -->
+          <div class="scroll-mini" id="aset-scroll-mini">
+            <div class="sm-left">
+              <span class="sm-chip" style="background:rgba(10,132,255,.18);color:var(--blue)">SAHAM AS</span>
+              <span class="sm-amount">$1.700,00</span>
+            </div>
+            <div class="sm-deposit">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              <span>Deposit</span>
+            </div>
+            <div class="sm-sep"></div>
+            <div class="sm-bp">
+              <span class="sm-bp-label">Buying Power</span>
+              <span class="sm-bp-val">$500,00</span>
+            </div>
+          </div>
+
+          <!-- L3 tabs -->
+          <div class="l3-tabs">
+            <div class="l3-tab"><span class="l3-label">Jelajahi</span><div class="l3-ind"></div></div>
+            <div class="l3-tab"><span class="l3-label">Watchlist</span><div class="l3-ind"></div></div>
+            <div class="l3-tab act"><span class="l3-label">Aset</span><div class="l3-ind"></div></div>
+            <div class="l3-tab" id="l3-openorder"><span class="l3-label">Open Order</span><div class="l3-ind"></div></div>
+            <div class="l3-tab"><span class="l3-label">Options</span><div class="l3-ind"></div></div>
+          </div>
+
+        </div><!-- /fixed header -->
+
+        <!-- Scrollable stock list -->
+        <div class="scroll-content" id="aset-scroll">
+          <div class="section-hdr">
+            <span class="section-title">Posisi Aktif</span>
+            <span class="section-link">Lihat Semua</span>
+          </div>
+
+          <!-- TSLA — tap to open bottom sheet -->
+          <div class="stock-row" onclick="showSheet('lineitem')">
+            <div class="stock-logo" style="background:#cc0000">T</div>
+            <div class="stock-info">
+              <span class="stock-ticker">TSLA</span>
+              <span class="stock-name">Tesla, Inc.</span>
+            </div>
+            <div class="stock-right">
+              <span class="stock-value">$31,89</span>
+              <span class="stock-change up">+$1,99 (+6,7%)</span>
+            </div>
+          </div>
+
+          <!-- NVDA -->
+          <div class="stock-row">
+            <div class="stock-logo" style="background:#76b900">N</div>
+            <div class="stock-info">
+              <span class="stock-ticker">NVDA</span>
+              <span class="stock-name">Nvidia Corp.</span>
+            </div>
+            <div class="stock-right">
+              <span class="stock-value">$43,77</span>
+              <span class="stock-change up">+$1,27 (+3,0%)</span>
+            </div>
+          </div>
+
+          <!-- META -->
+          <div class="stock-row">
+            <div class="stock-logo" style="background:#0668e1">M</div>
+            <div class="stock-info">
+              <span class="stock-ticker">META</span>
+              <span class="stock-name">Meta Platforms, Inc.</span>
+            </div>
+            <div class="stock-right">
+              <span class="stock-value">$15,37</span>
+              <span class="stock-change dn">−$0,23 (−1,5%)</span>
+            </div>
+          </div>
+
+          <!-- AAPL -->
+          <div class="stock-row">
+            <div class="stock-logo" style="background:#555">A</div>
+            <div class="stock-info">
+              <span class="stock-ticker">AAPL</span>
+              <span class="stock-name">Apple Inc.</span>
+            </div>
+            <div class="stock-right">
+              <span class="stock-value">$18,93</span>
+              <span class="stock-change up">+$0,43 (+2,3%)</span>
+            </div>
+          </div>
+
+          <div style="height:96px"></div><!-- spacer above L2 pill -->
+        </div><!-- /scroll-content -->
+
+        <!-- L2 floating pill -->
+        <div class="l2-nav">
+          <div class="l2-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+            <span class="l2-pill-label">Saham AS</span>
+          </div>
+        </div>
+
+        <!-- Bottom tabs -->
+        <div class="bottom-tabs">
+          <div class="tabs-row">
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              <span class="tab-label">Beranda</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="4" height="18" rx="1" fill="var(--t2)"/><rect x="10" y="8" width="4" height="13" rx="1" fill="var(--t2)"/><rect x="18" y="13" width="4" height="8" rx="1" fill="var(--t2)"/></svg>
+              <span class="tab-label">Investasi</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.7 0-3 1.3-3 3s1.3 3 3 3c1 0 2-.5 2.5-1.5M12 7v1m0 8v1"/></svg>
+              <span class="tab-label">Kripto</span>
+            </div>
+            <div class="tab-item act">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+              <span class="tab-label">Saham AS</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><rect x="1" y="6" width="22" height="14" rx="2"/><path d="M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg>
+              <span class="tab-label">Cash</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              <span class="tab-label">Portfolio</span>
+            </div>
+          </div>
+          <div class="home-ind"><div class="home-bar"></div></div>
+        </div>
+
+      </div><!-- /s-aset -->
+
+      <!-- ══ PLACEHOLDER SUBSCREENS (filled in future sessions) ══ -->
+      <!-- ══ SCREEN 3: PORTFOLIO DETAIL ══════════════════════════ -->
+      <div class="subscreen" id="s-pdetail">
+
+        <div class="app-bar-back">
+          <div class="ab-back" onclick="navBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <span class="ab-title">Detail Portofolio Saham US</span>
+          <div class="ab-action">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+          </div>
+        </div>
+
+        <div class="pd-scroll">
+
+          <!-- Stock chip -->
+          <div class="pd-stock-card">
+            <div class="pd-stock-left">
+              <div class="stock-logo" style="background:#cc0000;width:38px;height:38px;font-size:14px;flex-shrink:0">T</div>
+              <div>
+                <div class="pd-ticker">
+                  TSLA
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                </div>
+                <div class="pd-company">Tesla, Inc.</div>
+              </div>
+            </div>
+            <div class="pd-price-right">
+              <div class="pd-price">$138,63</div>
+              <div class="pd-change up">+$12,60 (+10,0%)</div>
+            </div>
+          </div>
+
+          <!-- Stats grid -->
+          <div class="pd-stats">
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Total Nilai</span>
+              <span class="pd-stat-val">$31,89</span>
+            </div>
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Diinvestasikan</span>
+              <span class="pd-stat-val">$29,90</span>
+            </div>
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Return</span>
+              <span class="pd-stat-val" style="color:var(--green)">+$1,99</span>
+            </div>
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Persentase Return</span>
+              <span class="pd-stat-val" style="color:var(--green)">+6,64%</span>
+            </div>
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Saham Dimiliki</span>
+              <span class="pd-stat-val">0,23 lembar</span>
+            </div>
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Harga Rata-rata</span>
+              <span class="pd-stat-val">$130,00</span>
+            </div>
+            <div class="pd-stat-row">
+              <span class="pd-stat-label">Harga saat ini</span>
+              <span class="pd-stat-val">$138,63</span>
+            </div>
+          </div>
+
+          <!-- TP/SL activation CTA -->
+          <div class="tpsl-cta" onclick="showSheet('edu')">
+            <div class="tpsl-cta-accent"></div>
+            <div class="tpsl-cta-inner">
+              <div>
+                <div class="tpsl-cta-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Aktifkan Take Profit / Stop Loss
+                </div>
+                <div class="tpsl-cta-sub">Lindungi keuntunganmu secara otomatis</div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+          <!-- Matched order history -->
+          <div class="matched-section" style="padding-bottom:20px">
+            <div class="matched-hdr">
+              <span class="matched-title">Riwayat Matched Order</span>
+              <span class="matched-link">Lihat Semua</span>
+            </div>
+            <div class="mc-hdr">
+              <span class="mc-time">Tanggal</span>
+              <span class="mc-action">Aksi</span>
+              <span class="mc-price">Harga · Total</span>
+            </div>
+            <div class="mc-row">
+              <div class="mc-t">12 Mar<br>2024</div>
+              <div class="mc-a">
+                <span style="color:var(--blue);font-weight:600">Beli</span> 0,13 lembar<br>
+                <span style="color:var(--t3)">Market Order</span>
+              </div>
+              <div class="mc-p">
+                <span class="mc-pv">$130,00</span>
+                <span class="mc-tot">$16,90 total</span>
+              </div>
+            </div>
+            <div class="mc-row">
+              <div class="mc-t">28 Feb<br>2024</div>
+              <div class="mc-a">
+                <span style="color:var(--blue);font-weight:600">Beli</span> 0,10 lembar<br>
+                <span style="color:var(--t3)">Market Order</span>
+              </div>
+              <div class="mc-p">
+                <span class="mc-pv">$130,00</span>
+                <span class="mc-tot">$13,00 total</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /pd-scroll -->
+
+        <!-- Bottom action bar -->
+        <div class="action-bar">
+          <button class="btn btn-danger" style="flex:1">Jual</button>
+          <button class="btn btn-primary" style="flex:1">Beli</button>
+        </div>
+
+      </div>
+      <!-- ══ SCREEN 6: ORDER REVIEW ════════════════════════════════ -->
+      <div class="subscreen" id="s-review">
+
+        <div class="app-bar-back">
+          <div class="ab-back" onclick="navBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <span class="ab-title">Konfirmasi Order</span>
+          <div class="ab-action"></div>
+        </div>
+
+        <div class="review-scroll">
+
+          <!-- TP card -->
+          <div class="review-card">
+            <div class="review-card-hdr">
+              <span class="review-card-title">Take Profit</span>
+              <div style="display:flex;gap:5px;align-items:center">
+                <span class="rtb rtb-tp">TP</span>
+                <span class="rtb rtb-lim">Limit Sell</span>
+              </div>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Saham</span>
+              <span class="rr-val">TSLA · 0,23 lembar</span>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Harga Target</span>
+              <span class="rr-val">$150,00 <span style="font-size:11px;font-weight:500;color:var(--green)">(+15,4% dari beli)</span></span>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Potensi Gain</span>
+              <span class="rr-val" style="color:var(--green)">+$4,60</span>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Berlaku</span>
+              <span class="rr-val">Good Till Cancelled</span>
+            </div>
+          </div>
+
+          <!-- SL card -->
+          <div class="review-card">
+            <div class="review-card-hdr">
+              <span class="review-card-title">Stop Loss</span>
+              <div style="display:flex;gap:5px;align-items:center">
+                <span class="rtb rtb-sl">SL</span>
+                <span class="rtb" style="background:rgba(255,214,10,.1);color:var(--amber);border:1px solid rgba(255,214,10,.3)">Market Sell</span>
+              </div>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Saham</span>
+              <span class="rr-val">TSLA · 0,23 lembar</span>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Harga Stop</span>
+              <span class="rr-val">$120,00 <span style="font-size:11px;font-weight:500;color:var(--red)">(−7,7% dari beli)</span></span>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Potensi Loss</span>
+              <span class="rr-val" style="color:var(--red)">−$2,30</span>
+            </div>
+            <div class="review-row">
+              <span class="rr-label">Berlaku</span>
+              <span class="rr-val">Good Till Cancelled</span>
+            </div>
+          </div>
+
+          <!-- OCO info banner -->
+          <div class="info-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span class="info-banner-text">Kedua order di atas saling terhubung (OCO). Jika Take Profit terpicu, Stop Loss akan otomatis dibatalkan — dan sebaliknya.</span>
+          </div>
+
+          <!-- Slippage warning banner -->
+          <div class="warn-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span class="warn-banner-text">Stop Loss menggunakan market order. Harga eksekusi bisa berbeda dari $120,00 saat terpicu, terutama saat pasar bergerak cepat.</span>
+          </div>
+
+        </div><!-- /review-scroll -->
+
+        <!-- Fixed CTA -->
+        <div class="fixed-cta">
+          <button class="btn btn-primary" onclick="navTo('s-success')">Konfirmasi</button>
+        </div>
+
+      </div>
+      <!-- ══ SCREEN 7: ORDER SUCCESS (shell — full content next session) ══ -->
+      <!-- ══ SCREEN 7: ORDER SUCCESS ══════════════════════════════ -->
+      <div class="subscreen" id="s-success">
+        <div class="success-wrap">
+          <div class="success-circle">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-title">Order Berhasil Dibuat!</div>
+          <div class="success-sub">Take Profit dan Stop Loss untuk TSLA telah aktif. Order akan berjalan otomatis sesuai kondisi pasar.</div>
+          <div class="success-actions">
+            <button class="btn btn-primary" style="height:50px" onclick="resetTo('s-openorders')">Lihat di Open Order</button>
+            <button class="btn btn-ghost" style="height:50px" onclick="resetTo('s-pdetail-active')">Kembali ke Portofolio</button>
+          </div>
+        </div>
+      </div>
+      <!-- ══ SCREEN 8: PORTFOLIO DETAIL (active TP/SL) ════════════ -->
+      <div class="subscreen" id="s-pdetail-active">
+
+        <div class="app-bar-back">
+          <div class="ab-back" onclick="navBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <span class="ab-title">Detail Portofolio Saham US</span>
+          <div class="ab-action">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+          </div>
+        </div>
+
+        <div class="pd-scroll">
+
+          <div class="pd-stock-card">
+            <div class="pd-stock-left">
+              <div class="stock-logo" style="background:#cc0000;width:38px;height:38px;font-size:14px;flex-shrink:0">T</div>
+              <div>
+                <div class="pd-ticker">TSLA <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+                <div class="pd-company">Tesla, Inc.</div>
+              </div>
+            </div>
+            <div class="pd-price-right">
+              <div class="pd-price">$138,63</div>
+              <div class="pd-change up">+$12,60 (+10,0%)</div>
+            </div>
+          </div>
+
+          <div class="pd-stats">
+            <div class="pd-stat-row"><span class="pd-stat-label">Total Nilai</span><span class="pd-stat-val">$31,89</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Diinvestasikan</span><span class="pd-stat-val">$29,90</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Return</span><span class="pd-stat-val" style="color:var(--green)">+$1,99</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Persentase Return</span><span class="pd-stat-val" style="color:var(--green)">+6,64%</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Saham Dimiliki</span><span class="pd-stat-val">0,23 lembar</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Harga Rata-rata</span><span class="pd-stat-val">$130,00</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Harga saat ini</span><span class="pd-stat-val">$138,63</span></div>
+          </div>
+
+          <!-- Active TP/SL section -->
+          <div class="tpsl-active">
+            <div class="tpsl-active-hdr">
+              <span class="tpsl-active-title">Take Profit / Stop Loss</span>
+              <span class="tpsl-status-badge">Aktif</span>
+              <span class="tpsl-add-link">+ Tambah</span>
+            </div>
+            <div class="tpsl-order-row">
+              <div class="tpsl-dot tpsl-dot-g"></div>
+              <div class="tpsl-order-info">
+                <span class="tpsl-order-type">Take Profit 1 · Limit Sell</span>
+                <div class="tpsl-order-price-row">
+                  <span class="tpsl-order-price">$150,00</span>
+                  <span class="tpsl-order-pct up">+15,4%</span>
+                </div>
+                <span class="tpsl-order-qty">0,10 lembar</span>
+              </div>
+              <div class="tpsl-order-acts">
+                <button class="tpsl-act-btn" onclick="showFsSheet('edit')">Edit</button>
+                <button class="tpsl-act-btn danger" onclick="showCancelModal('tp')">Batalkan</button>
+              </div>
+            </div>
+            <div class="tpsl-order-row">
+              <div class="tpsl-dot tpsl-dot-g"></div>
+              <div class="tpsl-order-info">
+                <span class="tpsl-order-type">Take Profit 2 · Limit Sell</span>
+                <div class="tpsl-order-price-row">
+                  <span class="tpsl-order-price">$165,00</span>
+                  <span class="tpsl-order-pct up">+26,9%</span>
+                </div>
+                <span class="tpsl-order-qty">0,13 lembar</span>
+              </div>
+              <div class="tpsl-order-acts">
+                <button class="tpsl-act-btn" onclick="showFsSheet('edit')">Edit</button>
+                <button class="tpsl-act-btn danger" onclick="showCancelModal('tp')">Batalkan</button>
+              </div>
+            </div>
+            <div class="tpsl-order-row">
+              <div class="tpsl-dot tpsl-dot-r"></div>
+              <div class="tpsl-order-info">
+                <span class="tpsl-order-type">Stop Loss · Market Sell</span>
+                <div class="tpsl-order-price-row">
+                  <span class="tpsl-order-price">$120,00</span>
+                  <span class="tpsl-order-pct dn">−7,7%</span>
+                </div>
+                <span class="tpsl-order-qty">0,23 lembar</span>
+              </div>
+              <div class="tpsl-order-acts">
+                <button class="tpsl-act-btn" onclick="showFsSheet('edit')">Edit</button>
+                <button class="tpsl-act-btn danger" onclick="showCancelModal('sl')">Batalkan</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="matched-section" style="padding-bottom:20px">
+            <div class="matched-hdr">
+              <span class="matched-title">Riwayat Matched Order</span>
+              <span class="matched-link">Lihat Semua</span>
+            </div>
+            <div class="mc-hdr">
+              <span class="mc-time">Tanggal</span>
+              <span class="mc-action">Aksi</span>
+              <span class="mc-price">Harga · Total</span>
+            </div>
+            <div class="mc-row">
+              <div class="mc-t">12 Mar<br>2024</div>
+              <div class="mc-a"><span style="color:var(--blue);font-weight:600">Beli</span> 0,13 lembar<br><span style="color:var(--t3)">Market Order</span></div>
+              <div class="mc-p"><span class="mc-pv">$130,00</span><span class="mc-tot">$16,90 total</span></div>
+            </div>
+            <div class="mc-row">
+              <div class="mc-t">28 Feb<br>2024</div>
+              <div class="mc-a"><span style="color:var(--blue);font-weight:600">Beli</span> 0,10 lembar<br><span style="color:var(--t3)">Market Order</span></div>
+              <div class="mc-p"><span class="mc-pv">$130,00</span><span class="mc-tot">$13,00 total</span></div>
+            </div>
+          </div>
+
+        </div><!-- /pd-scroll -->
+
+        <div class="action-bar">
+          <button class="btn btn-danger" style="flex:1" onclick="showModal('sell')">Jual</button>
+          <button class="btn btn-primary" style="flex:1">Beli</button>
+        </div>
+
+      </div>
+      <!-- ══ SCREEN 9: OPEN ORDERS ═════════════════════════════════ -->
+      <div class="subscreen" id="s-openorders">
+
+        <div class="app-bar-back">
+          <div class="ab-back" onclick="navBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <span class="ab-title">Open Order · Saham AS</span>
+          <div class="ab-action"></div>
+        </div>
+
+        <!-- Filter pills -->
+        <div class="filter-pills">
+          <div class="fpill act" onclick="filterOrders(this)">Semua</div>
+          <div class="fpill" onclick="filterOrders(this)">TP/SL</div>
+          <div class="fpill" onclick="filterOrders(this)">Limit</div>
+          <div class="fpill" onclick="filterOrders(this)">Market</div>
+        </div>
+
+        <!-- Order list -->
+        <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">
+
+          <div class="section-hdr" style="padding-bottom:2px">
+            <span class="section-title">3 Order Aktif</span>
+          </div>
+
+          <!-- TP1 -->
+          <div class="order-row">
+            <div class="order-type-col">
+              <span class="otc-chip otc-tp">TP</span>
+            </div>
+            <div class="order-info">
+              <div class="order-ticker-row">
+                <span class="order-ticker">TSLA</span>
+                <span class="order-subtype">Take Profit · Limit Sell</span>
+              </div>
+              <div class="order-price">$150,00 <span style="font-size:11px;font-weight:500;color:var(--green)">(+15,4%)</span></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <span class="order-qty">0,10 lembar</span>
+                <span style="color:var(--t3)">·</span>
+                <span class="order-tif">GTC</span>
+              </div>
+            </div>
+            <button class="order-cancel-btn" onclick="showCancelModal('tp')">Batalkan</button>
+          </div>
+
+          <!-- TP2 -->
+          <div class="order-row">
+            <div class="order-type-col">
+              <span class="otc-chip otc-tp">TP</span>
+            </div>
+            <div class="order-info">
+              <div class="order-ticker-row">
+                <span class="order-ticker">TSLA</span>
+                <span class="order-subtype">Take Profit · Limit Sell</span>
+              </div>
+              <div class="order-price">$165,00 <span style="font-size:11px;font-weight:500;color:var(--green)">(+26,9%)</span></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <span class="order-qty">0,13 lembar</span>
+                <span style="color:var(--t3)">·</span>
+                <span class="order-tif">GTC</span>
+              </div>
+            </div>
+            <button class="order-cancel-btn" onclick="showCancelModal('tp')">Batalkan</button>
+          </div>
+
+          <!-- SL -->
+          <div class="order-row">
+            <div class="order-type-col">
+              <span class="otc-chip otc-sl">SL</span>
+            </div>
+            <div class="order-info">
+              <div class="order-ticker-row">
+                <span class="order-ticker">TSLA</span>
+                <span class="order-subtype">Stop Loss · Market Sell</span>
+              </div>
+              <div class="order-price">$120,00 <span style="font-size:11px;font-weight:500;color:var(--red)">(−7,7%)</span></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <span class="order-qty">0,23 lembar</span>
+                <span style="color:var(--t3)">·</span>
+                <span class="order-tif">GTC</span>
+              </div>
+            </div>
+            <button class="order-cancel-btn" onclick="showCancelModal('sl')">Batalkan</button>
+          </div>
+
+          <div style="height:32px"></div>
+        </div>
+
+      </div>
+
+
+
+      <!-- ══ SCREEN 12: PORTFOLIO DETAIL (SL cancelled) ════════════ -->
+      <div class="subscreen" id="s-pdetail-slcanc">
+
+        <div class="app-bar-back">
+          <div class="ab-back" onclick="navBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <span class="ab-title">Detail Portofolio Saham US</span>
+          <div class="ab-action">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+          </div>
+        </div>
+
+        <div class="pd-scroll">
+
+          <div class="pd-stock-card">
+            <div class="pd-stock-left">
+              <div class="stock-logo" style="background:#cc0000;width:38px;height:38px;font-size:14px;flex-shrink:0">T</div>
+              <div>
+                <div class="pd-ticker">TSLA <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+                <div class="pd-company">Tesla, Inc.</div>
+              </div>
+            </div>
+            <div class="pd-price-right">
+              <div class="pd-price">$138,63</div>
+              <div class="pd-change up">+$12,60 (+10,0%)</div>
+            </div>
+          </div>
+
+          <div class="pd-stats">
+            <div class="pd-stat-row"><span class="pd-stat-label">Total Nilai</span><span class="pd-stat-val">$31,89</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Diinvestasikan</span><span class="pd-stat-val">$29,90</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Return</span><span class="pd-stat-val" style="color:var(--green)">+$1,99</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Persentase Return</span><span class="pd-stat-val" style="color:var(--green)">+6,64%</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Saham Dimiliki</span><span class="pd-stat-val">0,23 lembar</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Harga Rata-rata</span><span class="pd-stat-val">$130,00</span></div>
+            <div class="pd-stat-row"><span class="pd-stat-label">Harga saat ini</span><span class="pd-stat-val">$138,63</span></div>
+          </div>
+
+          <!-- TP still active, SL removed -->
+          <div class="tpsl-active">
+            <div class="tpsl-active-hdr">
+              <span class="tpsl-active-title">Take Profit / Stop Loss</span>
+              <span class="tpsl-status-badge" style="background:rgba(255,214,10,.1);color:var(--amber);border-color:rgba(255,214,10,.3)">Sebagian Aktif</span>
+              <span class="tpsl-add-link">+ Tambah</span>
+            </div>
+            <div class="tpsl-order-row">
+              <div class="tpsl-dot tpsl-dot-g"></div>
+              <div class="tpsl-order-info">
+                <span class="tpsl-order-type">Take Profit 1 · Limit Sell</span>
+                <div class="tpsl-order-price-row">
+                  <span class="tpsl-order-price">$150,00</span>
+                  <span class="tpsl-order-pct up">+15,4%</span>
+                </div>
+                <span class="tpsl-order-qty">0,10 lembar</span>
+              </div>
+              <div class="tpsl-order-acts">
+                <button class="tpsl-act-btn" onclick="showFsSheet('edit')">Edit</button>
+                <button class="tpsl-act-btn danger" onclick="showCancelModal('tp')">Batalkan</button>
+              </div>
+            </div>
+            <div class="tpsl-order-row">
+              <div class="tpsl-dot tpsl-dot-g"></div>
+              <div class="tpsl-order-info">
+                <span class="tpsl-order-type">Take Profit 2 · Limit Sell</span>
+                <div class="tpsl-order-price-row">
+                  <span class="tpsl-order-price">$165,00</span>
+                  <span class="tpsl-order-pct up">+26,9%</span>
+                </div>
+                <span class="tpsl-order-qty">0,13 lembar</span>
+              </div>
+              <div class="tpsl-order-acts">
+                <button class="tpsl-act-btn" onclick="showFsSheet('edit')">Edit</button>
+                <button class="tpsl-act-btn danger" onclick="showCancelModal('tp')">Batalkan</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add SL back placeholder -->
+          <div class="tpsl-add-sl-dashed" style="margin-top:8px" onclick="showFsSheet('create-sl')">
+            <div class="tpsl-add-sl-row">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              <span class="tpsl-add-sl-text">+ Tambah Stop Loss</span>
+            </div>
+          </div>
+
+          <div class="matched-section" style="padding-bottom:20px">
+            <div class="matched-hdr">
+              <span class="matched-title">Riwayat Matched Order</span>
+              <span class="matched-link">Lihat Semua</span>
+            </div>
+            <div class="mc-hdr">
+              <span class="mc-time">Tanggal</span>
+              <span class="mc-action">Aksi</span>
+              <span class="mc-price">Harga · Total</span>
+            </div>
+            <div class="mc-row">
+              <div class="mc-t">12 Mar<br>2024</div>
+              <div class="mc-a"><span style="color:var(--blue);font-weight:600">Beli</span> 0,13 lembar<br><span style="color:var(--t3)">Market Order</span></div>
+              <div class="mc-p"><span class="mc-pv">$130,00</span><span class="mc-tot">$16,90 total</span></div>
+            </div>
+            <div class="mc-row">
+              <div class="mc-t">28 Feb<br>2024</div>
+              <div class="mc-a"><span style="color:var(--blue);font-weight:600">Beli</span> 0,10 lembar<br><span style="color:var(--t3)">Market Order</span></div>
+              <div class="mc-p"><span class="mc-pv">$130,00</span><span class="mc-tot">$13,00 total</span></div>
+            </div>
+          </div>
+
+        </div><!-- /pd-scroll -->
+
+        <div class="action-bar">
+          <button class="btn btn-danger" style="flex:1" onclick="showModal('sell')">Jual</button>
+          <button class="btn btn-primary" style="flex:1">Beli</button>
+        </div>
+
+      </div>
+
+      <!-- ══ BOTTOM SHEET: LINE ITEM (Screen 2) ══════════════════ -->
+      <div class="sheet-backdrop" id="bd-lineitem" onclick="hideSheet('lineitem')"></div>
+      <div class="bottom-sheet" id="sheet-lineitem">
+        <div class="sheet-handle"></div>
+        <div class="sheet-scroll">
+
+          <!-- Stock header -->
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 16px 12px">
+            <div class="stock-logo" style="background:#cc0000;width:44px;height:44px;font-size:16px;flex-shrink:0">T</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-size:15px;font-weight:700;color:var(--t1)">TSLA</span>
+                  <span style="font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Tesla, Inc.</span>
+                </div>
+                <span style="font-size:12px;color:var(--blue);cursor:pointer;flex-shrink:0;margin-left:8px" onclick="hideSheet('lineitem');navTo('s-pdetail')">Lihat Detail ›</span>
+              </div>
+              <div style="font-size:26px;font-weight:700;letter-spacing:-.6px;line-height:1.1;margin-bottom:4px">$138,63</div>
+              <div style="font-size:13px;font-weight:600;color:var(--green)">+$12,60 <span style="font-size:11px;font-weight:500">(+10,0% hari ini)</span></div>
+            </div>
+          </div>
+
+          <!-- Portfolio summary card -->
+          <div style="background:var(--s2);margin:0 16px;border-radius:12px;padding:12px 14px;border:1px solid var(--b1)">
+            <div style="display:flex;align-items:center;gap:4px;margin-bottom:9px;font-size:11px;color:var(--t2)">
+              <span style="font-weight:600">0,23 lembar</span>
+              <span style="opacity:.4;margin:0 2px">·</span>
+              <span>Rata-rata $130,00</span>
+            </div>
+            <div style="display:flex;gap:0">
+              <div style="flex:1">
+                <div style="font-size:10px;color:var(--t2);margin-bottom:3px">Nilai</div>
+                <div style="font-size:15px;font-weight:700;color:var(--t1)">$31,89</div>
+              </div>
+              <div style="width:1px;background:var(--b1);margin:0 14px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div style="font-size:10px;color:var(--t2);margin-bottom:3px">Return</div>
+                <div style="font-size:15px;font-weight:700;color:var(--green)">+$1,99 <span style="font-size:11px;font-weight:600;color:var(--green)">(+6,7%)</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div style="height:1px;background:var(--b1);margin:14px 0"></div>
+
+          <!-- Action buttons -->
+          <div style="display:flex;gap:8px;padding:0 16px 16px">
+            <button class="btn btn-danger" style="flex:1;height:44px;font-size:14px">Jual</button>
+            <button class="btn btn-primary" style="flex:1;height:44px;font-size:14px">Beli</button>
+            <button class="btn btn-green" style="flex:1;height:44px;font-size:13px;font-weight:700" onclick="hideSheet('lineitem');navTo('s-pdetail')">Atur TP/SL</button>
+          </div>
+
+          <!-- TP/SL status section (empty state) -->
+          <div style="padding:0 16px 30px">
+            <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Take Profit / Stop Loss</div>
+            <div style="background:var(--s2);border:1.5px dashed rgba(255,255,255,.13);border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="hideSheet('lineitem');navTo('s-pdetail')">
+              <span style="font-size:13px;color:var(--t2)">Belum ada Take Profit / Stop Loss</span>
+              <div style="width:26px;height:26px;border-radius:50%;background:rgba(10,132,255,.18);border:1px solid rgba(10,132,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /sheet-scroll -->
+      </div>
+
+      <!-- ══ BOTTOM SHEET: EDUCATION (Screen 4) ══════════════════ -->
+      <!-- ══ SHEET: TP/SL SETUP / EDIT ══════════════════════════ -->
+      <div class="sheet-backdrop" id="bd-setup" onclick="hideFsSheet()"></div>
+      <div class="bottom-sheet" id="sheet-setup" style="max-height:78%">
+        <div class="sheet-handle"></div>
+
+        <!-- Header -->
+        <div class="setup-hdr">
+          <div class="stock-logo" style="background:#cc0000;width:36px;height:36px;font-size:13px;flex-shrink:0">T</div>
+          <div class="setup-hdr-info">
+            <div class="setup-hdr-title" id="fs-title">Atur TP/SL</div>
+            <div class="setup-hdr-chip">
+              <span class="setup-hdr-price">TSLA · $138,63</span>
+              <span class="setup-hdr-chg up">+10,0%</span>
+            </div>
+          </div>
+          <button class="setup-dismiss" onclick="hideFsSheet()">×</button>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="setup-mode-tabs">
+          <div class="setup-mode-tab" id="fsm-tp" onclick="setTpslMode('tp')">Take Profit</div>
+          <div class="setup-mode-tab" id="fsm-sl" onclick="setTpslMode('sl')">Stop Loss</div>
+          <div class="setup-mode-tab act" id="fsm-both" onclick="setTpslMode('both')">Keduanya</div>
+        </div>
+
+        <!-- Price rows -->
+        <div class="setup-price-rows">
+          <!-- TP row -->
+          <div class="setup-price-row" id="fs-tp-row">
+            <div class="setup-row-left">
+              <div class="tpsl-dot tpsl-dot-g"></div>
+              <span class="setup-row-label">Jual kalau naik ke</span>
+            </div>
+            <div class="setup-row-right">
+              <span class="setup-price-prefix" id="fs-tp-prefix">$</span>
+              <input class="setup-price-input" id="fs-tp-price" value="150,00" oninput="fsOnPriceInput('tp')">
+              <span class="setup-hint up" id="fs-tp-hint">+15,4%</span>
+            </div>
+          </div>
+          <!-- SL row -->
+          <div class="setup-price-row" id="fs-sl-row">
+            <div class="setup-row-left">
+              <div class="tpsl-dot tpsl-dot-r"></div>
+              <span class="setup-row-label">Jual kalau turun ke</span>
+            </div>
+            <div class="setup-row-right">
+              <span class="setup-price-prefix" id="fs-sl-prefix">$</span>
+              <input class="setup-price-input" id="fs-sl-price" value="120,00" oninput="fsOnPriceInput('sl')">
+              <span class="setup-hint dn" id="fs-sl-hint">−7,7%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced accordion -->
+        <div class="setup-advanced-hdr" onclick="toggleFsAdvanced()">
+          <span class="setup-advanced-hdr-label">
+            <svg id="fs-adv-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><path d="M9 18l6-6-6-6"/></svg>
+            Pengaturan lanjutan
+          </span>
+        </div>
+        <div id="fs-advanced" style="display:none">
+          <div class="setup-advanced-body">
+            <div class="setup-adv-row">
+              <span class="setup-adv-label">Masukan dalam</span>
+              <div class="input-toggle">
+                <button class="itog-btn act" id="fs-mode-price" onclick="setFsPriceMode(this,'price')">Harga $</button>
+                <button class="itog-btn" id="fs-mode-pct" onclick="setFsPriceMode(this,'pct')">Persentase %</button>
+              </div>
+            </div>
+            <div class="setup-adv-row">
+              <span class="setup-adv-label">Kuantitas</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQtyFs(-0.01)">−</button>
+                  <input class="qty-inp" id="fs-qty" value="0,23" oninput="fsOnQtyInput()">
+                  <button class="qty-btn" onclick="changeQtyFs(0.01)">+</button>
+                </div>
+                <span style="font-size:11px;color:var(--t3)">Maks 0,23 lem</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SL market note (shown when SL visible) -->
+        <div class="setup-sl-note" id="fs-sl-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="setup-sl-note-text">Stop Loss dieksekusi sebagai market order — harga aktual bisa berbeda saat terpicu.</span>
+        </div>
+
+        <!-- CTA -->
+        <div class="setup-cta">
+          <button class="btn btn-primary" id="fs-cta-btn" onclick="hideFsSheet();navTo('s-review')">Aktifkan TP/SL →</button>
+        </div>
+
+      </div>
+
+      <div class="sheet-backdrop" id="bd-edu" onclick="hideSheet('edu')"></div>
+      <div class="bottom-sheet" id="sheet-edu" style="max-height:82%">
+        <div class="sheet-handle"></div>
+        <div class="sheet-scroll">
+          <div class="edu-content">
+
+            <!-- Header -->
+            <div class="edu-title">Apa itu Take Profit &amp; Stop Loss?</div>
+            <div class="edu-sub">Order otomatis yang menjual sahammu tanpa perlu memantau harga terus-menerus.</div>
+
+            <!-- Two explanation cards -->
+            <div class="edu-cards">
+              <div class="edu-card edu-card-tp">
+                <div class="edu-card-icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" fill="rgba(48,209,88,.15)"/>
+                    <path d="M14 19V10M10 14l4-4 4 4" stroke="#30d158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="edu-card-title">Take Profit</div>
+                <div class="edu-card-desc">Jual otomatis saat harga <strong style="color:var(--green)">naik</strong> ke target yang kamu tentukan.</div>
+              </div>
+              <div class="edu-card edu-card-sl">
+                <div class="edu-card-icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" fill="rgba(255,69,58,.15)"/>
+                    <path d="M14 10v9M10 15l4 4 4-4" stroke="#ff453a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="edu-card-title">Stop Loss</div>
+                <div class="edu-card-desc">Jual otomatis saat harga <strong style="color:var(--red)">turun</strong> ke batas risiko yang kamu tentukan.</div>
+              </div>
+            </div>
+
+            <!-- Price diagram -->
+            <div class="edu-diagram">
+              <div class="edu-diag-row">
+                <div class="edu-diag-dot" style="background:var(--green)"></div>
+                <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(48,209,88,.5),rgba(48,209,88,.1))"></div>
+                <div style="text-align:right;flex-shrink:0">
+                  <div style="font-size:12px;font-weight:700;color:var(--green)">$150,00</div>
+                  <div style="font-size:10px;color:var(--green);opacity:.75">Take Profit · +15,4%</div>
+                </div>
+              </div>
+              <div style="display:flex;padding-left:3px;margin:3px 0">
+                <div style="width:2px;height:14px;background:rgba(255,255,255,.08);border-radius:1px"></div>
+              </div>
+              <div class="edu-diag-row">
+                <div class="edu-diag-dot" style="background:var(--blue);width:10px;height:10px;margin-left:-1px"></div>
+                <div style="flex:1;height:2px;background:rgba(10,132,255,.4);border-radius:1px"></div>
+                <div style="text-align:right;flex-shrink:0">
+                  <div style="font-size:12px;font-weight:700;color:var(--t1)">$138,63</div>
+                  <div style="font-size:10px;color:var(--t2)">Harga saat ini</div>
+                </div>
+              </div>
+              <div style="display:flex;padding-left:3px;margin:3px 0">
+                <div style="width:2px;height:14px;background:rgba(255,255,255,.08);border-radius:1px"></div>
+              </div>
+              <div class="edu-diag-row">
+                <div class="edu-diag-dot" style="background:var(--red)"></div>
+                <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(255,69,58,.5),rgba(255,69,58,.1))"></div>
+                <div style="text-align:right;flex-shrink:0">
+                  <div style="font-size:12px;font-weight:700;color:var(--red)">$120,00</div>
+                  <div style="font-size:10px;color:var(--red);opacity:.75">Stop Loss · −7,7%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OCO note -->
+            <div class="edu-oco-note">
+              💡 Kedua order ini saling membatalkan (OCO). Jika Take Profit terpicu, Stop Loss otomatis dibatalkan — dan sebaliknya.
+            </div>
+
+            <!-- "Jangan tampilkan lagi" toggle -->
+            <div class="edu-jt-row">
+              <span class="edu-jt-label">Jangan tampilkan lagi</span>
+              <div class="toggle-sw" id="jt-sw" onclick="this.classList.toggle('on')">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <button class="btn btn-primary" onclick="hideSheet('edu');showFsSheet('create')">Mulai Atur →</button>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MODAL: CANCEL CONFIRM (Screen 11) ════════════════════ -->
+      <div class="modal-overlay" id="modal-cancel">
+        <div class="modal-card">
+          <div class="modal-title" id="cancel-modal-title">Batalkan Stop Loss?</div>
+          <div class="modal-body" id="cancel-modal-body">Stop Loss untuk TSLA (Harga $120,00 · 0,23 lembar) akan dibatalkan. Kamu tidak akan terlindungi jika harga turun.</div>
+          <div class="modal-actions">
+            <button class="btn btn-danger" onclick="confirmCancel()">Ya, Batalkan</button>
+            <button class="btn btn-ghost" onclick="hideModal('cancel')">Batal</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MODAL: SELL WARNING (Screen 14) ════════════════════ -->
+      <div class="modal-overlay" id="modal-sell">
+        <div class="modal-card">
+          <div class="modal-title">Kamu memiliki TP/SL aktif</div>
+          <div class="modal-body">TSLA memiliki 2 Take Profit dan 1 Stop Loss aktif. Jika jumlah saham berkurang setelah penjualan, order yang melebihi sisa kepemilikan akan otomatis dibatalkan.</div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" onclick="hideModal('sell');showToast('Order jual ditempatkan')">Lanjut Jual</button>
+            <button class="btn btn-ghost" onclick="hideModal('sell')">Batal</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <div class="toast" id="toast"></div>
+
+    </div><!-- /screen -->
+  </div><!-- /phone-shell -->
+</div><!-- /phone-wrap -->
+
+<script>
+// ── NAVIGATION ────────────────────────────────────────────────
+const navStack = ['s-aset'];
+
+function navTo(id) {
+  const curr = navStack[navStack.length - 1];
+  if (curr === id) return;
+  const currEl = document.getElementById(curr);
+  const nextEl = document.getElementById(id);
+  if (!nextEl) return;
+  currEl.classList.remove('nav-active');
+  currEl.classList.add('nav-prev');
+  nextEl.classList.remove('nav-prev');
+  nextEl.getBoundingClientRect(); // force reflow
+  nextEl.classList.add('nav-active');
+  navStack.push(id);
+}
+
+function navBack() {
+  if (navStack.length <= 1) return;
+  const curr = navStack.pop();
+  const currEl = document.getElementById(curr);
+  const prevId = navStack[navStack.length - 1];
+  const prevEl = document.getElementById(prevId);
+  currEl.classList.remove('nav-active', 'nav-prev');
+  prevEl.classList.remove('nav-prev');
+  prevEl.classList.add('nav-active');
+}
+
+function resetTo(id) {
+  document.querySelectorAll('.subscreen').forEach(el => el.classList.remove('nav-active', 'nav-prev'));
+  const el = document.getElementById(id);
+  el.style.transition = 'none';
+  el.classList.add('nav-active');
+  requestAnimationFrame(() => { el.style.transition = ''; });
+  navStack.length = 0;
+  navStack.push(id);
+}
+
+// ── SHEETS ────────────────────────────────────────────────────
+function showSheet(id) {
+  document.getElementById('bd-' + id).classList.add('vis');
+  document.getElementById('sheet-' + id).classList.add('vis');
+}
+function hideSheet(id) {
+  document.getElementById('bd-' + id).classList.remove('vis');
+  document.getElementById('sheet-' + id).classList.remove('vis');
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+function showModal(id) { document.getElementById('modal-' + id).classList.add('vis'); }
+function hideModal(id) { document.getElementById('modal-' + id).classList.remove('vis'); }
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('vis');
+  setTimeout(() => t.classList.remove('vis'), 2500);
+}
+
+// ── SETUP SHEET ───────────────────────────────────────────────
+const SF_AVG = 130.00, SF_OWN = 0.23;
+let fsMode = 'both';       // 'tp' | 'sl' | 'both'
+let fsEditMode = false;
+let fsPriceMode = 'price'; // 'price' | 'pct'
+
+function sfmt(n) { return Math.abs(n).toFixed(2).replace('.', ','); }
+function pfmt(p) { return (p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1).replace('.', ',') + '%'; }
+function pnum(s) { return parseFloat(String(s).replace(',', '.')); }
+
+function showFsSheet(mode) {
+  fsEditMode = (mode === 'edit');
+  // reset advanced accordion
+  document.getElementById('fs-advanced').style.display = 'none';
+  document.getElementById('fs-adv-arrow').style.transform = 'rotate(0deg)';
+  // reset price mode to 'price'
+  fsPriceMode = 'price';
+  document.getElementById('fs-mode-price').classList.add('act');
+  document.getElementById('fs-mode-pct').classList.remove('act');
+  document.getElementById('fs-tp-prefix').textContent = '$';
+  document.getElementById('fs-sl-prefix').textContent = '$';
+  // pre-fill defaults
+  document.getElementById('fs-tp-price').value = '150,00';
+  document.getElementById('fs-sl-price').value = '120,00';
+  document.getElementById('fs-qty').value = sfmt(SF_OWN);
+  // set mode tabs
+  const m = (mode === 'create-sl') ? 'sl' : 'both';
+  setTpslMode(m);
+  // update title and CTA
+  document.getElementById('fs-title').textContent = fsEditMode ? 'Edit Stop Loss' : 'Atur TP/SL';
+  document.getElementById('fs-cta-btn').textContent = fsEditMode ? 'Simpan Perubahan' : 'Aktifkan TP/SL →';
+  // update hints
+  fsOnPriceInput('tp');
+  fsOnPriceInput('sl');
+  showSheet('setup');
+}
+
+function hideFsSheet() { hideSheet('setup'); }
+
+function setTpslMode(mode) {
+  fsMode = mode;
+  document.getElementById('fs-tp-row').style.display = (mode === 'sl') ? 'none' : 'flex';
+  document.getElementById('fs-sl-row').style.display = (mode === 'tp') ? 'none' : 'flex';
+  document.getElementById('fs-sl-note').style.display = (mode === 'tp') ? 'none' : 'flex';
+  ['fsm-tp','fsm-sl','fsm-both'].forEach(id => document.getElementById(id).classList.remove('act'));
+  document.getElementById('fsm-' + (mode === 'both' ? 'both' : mode)).classList.add('act');
+}
+
+function fsOnPriceInput(id) {
+  const inputEl = document.getElementById('fs-' + id + '-price');
+  const raw = pnum(inputEl.value);
+  let price, pct;
+  if (fsPriceMode === 'pct') {
+    pct = isNaN(raw) ? 0 : raw;
+    price = SF_AVG * (1 + pct / 100);
+  } else {
+    price = isNaN(raw) ? SF_AVG : raw;
+    pct = (price - SF_AVG) / SF_AVG * 100;
+  }
+  const hintEl = document.getElementById('fs-' + id + '-hint');
+  hintEl.textContent = fsPriceMode === 'price' ? pfmt(pct) : '$' + sfmt(price);
+  hintEl.className = 'setup-hint ' + (pct >= 0 ? 'up' : 'dn');
+}
+
+function fsOnQtyInput() {
+  const el = document.getElementById('fs-qty');
+  let v = pnum(el.value);
+  if (isNaN(v) || v <= 0) v = 0.01;
+  if (v > SF_OWN) { el.style.color = 'var(--red)'; } else { el.style.color = ''; }
+}
+
+function changeQtyFs(delta) {
+  const el = document.getElementById('fs-qty');
+  let v = Math.round((pnum(el.value) + delta) * 100) / 100;
+  v = Math.max(0.01, Math.min(SF_OWN, v));
+  el.value = sfmt(v);
+  el.style.color = '';
+}
+
+function setFsPriceMode(btn, mode) {
+  if (fsPriceMode === mode) return;
+  btn.closest('.input-toggle').querySelectorAll('.itog-btn').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  // convert existing values
+  ['tp', 'sl'].forEach(id => {
+    const inputEl = document.getElementById('fs-' + id + '-price');
+    const prefixEl = document.getElementById('fs-' + id + '-prefix');
+    const raw = pnum(inputEl.value);
+    if (mode === 'pct') {
+      const price = isNaN(raw) ? SF_AVG : raw;
+      const pct = (price - SF_AVG) / SF_AVG * 100;
+      inputEl.value = pct.toFixed(1).replace('.', ',');
+      prefixEl.textContent = '%';
+    } else {
+      const pct = isNaN(raw) ? 0 : raw;
+      const price = SF_AVG * (1 + pct / 100);
+      inputEl.value = sfmt(price);
+      prefixEl.textContent = '$';
+    }
+  });
+  fsPriceMode = mode;
+  fsOnPriceInput('tp');
+  fsOnPriceInput('sl');
+}
+
+function toggleFsAdvanced() {
+  const el = document.getElementById('fs-advanced');
+  const arrow = document.getElementById('fs-adv-arrow');
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  arrow.style.transform = open ? 'rotate(90deg)' : 'rotate(0deg)';
+}
+
+// ── SCROLL: COLLAPSE PORTFOLIO CARD ──────────────────────────
+document.getElementById('aset-scroll').addEventListener('scroll', function () {
+  const scrolled = this.scrollTop > 52;
+  document.getElementById('aset-collapsible').classList.toggle('collapsed', scrolled);
+  document.getElementById('aset-scroll-mini').classList.toggle('visible', scrolled);
+});
+
+// ── CANCEL MODAL ─────────────────────────────────────────────
+let cancelType = 'sl';
+function showCancelModal(type) {
+  cancelType = type;
+  const title = document.getElementById('cancel-modal-title');
+  const body = document.getElementById('cancel-modal-body');
+  if (type === 'sl') {
+    title.textContent = 'Batalkan Stop Loss?';
+    body.textContent = 'Stop Loss untuk TSLA (Harga $120,00 · 0,23 lembar) akan dibatalkan. Kamu tidak akan terlindungi jika harga turun.';
+  } else {
+    title.textContent = 'Batalkan Take Profit?';
+    body.textContent = 'Take Profit ini untuk TSLA akan dibatalkan.';
+  }
+  showModal('cancel');
+}
+function confirmCancel() {
+  hideModal('cancel');
+  if (cancelType === 'sl') {
+    navTo('s-pdetail-slcanc');
+    setTimeout(() => showToast('Stop Loss dibatalkan'), 180);
+  } else {
+    showToast('Take Profit dibatalkan');
+  }
+}
+
+// ── FILTER PILLS (Open Orders) ────────────────────────────────
+function filterOrders(btn) {
+  btn.closest('.filter-pills').querySelectorAll('.fpill').forEach(p => p.classList.remove('act'));
+  btn.classList.add('act');
+}
+
+// ── L3 TAB: OPEN ORDER ───────────────────────────────────────
+document.getElementById('l3-openorder').addEventListener('click', function () {
+  navTo('s-openorders');
+});
+</script>
+</body>
+</html>
