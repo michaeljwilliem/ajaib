@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib — Cash Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060608;
+  --s0:#000;--s1:#0d0d10;--s2:#1c1c1f;--s3:#242428;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t1:#f2f2f7;--t2:#8e8e93;--t3:#48484a;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;
+  --amber:#ffd60a;--purple:#bf5af2;--teal:#5ac8fa;
+  --idxc:#e8334a;--crypto:#f7931a;--usc:#0a84ff;
+  --safe-top:54px;--safe-bot:34px;--tabs-row-h:44px;
+}
+body{background:var(--bg);font-family:'Inter',-apple-system,sans-serif;color:var(--t1);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px;gap:16px}
+
+@media(max-width:500px),(pointer:coarse){
+  body{padding:0;background:#000;justify-content:flex-start}
+  .phone-wrap{width:100%!important;filter:none!important}
+  .phone-shell{width:100%!important;background:none!important;border-radius:0!important;padding:0!important}
+  .phone-shell::before{display:none}
+  .btn-vol,.btn-vol2,.btn-pwr{display:none}
+  .screen{width:100%!important;height:100svh!important;border-radius:0!important}
+}
+
+/* ── Phone shell ── */
+.phone-wrap{position:relative;width:407px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.phone-shell{width:407px;background:linear-gradient(170deg,#2a2a2e 0%,#1a1a1e 60%,#111 100%);border-radius:56px;padding:10px;position:relative}
+.phone-shell::before{content:'';position:absolute;inset:0;border-radius:56px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.btn-vol{position:absolute;left:-3px;top:130px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-vol2{position:absolute;left:-3px;top:178px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-pwr{position:absolute;right:-3px;top:158px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+
+/* ── Screen ── */
+.screen{width:387px;height:839px;border-radius:48px;background:var(--s0);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* ── Sub-screens ── */
+.sub{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--s0);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1}
+.sub.behind{z-index:0}
+.sub.pushed{transform:translateX(-30px);pointer-events:none}
+.sub-slide{transform:translateX(100%)}
+.sub-slide.active{transform:translateX(0)}
+
+/* ── Status bar ── */
+.sbar{height:var(--safe-top);display:flex;align-items:flex-end;padding:0 28px 10px;justify-content:space-between;flex-shrink:0;background:var(--s0);z-index:10;position:relative}
+.sbar-time{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;border:1px solid #1c1c1e}
+.sbar-icons{display:flex;align-items:center;gap:6px}
+
+/* ── Scroll area ── */
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* ── App bar ── */
+.app-bar{display:flex;align-items:center;padding:10px 16px 6px;gap:10px;background:var(--s0)}
+.app-bar-title{font-size:20px;font-weight:700;letter-spacing:-.4px;flex:1}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--s0)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer}
+
+/* ── Hero ── */
+.hero{padding:8px 16px 14px;background:var(--s0)}
+.hero-label-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.hero-label{font-size:11px;color:var(--t2);font-weight:500}
+.eye-btn{color:var(--t3);cursor:pointer;display:flex;align-items:center}
+.hero-amount{font-size:28px;font-weight:700;letter-spacing:-.6px;color:var(--t1);line-height:1.1}
+.hero-interest{font-size:12px;font-weight:500;color:var(--green);margin-top:4px;transition:opacity .2s}
+
+/* ── Global actions ── */
+.global-actions{display:flex;gap:8px;padding:0 16px 14px;background:var(--s0)}
+.gact{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--b2);border-radius:14px;padding:10px 4px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s}
+.gact:active{background:var(--s3)}
+.gact-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.gact-label{font-size:10px;font-weight:600;color:var(--t2);white-space:nowrap}
+
+/* ── Feed ── */
+.feed{padding:0 16px 24px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+
+/* ── Nudge card (Auto Sweep) ── */
+.nudge{background:rgba(255,214,10,.07);border:1px solid rgba(255,214,10,.2);border-radius:16px;padding:14px;display:flex;gap:10px;align-items:flex-start;transition:opacity .2s,transform .2s,max-height .3s,padding .3s,margin .3s;overflow:hidden}
+.nudge-icon{flex-shrink:0;width:36px;height:36px;border-radius:10px;background:rgba(255,214,10,.12);display:flex;align-items:center;justify-content:center}
+.nudge-body{flex:1;min-width:0}
+.nudge-title{font-size:12px;font-weight:700;color:var(--amber);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.nudge-badge{font-size:9px;font-weight:700;background:rgba(255,214,10,.2);color:var(--amber);padding:1px 5px;border-radius:4px;letter-spacing:.04em}
+.nudge-text{font-size:12px;color:var(--t2);line-height:1.5}
+.nudge-cta{margin-top:10px;display:inline-flex;align-items:center;gap:5px;background:var(--amber);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#000;cursor:pointer}
+.nudge-dismiss{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--t3);cursor:pointer;border-radius:50%;margin-top:-2px}
+
+/* ── Wallet cards ── */
+.wcard{border-radius:16px;padding:16px;border:1px solid;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:filter .12s}
+.wcard:active{filter:brightness(.9)}
+.wcard-tabungan{background:rgba(48,209,88,.09);border-color:rgba(48,209,88,.22)}
+.wcard-rdn{background:rgba(232,51,74,.08);border-color:rgba(232,51,74,.22)}
+.wcard-global{background:rgba(247,147,26,.08);border-color:rgba(247,147,26,.22)}
+.wcard-usd{background:rgba(10,132,255,.08);border-color:rgba(10,132,255,.22)}
+
+.wcard-header{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.wdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.wname{font-size:13px;font-weight:600;color:var(--t1);flex:1}
+.bank-chip{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,.07);color:var(--t2);border:1px solid var(--b2);flex-shrink:0}
+
+.wamount{font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--t1);margin-bottom:1px}
+.wamount-sub{font-size:12px;color:var(--t2);margin-bottom:5px}
+.wsub{font-size:11px;color:var(--t2);line-height:1.45;margin-bottom:11px}
+.wsub-accent{font-weight:600}
+
+/* Bonus Saver chip */
+.bonus-saver{display:flex;align-items:center;gap:6px;background:rgba(48,209,88,.1);border:1px solid rgba(48,209,88,.2);border-radius:10px;padding:7px 10px;margin-bottom:11px;cursor:pointer}
+.bonus-saver:active{background:rgba(48,209,88,.18)}
+.bonus-saver-icon{flex-shrink:0}
+.bonus-saver-body{flex:1;min-width:0}
+.bonus-saver-title{font-size:11px;font-weight:700;color:var(--green)}
+.bonus-saver-sub{font-size:10px;color:rgba(48,209,88,.7);margin-top:1px}
+.bonus-saver-chev{color:rgba(48,209,88,.5);flex-shrink:0}
+
+/* Settlement badge */
+.wsettlement{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--t3);margin-bottom:9px;margin-top:-4px;cursor:pointer}
+
+/* Card action pills */
+.wactions{display:flex;gap:6px;flex-wrap:wrap}
+.wpill{border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;border:1px solid;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:filter .1s}
+.wpill:active{filter:brightness(.8)}
+.wpill-tabungan{background:rgba(48,209,88,.15);border-color:rgba(48,209,88,.3);color:#30d158}
+.wpill-rdn{background:rgba(232,51,74,.12);border-color:rgba(232,51,74,.28);color:#e8334a}
+.wpill-global{background:rgba(247,147,26,.12);border-color:rgba(247,147,26,.28);color:#f7931a}
+.wpill-usd{background:rgba(10,132,255,.15);border-color:rgba(10,132,255,.3);color:#0a84ff}
+
+/* ── Upsell card ── */
+.upsell{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .12s}
+.upsell:active{background:var(--s2)}
+.upsell-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.upsell-body{flex:1;min-width:0}
+.upsell-title{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.upsell-sub{font-size:11px;color:var(--t2)}
+.upsell-chev{color:var(--t3);flex-shrink:0}
+
+/* ── Bottom tabs ── */
+.bottom-tabs{flex-shrink:0;background:rgba(6,6,8,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--b1)}
+.tabs-row{display:flex;align-items:flex-start}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 3px;cursor:pointer;position:relative;min-width:0}
+.tab-item svg{flex-shrink:0}
+.tab-label{font-size:9px;font-weight:500;color:var(--t2);white-space:nowrap;letter-spacing:-.2px}
+.tab-item.act .tab-label{color:var(--blue)}
+.home-ind{height:var(--safe-bot);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;background:rgba(6,6,8,.94)}
+.home-bar{width:120px;height:4px;background:rgba(255,255,255,.25);border-radius:2px}
+
+/* ── Detail sub-screen ── */
+.det-nav{flex-shrink:0;height:calc(var(--safe-top) + 10px);display:flex;align-items:flex-end;padding:0 16px 10px;gap:10px;border-bottom:1px solid var(--b1);background:var(--s0)}
+.det-nav-back{display:flex;align-items:center;gap:4px;color:var(--blue);font-size:14px;font-weight:500;cursor:pointer;padding:4px 0}
+.det-nav-title{flex:1;text-align:center;font-size:15px;font-weight:600;color:var(--t1)}
+.det-nav-opts{width:60px;display:flex;justify-content:flex-end}
+
+.det-hero{padding:20px 16px 16px;border-bottom:1px solid var(--b1)}
+.det-acctno{font-size:11px;color:var(--t3);margin-bottom:6px;font-family:monospace;letter-spacing:.05em}
+.det-amount{font-size:32px;font-weight:700;letter-spacing:-.7px;color:var(--t1);line-height:1}
+.det-amount-sub{font-size:13px;color:var(--t2);margin-top:4px}
+.det-yield{font-size:12px;font-weight:500;margin-top:6px}
+.det-actions{display:flex;gap:10px;margin-top:14px}
+.det-btn{flex:1;padding:11px;border-radius:12px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;border:none;transition:filter .1s}
+.det-btn:active{filter:brightness(.88)}
+.det-btn-primary{background:var(--blue);color:#fff}
+.det-btn-secondary{background:var(--s2);color:var(--t1);border:1px solid var(--b2)}
+
+.det-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.det-scroll::-webkit-scrollbar{display:none}
+
+.txn-filter{display:flex;gap:0;padding:12px 16px 0;border-bottom:1px solid var(--b1)}
+.txn-ftab{font-size:12px;font-weight:600;color:var(--t2);padding:6px 14px 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.txn-ftab.act{color:var(--blue);border-bottom-color:var(--blue)}
+
+.txn-group{padding:0 16px}
+.txn-date{font-size:11px;font-weight:600;color:var(--t3);padding:14px 0 8px;letter-spacing:.03em;text-transform:uppercase}
+.txn-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1)}
+.txn-row:last-child{border-bottom:none}
+.txn-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.txn-info{flex:1;min-width:0}
+.txn-name{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txn-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.txn-right{text-align:right;flex-shrink:0}
+.txn-amt{font-size:13px;font-weight:600}
+.txn-amt.in{color:var(--green)}
+.txn-amt.out{color:var(--t1)}
+.txn-bal{font-size:11px;color:var(--t3);margin-top:1px}
+.txn-wallet-tag{font-size:10px;font-weight:600;padding:1px 5px;border-radius:5px;display:inline-block;margin-top:2px}
+
+/* ── History sub-screen ── */
+.hist-nav{flex-shrink:0;height:calc(var(--safe-top) + 10px);display:flex;align-items:flex-end;padding:0 16px 10px;gap:10px;border-bottom:1px solid var(--b1);background:var(--s0)}
+.hist-nav-close{display:flex;align-items:center;gap:4px;color:var(--blue);font-size:14px;font-weight:500;cursor:pointer;padding:4px 0}
+.hist-nav-title{flex:1;text-align:center;font-size:15px;font-weight:600;color:var(--t1)}
+
+.hist-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.hist-scroll::-webkit-scrollbar{display:none}
+
+/* ── Detail secondary actions (QRIS / Bayar Tagihan row) ── */
+.det-sec{padding-top:14px;border-top:1px solid var(--b1);margin-top:6px}
+.det-sec-row{display:flex;gap:0}
+.det-sec-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:6px 4px;-webkit-tap-highlight-color:transparent}
+.det-sec-btn:active .det-sec-ico{background:var(--s3)}
+.det-sec-ico{width:40px;height:40px;border-radius:50%;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;transition:background .1s}
+.det-sec-label{font-size:10px;font-weight:500;color:var(--t2);text-align:center;white-space:nowrap}
+
+/* ── Mini card thumbnail (inside Tabungan card) ── */
+.wcard-top-row{display:flex;align-items:flex-start;gap:14px}
+.wcard-top-left{flex:1;min-width:0}
+.mini-card{width:58px;height:37px;border-radius:7px;background:linear-gradient(135deg,#001533 0%,#0a5adb 100%);flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 12px rgba(10,84,219,.5),inset 0 1px 0 rgba(255,255,255,.18);display:flex;flex-direction:column;justify-content:space-between;padding:5px 7px 5px;transition:filter .12s;-webkit-tap-highlight-color:transparent;margin-top:1px}
+.mini-card::before{content:'';position:absolute;right:-14px;top:-14px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.mini-card:active{filter:brightness(.8)}
+.mini-card-logo{font-size:5px;font-weight:800;color:rgba(255,255,255,.72);letter-spacing:.1em;text-transform:uppercase;line-height:1;position:relative;z-index:1}
+.mini-card-chip{width:14px;height:10px;border-radius:2px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);position:relative;z-index:1}
+.mini-card-lock{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;border-radius:6px}
+.mini-card-lock.show{opacity:1}
+
+/* ── Card settings sub-screen ── */
+.card-s-card{background:linear-gradient(135deg,#001533 0%,#023975 45%,#0a5adb 80%,#1a8cff 100%);margin:16px;border-radius:16px;padding:18px 20px 16px;height:130px;position:relative;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;box-shadow:0 8px 32px rgba(10,84,219,.35)}
+.card-s-card::before{content:'';position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.card-s-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 32px}
+.card-s-scroll::-webkit-scrollbar{display:none}
+.cs-section-label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.05em;text-transform:uppercase;padding:16px 0 6px}
+.cs-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cs-row:last-child{border-bottom:none}
+.cs-row:active{opacity:.7}
+.cs-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cs-info{flex:1;min-width:0}
+.cs-name{font-size:14px;font-weight:500;color:var(--t1)}
+.cs-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.cs-right{flex-shrink:0;color:var(--t3);display:flex;align-items:center}
+.lock-toggle{width:44px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:background .22s}
+.lock-toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .22s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.lock-on{background:var(--red)}
+.lock-on .lock-toggle-thumb{left:21px}
+.lock-off{background:var(--green)}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:calc(var(--tabs-row-h) + var(--safe-bot) + 16px);left:50%;transform:translateX(-50%) translateY(8px);background:var(--s3);border:1px solid var(--b2);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--t1);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-shell">
+    <div class="btn-vol"></div><div class="btn-vol2"></div><div class="btn-pwr"></div>
+
+    <div class="screen">
+
+      <!-- ═══════════════════════════════════════
+           MAIN SCREEN
+      ═══════════════════════════════════════ -->
+      <div class="sub" id="sub-main">
+
+        <div class="sbar">
+          <span class="sbar-time">9:41</span>
+          <div class="di"></div>
+          <div class="sbar-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="var(--t1)"><rect x="0" y="3" width="3" height="9" rx=".5"/><rect x="4.5" y="2" width="3" height="10" rx=".5"/><rect x="9" y="1" width="3" height="11" rx=".5"/><rect x="13.5" y="0" width="2.5" height="12" rx=".5"/></svg>
+            <svg width="16" height="12" viewBox="0 0 24 18" fill="none" stroke="var(--t1)" stroke-width="2"><path d="M1 6C5 2 10 0 12 0s7 2 11 6M5 10c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3M9 14c.8-.8 1.9-1 3-1s2.2.2 3 1"/><circle cx="12" cy="17" r="1" fill="var(--t1)" stroke="none"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="var(--t1)" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="var(--t1)"/><path d="M23 4v4a2 2 0 000-4z" fill="var(--t1)" fill-opacity=".4"/></svg>
+          </div>
+        </div>
+
+        <div class="scroll-area">
+
+          <div class="app-bar">
+            <span class="app-bar-title">Cash</span>
+            <div class="icon-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <div class="notif-dot"></div>
+            </div>
+            <div class="avatar">ML</div>
+          </div>
+
+          <div class="hero">
+            <div class="hero-label-row">
+              <span class="hero-label">Total Dana</span>
+              <span class="eye-btn" onclick="toggleBalance()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+            </div>
+            <div class="hero-amount" id="hero-amount" data-val="Rp 9.783.031">Rp 9.783.031</div>
+            <div class="hero-interest" id="hero-interest">+Rp 13.312 bulan ini dari bunga & yield</div>
+          </div>
+
+          <div class="global-actions">
+            <div class="gact" onclick="showToast('QRIS dari Tabungan Ajaib')">
+              <div class="gact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="var(--t1)" stroke="none" rx=".5"/><rect x="16" y="5" width="3" height="3" fill="var(--t1)" stroke="none" rx=".5"/><rect x="5" y="16" width="3" height="3" fill="var(--t1)" stroke="none" rx=".5"/><path d="M14 14h2v2h-2zM16 16h2v2h-2zM14 18h2"/></svg>
+              </div>
+              <span class="gact-label">QRIS</span>
+            </div>
+            <div class="gact" onclick="showToast('Pindah antar rekening')">
+              <div class="gact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+              </div>
+              <span class="gact-label">Pindah</span>
+            </div>
+            <div class="gact" onclick="showToast('Setor dana ke Ajaib')">
+              <div class="gact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </div>
+              <span class="gact-label">Setor</span>
+            </div>
+            <div class="gact" onclick="openHistory()">
+              <div class="gact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><path d="M3 12a9 9 0 109-9H3"/><path d="M3 3v5h5M12 7v5l3 3"/></svg>
+              </div>
+              <span class="gact-label">Riwayat</span>
+            </div>
+          </div>
+
+          <div class="feed">
+
+            <!-- Auto Sweep nudge -->
+            <div class="nudge" id="nudge-card">
+              <div class="nudge-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="nudge-body">
+                <div class="nudge-title">
+                  Auto Sweep
+                  <span class="nudge-badge">BARU</span>
+                </div>
+                <div class="nudge-text">Dana di RDN otomatis masuk Tabungan tiap malam. Dapat bunga 4%, tetap bisa beli saham dari buying power gabungan.</div>
+                <div class="nudge-cta" onclick="event.stopPropagation();showToast('Aktifkan Auto Sweep — segera hadir')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  Aktifkan Sekarang
+                </div>
+              </div>
+              <div class="nudge-dismiss" onclick="dismissNudge()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </div>
+            </div>
+
+            <!-- Tabungan Ajaib -->
+            <div class="wcard wcard-tabungan" onclick="openDetail('tabungan')">
+              <div class="wcard-top-row">
+                <div class="wcard-top-left">
+                  <div class="wcard-header">
+                    <div class="wdot" style="background:#30d158"></div>
+                    <span class="wname">Tabungan Ajaib</span>
+                  </div>
+                  <div class="wamount bal-val" data-val="Rp 5.321.225" style="margin-top:9px">Rp 5.321.225</div>
+                </div>
+                <div class="mini-card" onclick="event.stopPropagation();openCardSettings()">
+                  <div class="mini-card-logo">AJAIB</div>
+                  <div class="mini-card-chip"></div>
+                  <div class="mini-card-lock" id="mini-card-lock">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  </div>
+                </div>
+              </div>
+              <div class="wsub" style="margin-top:8px"><span class="wsub-accent" style="color:#30d158">Bunga 4% p.a.</span> · +Rp 12.400 bulan ini</div>
+              <div class="bonus-saver" onclick="event.stopPropagation();showToast('Bonus Saver — segera hadir')">
+                <span class="bonus-saver-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+                <div class="bonus-saver-body">
+                  <div class="bonus-saver-title">Bonus Saver — hingga 5% p.a.</div>
+                  <div class="bonus-saver-sub">Pakai lebih banyak produk, bunga makin tinggi</div>
+                </div>
+                <span class="bonus-saver-chev">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </span>
+              </div>
+              <div class="wactions" onclick="event.stopPropagation()">
+                <div class="wpill wpill-tabungan" onclick="showToast('QRIS dari Tabungan')">QRIS</div>
+                <div class="wpill wpill-tabungan" onclick="showToast('Setor ke Tabungan')">Setor</div>
+                <div class="wpill wpill-tabungan" onclick="showToast('Transfer dari Tabungan')">Transfer</div>
+              </div>
+            </div>
+
+            <!-- Saldo RDN -->
+            <div class="wcard wcard-rdn" onclick="openDetail('rdn')">
+              <div class="wcard-header">
+                <div class="wdot" style="background:#e8334a"></div>
+                <span class="wname">Saldo RDN</span>
+                <span class="bank-chip">BCA</span>
+              </div>
+              <div class="wamount bal-val" data-val="Rp 85.858">Rp 85.858</div>
+              <div class="wsub" style="margin-bottom:7px">Untuk Saham · Reksa Dana · Obligasi</div>
+              <div class="wsettlement" onclick="event.stopPropagation();showToast('Tidak ada transaksi yang diproses')">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                Rp 0 diproses ›
+              </div>
+              <div class="wactions" onclick="event.stopPropagation()">
+                <div class="wpill wpill-rdn" onclick="showToast('Setor ke RDN via BCA')">Setor</div>
+                <div class="wpill wpill-rdn" onclick="showToast('Tarik dari RDN')">Tarik</div>
+                <div class="wpill wpill-rdn" onclick="showToast('Pindah dari RDN')">Pindah</div>
+              </div>
+            </div>
+
+            <!-- Rekening Aset Global -->
+            <div class="wcard wcard-global" onclick="openDetail('global')">
+              <div class="wcard-header">
+                <div class="wdot" style="background:#f7931a"></div>
+                <span class="wname">Rekening Aset Global</span>
+              </div>
+              <div class="wamount bal-val" data-val="Rp 163.051">Rp 163.051</div>
+              <div class="wsub">Untuk Kripto Spot · Futures · USS (IDR)</div>
+              <div class="wactions" onclick="event.stopPropagation()">
+                <div class="wpill wpill-global" onclick="showToast('Setor ke Aset Global')">Setor</div>
+                <div class="wpill wpill-global" onclick="showToast('Tarik dari Aset Global')">Tarik</div>
+              </div>
+            </div>
+
+            <!-- Rekening Valas USD -->
+            <div class="wcard wcard-usd" onclick="openDetail('usd')">
+              <div class="wcard-header">
+                <div class="wdot" style="background:#0a84ff"></div>
+                <span class="wname">Rekening Valas USD</span>
+              </div>
+              <div class="wamount bal-val" data-val="$245.80">$245.80</div>
+              <div class="wamount-sub bal-val" data-val="≈ Rp 4.012.897">≈ Rp 4.012.897</div>
+              <div class="wsub"><span class="wsub-accent" style="color:#0a84ff">Yield 3.63% p.a.</span> · +$0.74 bulan ini</div>
+              <div class="wactions" onclick="event.stopPropagation()">
+                <div class="wpill wpill-usd" onclick="showToast('Setor ke Valas USD')">Setor</div>
+                <div class="wpill wpill-usd" onclick="showToast('Tarik dari Valas USD')">Tarik</div>
+              </div>
+            </div>
+
+            <!-- Upsell -->
+            <div class="upsell" onclick="showToast('Buka rekening baru — segera hadir')">
+              <div class="upsell-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              </div>
+              <div class="upsell-body">
+                <div class="upsell-title">Tambah Rekening</div>
+                <div class="upsell-sub">Buka lebih banyak cara kelola uangmu</div>
+              </div>
+              <div class="upsell-chev">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="bottom-tabs">
+          <div class="tabs-row">
+            <div class="tab-item" onclick="location.href='../home/'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              <span class="tab-label">Beranda</span>
+            </div>
+            <div class="tab-item" onclick="location.href='../investasi/'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><rect x="2" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="18" y="13" width="4" height="8" rx="1"/></svg>
+              <span class="tab-label">Investasi</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.7 0-3 1.3-3 3s1.3 3 3 3c1 0 2-.5 2.5-1.5M12 7v1m0 8v1"/></svg>
+              <span class="tab-label">Kripto</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18M12 3c-2.5 2.5-4 6-4 9s1.5 6.5 4 9M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9M3 12h18"/></svg>
+              <span class="tab-label">Saham AS</span>
+            </div>
+            <div class="tab-item act">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><rect x="1" y="6" width="22" height="14" rx="2"/><path d="M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg>
+              <span class="tab-label" style="color:#0a84ff">Cash</span>
+            </div>
+            <div class="tab-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              <span class="tab-label">Portfolio</span>
+            </div>
+          </div>
+          <div class="home-ind"><div class="home-bar"></div></div>
+        </div>
+      </div><!-- /sub-main -->
+
+
+      <!-- ═══════════════════════════════════════
+           DETAIL SCREEN
+      ═══════════════════════════════════════ -->
+      <div class="sub sub-slide" id="sub-detail">
+        <div class="det-nav">
+          <div class="det-nav-back" onclick="closeDetail()">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="#0a84ff" stroke-width="1.8" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+            Kembali
+          </div>
+          <div class="det-nav-title" id="det-title">—</div>
+          <div class="det-nav-opts">
+            <div class="icon-btn" onclick="showToast('Pengaturan rekening')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="det-hero" id="det-hero">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="txn-filter">
+          <div class="txn-ftab act" onclick="setTxnFilter(this)">Semua</div>
+          <div class="txn-ftab" onclick="setTxnFilter(this)">Masuk</div>
+          <div class="txn-ftab" onclick="setTxnFilter(this)">Keluar</div>
+        </div>
+
+        <div class="det-scroll" id="det-scroll">
+          <!-- populated by JS -->
+        </div>
+      </div><!-- /sub-detail -->
+
+
+      <!-- ═══════════════════════════════════════
+           HISTORY SCREEN
+      ═══════════════════════════════════════ -->
+      <div class="sub sub-slide" id="sub-history">
+        <div class="hist-nav">
+          <div class="hist-nav-close" onclick="closeHistory()">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="#0a84ff" stroke-width="1.8" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+            Kembali
+          </div>
+          <div class="hist-nav-title">Riwayat Transaksi</div>
+          <div style="width:60px"></div>
+        </div>
+
+        <div class="txn-filter">
+          <div class="txn-ftab act" onclick="setHistFilter(this)">Semua</div>
+          <div class="txn-ftab" onclick="setHistFilter(this)">Masuk</div>
+          <div class="txn-ftab" onclick="setHistFilter(this)">Keluar</div>
+        </div>
+
+        <div class="hist-scroll" id="hist-scroll">
+          <!-- populated by JS -->
+        </div>
+      </div><!-- /sub-history -->
+
+      <!-- ═══════════════════════════════════════
+           CARD SETTINGS SCREEN
+      ═══════════════════════════════════════ -->
+      <div class="sub sub-slide" id="sub-card">
+        <div class="det-nav">
+          <div class="det-nav-back" onclick="closeCardSettings()">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="#0a84ff" stroke-width="1.8" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+            Kembali
+          </div>
+          <div class="det-nav-title">Kartu Saya</div>
+          <div class="det-nav-opts"></div>
+        </div>
+
+        <div class="card-s-card">
+          <div class="card-top">
+            <span class="card-logo">Ajaib</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.4"><path d="M4.93 4.93a10 10 0 000 14.14M7.76 7.76a6 6 0 000 8.48M10.59 10.59a2 2 0 000 2.83"/></svg>
+          </div>
+          <div class="card-chip-abs">
+            <svg width="30" height="24" viewBox="0 0 30 24" fill="none"><rect x=".5" y=".5" width="29" height="23" rx="3.5" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.25)"/><line x1="10" y1=".5" x2="10" y2="23.5" stroke="rgba(255,255,255,.18)" stroke-width=".8"/><line x1="20" y1=".5" x2="20" y2="23.5" stroke="rgba(255,255,255,.18)" stroke-width=".8"/><line x1=".5" y1="8" x2="29.5" y2="8" stroke="rgba(255,255,255,.18)" stroke-width=".8"/><line x1=".5" y1="16" x2="29.5" y2="16" stroke="rgba(255,255,255,.18)" stroke-width=".8"/></svg>
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div class="card-number">•••• •••• •••• 5621</div>
+              <div class="card-holder">Michael L.</div>
+            </div>
+            <div>
+              <div class="card-meta-label">Berlaku s/d</div>
+              <div class="card-meta-val">04/29</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-s-scroll">
+          <!-- Lock — hero action (Nubank style) -->
+          <div class="cs-section-label">Keamanan</div>
+          <div>
+            <div class="cs-row" onclick="toggleCardLock()">
+              <div class="cs-ico" id="cs-lock-ico" style="background:rgba(255,69,58,.12)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" id="cs-lock-svg"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name" id="cs-lock-name">Kunci Kartu</div>
+                <div class="cs-sub" id="cs-lock-sub">Kartu tidak bisa dipakai saat dikunci</div>
+              </div>
+              <div class="lock-toggle lock-off" id="lock-toggle-el"><div class="lock-toggle-thumb"></div></div>
+            </div>
+            <div class="cs-row" onclick="showToast('Autentikasi biometrik diperlukan')">
+              <div class="cs-ico" style="background:rgba(10,132,255,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name">Lihat Nomor & CVV</div>
+                <div class="cs-sub">Autentikasi biometrik diperlukan</div>
+              </div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+            <div class="cs-row" onclick="showToast('Ganti PIN — segera hadir')">
+              <div class="cs-ico" style="background:rgba(191,90,242,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><line x1="12" y1="16" x2="12" y2="16.01"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name">Ganti PIN</div>
+              </div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+          </div>
+
+          <!-- Limit -->
+          <div class="cs-section-label">Limit & Penggunaan</div>
+          <div>
+            <div class="cs-row" onclick="showToast('Atur limit — segera hadir')">
+              <div class="cs-ico" style="background:rgba(255,214,10,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name">Limit Transaksi Harian</div>
+                <div class="cs-sub">Rp 20.000.000 / hari</div>
+              </div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+            <div class="cs-row" onclick="showToast('Limit QRIS — segera hadir')">
+              <div class="cs-ico" style="background:rgba(10,132,255,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name">Limit QRIS</div>
+                <div class="cs-sub">Rp 10.000.000 / hari</div>
+              </div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+            <div class="cs-row" onclick="showToast('Kartu virtual — segera hadir')">
+              <div class="cs-ico" style="background:rgba(48,209,88,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8"><rect x="1" y="6" width="22" height="14" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name">Kartu Virtual</div>
+                <div class="cs-sub">Untuk belanja online</div>
+              </div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="cs-section-label">Lainnya</div>
+          <div>
+            <div class="cs-row" onclick="showToast('Riwayat kartu — segera hadir')">
+              <div class="cs-ico" style="background:rgba(142,142,147,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><path d="M3 12a9 9 0 109-9H3"/><path d="M3 3v5h5M12 7v5l3 3"/></svg>
+              </div>
+              <div class="cs-info"><div class="cs-name">Riwayat Penggunaan Kartu</div></div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+            <div class="cs-row" onclick="showToast('Laporkan kartu — segera hadir')">
+              <div class="cs-ico" style="background:rgba(255,69,58,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div class="cs-info">
+                <div class="cs-name" style="color:var(--red)">Laporkan Kartu Hilang</div>
+                <div class="cs-sub">Blokir dan minta kartu baru</div>
+              </div>
+              <div class="cs-right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /sub-card -->
+
+    </div><!-- /screen -->
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// WALLET DATA
+// ═══════════════════════════════════════
+const WALLETS = {
+  tabungan: {
+    name: 'Tabungan Ajaib',
+    color: '#30d158',
+    tintClass: 'wpill-tabungan',
+    accountNo: '8800 •••• •••• 5621',
+    balance: 'Rp 5.321.225',
+    balanceSub: null,
+    yieldLine: 'Bunga 4% p.a. · +Rp 12.400 bulan ini',
+    yieldColor: '#30d158',
+    actions: ['Setor', 'Transfer'],
+    secondaryActions: [
+      { label: 'QRIS', icon: 'qris' },
+      { label: 'Bayar Tagihan', icon: 'bill' },
+      { label: 'Lainnya', icon: 'more' },
+    ],
+    txn: [
+      { date: '12 Mei 2026', items: [
+        { type:'out', icon:'qris',     name:'QRIS Indomaret',       sub:'08:24', amt:'−Rp 45.000',    bal:'Rp 5.321.225' },
+        { type:'in',  icon:'transfer', name:'Transfer masuk BCA',   sub:'07:10', amt:'+Rp 500.000',   bal:'Rp 5.366.225' },
+      ]},
+      { date: '11 Mei 2026', items: [
+        { type:'in',  icon:'interest', name:'Bunga harian',         sub:'00:01', amt:'+Rp 425',        bal:'Rp 4.866.225' },
+        { type:'out', icon:'qris',     name:'QRIS Alfamart',        sub:'19:33', amt:'−Rp 22.000',    bal:'Rp 4.865.800' },
+        { type:'out', icon:'qris',     name:'QRIS Tokopedia',       sub:'14:02', amt:'−Rp 120.000',   bal:'Rp 4.887.800' },
+      ]},
+      { date: '10 Mei 2026', items: [
+        { type:'out', icon:'transfer', name:'Transfer ke RDN',      sub:'09:15', amt:'−Rp 200.000',   bal:'Rp 4.888.000' },
+        { type:'in',  icon:'interest', name:'Bunga harian',         sub:'00:01', amt:'+Rp 412',        bal:'Rp 5.088.000' },
+      ]},
+    ],
+  },
+  rdn: {
+    name: 'Saldo RDN',
+    color: '#e8334a',
+    tintClass: 'wpill-rdn',
+    accountNo: 'BCA 028 •••• ••09',
+    balance: 'Rp 85.858',
+    balanceSub: null,
+    yieldLine: 'Untuk Saham · Reksa Dana · Obligasi',
+    yieldColor: 'var(--t2)',
+    actions: ['Setor', 'Tarik', 'Pindah'],
+    txn: [
+      { date: '12 Mei 2026', items: [
+        { type:'out', icon:'invest',   name:'Beli BBCA 100 lbr',    sub:'10:31', amt:'−Rp 350.000',   bal:'Rp 85.858' },
+        { type:'in',  icon:'transfer', name:'Setor via BCA',         sub:'09:05', amt:'+Rp 500.000',   bal:'Rp 435.858' },
+      ]},
+      { date: '09 Mei 2026', items: [
+        { type:'in',  icon:'invest',   name:'Jual TLKM 200 lbr',    sub:'14:22', amt:'+Rp 280.000',   bal:'Rp 435.858' },
+        { type:'out', icon:'invest',   name:'Beli BBRI 300 lbr',    sub:'10:05', amt:'−Rp 324.000',   bal:'Rp 155.858' },
+      ]},
+    ],
+  },
+  global: {
+    name: 'Rekening Aset Global',
+    color: '#f7931a',
+    tintClass: 'wpill-global',
+    accountNo: '•••• •••• ••••',
+    balance: 'Rp 163.051',
+    balanceSub: null,
+    yieldLine: 'Untuk Kripto Spot · Futures · USS (IDR)',
+    yieldColor: 'var(--t2)',
+    actions: ['Setor', 'Tarik'],
+    txn: [
+      { date: '11 Mei 2026', items: [
+        { type:'out', icon:'invest',   name:'Beli BTC/IDR',          sub:'16:45', amt:'−Rp 200.000',   bal:'Rp 163.051' },
+        { type:'in',  icon:'transfer', name:'Setor dari Tabungan',   sub:'16:40', amt:'+Rp 200.000',   bal:'Rp 363.051' },
+      ]},
+      { date: '05 Mei 2026', items: [
+        { type:'out', icon:'invest',   name:'Beli ETH/IDR',          sub:'12:10', amt:'−Rp 150.000',   bal:'Rp 163.051' },
+        { type:'in',  icon:'transfer', name:'Setor dari RDN',        sub:'11:58', amt:'+Rp 150.000',   bal:'Rp 313.051' },
+      ]},
+    ],
+  },
+  usd: {
+    name: 'Rekening Valas USD',
+    color: '#0a84ff',
+    tintClass: 'wpill-usd',
+    accountNo: '•••• •••• ••••',
+    balance: '$245.80',
+    balanceSub: '≈ Rp 4.012.897',
+    yieldLine: 'Yield 3.63% p.a. · +$0.74 bulan ini',
+    yieldColor: '#0a84ff',
+    actions: ['Setor', 'Tarik'],
+    txn: [
+      { date: '12 Mei 2026', items: [
+        { type:'in',  icon:'interest', name:'Yield harian',          sub:'00:01', amt:'+$0.02',          bal:'$245.80' },
+      ]},
+      { date: '11 Mei 2026', items: [
+        { type:'in',  icon:'interest', name:'Yield harian',          sub:'00:01', amt:'+$0.02',          bal:'$245.78' },
+        { type:'out', icon:'invest',   name:'Beli USS AAPL',         sub:'15:30', amt:'−$50.00',         bal:'$245.76' },
+      ]},
+      { date: '08 Mei 2026', items: [
+        { type:'in',  icon:'transfer', name:'Setor dari Tabungan',   sub:'11:20', amt:'+$295.76',        bal:'$295.76' },
+      ]},
+    ],
+  },
+};
+
+// Unified history (sorted by date desc)
+const HISTORY = [
+  { date: '12 Mei 2026', items: [
+    { type:'out', icon:'qris',     name:'QRIS Indomaret',       sub:'08:24', amt:'−Rp 45.000',   wallet:'tabungan' },
+    { type:'in',  icon:'transfer', name:'Transfer masuk BCA',   sub:'07:10', amt:'+Rp 500.000',  wallet:'tabungan' },
+    { type:'out', icon:'invest',   name:'Beli BBCA 100 lbr',    sub:'10:31', amt:'−Rp 350.000',  wallet:'rdn' },
+    { type:'in',  icon:'transfer', name:'Setor via BCA',        sub:'09:05', amt:'+Rp 500.000',  wallet:'rdn' },
+    { type:'in',  icon:'interest', name:'Yield harian USD',     sub:'00:01', amt:'+$0.02',        wallet:'usd' },
+  ]},
+  { date: '11 Mei 2026', items: [
+    { type:'in',  icon:'interest', name:'Bunga harian',         sub:'00:01', amt:'+Rp 425',       wallet:'tabungan' },
+    { type:'out', icon:'qris',     name:'QRIS Alfamart',        sub:'19:33', amt:'−Rp 22.000',   wallet:'tabungan' },
+    { type:'out', icon:'qris',     name:'QRIS Tokopedia',       sub:'14:02', amt:'−Rp 120.000',  wallet:'tabungan' },
+    { type:'out', icon:'invest',   name:'Beli BTC/IDR',         sub:'16:45', amt:'−Rp 200.000',  wallet:'global' },
+    { type:'in',  icon:'transfer', name:'Setor ke Aset Global', sub:'16:40', amt:'+Rp 200.000',  wallet:'global' },
+    { type:'in',  icon:'interest', name:'Yield harian USD',     sub:'00:01', amt:'+$0.02',        wallet:'usd' },
+    { type:'out', icon:'invest',   name:'Beli USS AAPL',        sub:'15:30', amt:'−$50.00',       wallet:'usd' },
+  ]},
+  { date: '10 Mei 2026', items: [
+    { type:'out', icon:'transfer', name:'Transfer ke RDN',      sub:'09:15', amt:'−Rp 200.000',  wallet:'tabungan' },
+    { type:'in',  icon:'interest', name:'Bunga harian',         sub:'00:01', amt:'+Rp 412',       wallet:'tabungan' },
+  ]},
+];
+
+// ═══════════════════════════════════════
+// SECONDARY ACTION ICON HELPER
+// ═══════════════════════════════════════
+function secIconSvg(icon) {
+  if (icon === 'qris')
+    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="var(--t1)" stroke="none" rx=".5"/><rect x="16" y="5" width="3" height="3" fill="var(--t1)" stroke="none" rx=".5"/><rect x="5" y="16" width="3" height="3" fill="var(--t1)" stroke="none" rx=".5"/></svg>`;
+  if (icon === 'bill')
+    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>`;
+  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.7"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`;
+}
+
+// ═══════════════════════════════════════
+// ICON HELPERS
+// ═══════════════════════════════════════
+function txnIconSvg(icon, color) {
+  const bg = icon === 'interest' ? `rgba(${hexToRgb(color)},.15)` : `rgba(255,255,255,.07)`;
+  let svg = '';
+  if (icon === 'qris')     svg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>`;
+  else if (icon === 'transfer') svg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>`;
+  else if (icon === 'interest') svg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  else if (icon === 'invest')   svg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`;
+  return `<div class="txn-ico" style="background:${bg}">${svg}</div>`;
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+function walletTagHtml(key) {
+  const w = WALLETS[key];
+  const short = { tabungan:'Tabungan', rdn:'RDN', global:'Aset Global', usd:'Valas USD' };
+  return `<span class="txn-wallet-tag" style="background:rgba(${hexToRgb(w.color)},.12);color:${w.color}">${short[key]}</span>`;
+}
+
+// ═══════════════════════════════════════
+// DETAIL SCREEN
+// ═══════════════════════════════════════
+function openDetail(key) {
+  const w = WALLETS[key];
+
+  // Populate hero
+  const actBtns = w.actions.map(a =>
+    `<div class="det-btn det-btn-primary" onclick="showToast('${a} — ${w.name}')">${a}</div>`
+  ).join('');
+  const secHTML = w.secondaryActions ? `
+    <div class="det-sec">
+      <div class="det-sec-row">${w.secondaryActions.map(a =>
+        `<div class="det-sec-btn" onclick="showToast('${a.label}')">
+          <div class="det-sec-ico">${secIconSvg(a.icon)}</div>
+          <span class="det-sec-label">${a.label}</span>
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+  document.getElementById('det-hero').innerHTML = `
+    <div class="det-acctno">${w.accountNo}</div>
+    <div class="det-amount">${balHidden ? '••••••' : w.balance}</div>
+    ${w.balanceSub ? `<div class="det-amount-sub">${balHidden ? '' : w.balanceSub}</div>` : ''}
+    <div class="det-yield" style="color:${w.yieldColor}">${w.yieldLine}</div>
+    <div class="det-actions">${actBtns}</div>
+    ${secHTML}
+  `;
+
+  document.getElementById('det-title').textContent = w.name;
+  renderTxnList('det-scroll', w.txn, key, false);
+
+  // Reset filter tabs
+  document.querySelectorAll('#sub-detail .txn-ftab').forEach((t,i)=>t.classList.toggle('act',i===0));
+
+  document.getElementById('sub-detail').classList.add('active');
+  document.getElementById('sub-main').classList.add('pushed');
+}
+
+function closeDetail() {
+  document.getElementById('sub-detail').classList.remove('active');
+  document.getElementById('sub-main').classList.remove('pushed');
+}
+
+function renderTxnList(containerId, txnGroups, walletKey, showWalletTag) {
+  const w = walletKey ? WALLETS[walletKey] : null;
+  let html = '';
+  txnGroups.forEach(g => {
+    html += `<div class="txn-group"><div class="txn-date">${g.date}</div>`;
+    g.items.forEach(item => {
+      const color = w ? w.color : WALLETS[item.wallet]?.color || '#8e8e93';
+      const tag = showWalletTag && item.wallet ? walletTagHtml(item.wallet) : '';
+      html += `
+        <div class="txn-row">
+          ${txnIconSvg(item.icon, color)}
+          <div class="txn-info">
+            <div class="txn-name">${item.name}</div>
+            <div class="txn-sub">${item.sub}${tag ? ' · ' : ''}${tag}</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-amt ${item.type}">${item.amt}</div>
+            ${item.bal ? `<div class="txn-bal">${item.bal}</div>` : ''}
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function setTxnFilter(el) {
+  document.querySelectorAll('#sub-detail .txn-ftab').forEach(t => t.classList.remove('act'));
+  el.classList.add('act');
+  showToast('Filter: ' + el.textContent);
+}
+
+// ═══════════════════════════════════════
+// HISTORY SCREEN
+// ═══════════════════════════════════════
+function openHistory() {
+  renderTxnList('hist-scroll', HISTORY, null, true);
+  document.querySelectorAll('#sub-history .txn-ftab').forEach((t,i)=>t.classList.toggle('act',i===0));
+  document.getElementById('sub-history').classList.add('active');
+  document.getElementById('sub-main').classList.add('pushed');
+}
+
+function closeHistory() {
+  document.getElementById('sub-history').classList.remove('active');
+  document.getElementById('sub-main').classList.remove('pushed');
+}
+
+function setHistFilter(el) {
+  document.querySelectorAll('#sub-history .txn-ftab').forEach(t => t.classList.remove('act'));
+  el.classList.add('act');
+  showToast('Filter: ' + el.textContent);
+}
+
+// ═══════════════════════════════════════
+// CARD SETTINGS
+// ═══════════════════════════════════════
+let cardLocked = false;
+
+function toggleCardLock() {
+  cardLocked = !cardLocked;
+
+  // Mini card thumbnail lock overlay
+  document.getElementById('mini-card-lock')?.classList.toggle('show', cardLocked);
+
+  // Card settings screen
+  const toggle = document.getElementById('lock-toggle-el');
+  const csName = document.getElementById('cs-lock-name');
+  const csSub  = document.getElementById('cs-lock-sub');
+  if (toggle) toggle.className = `lock-toggle ${cardLocked ? 'lock-on' : 'lock-off'}`;
+  if (csName) csName.textContent = cardLocked ? 'Buka Kartu' : 'Kunci Kartu';
+  if (csSub)  csSub.textContent  = cardLocked ? 'Kartu sedang dikunci — tap untuk membuka' : 'Kartu tidak bisa dipakai saat dikunci';
+
+  showToast(cardLocked ? 'Kartu dikunci' : 'Kartu berhasil dibuka');
+}
+
+function openCardSettings() {
+  // Sync toggle state
+  const t = document.getElementById('lock-toggle-el');
+  if (t) t.className = `lock-toggle ${cardLocked ? 'lock-on' : 'lock-off'}`;
+  document.getElementById('sub-card').classList.add('active');
+  document.getElementById('sub-main').classList.add('pushed');
+}
+
+function closeCardSettings() {
+  document.getElementById('sub-card').classList.remove('active');
+  document.getElementById('sub-main').classList.remove('pushed');
+}
+
+// ═══════════════════════════════════════
+// BALANCE TOGGLE
+// ═══════════════════════════════════════
+let balHidden = false;
+function toggleBalance() {
+  balHidden = !balHidden;
+  document.getElementById('eye-icon').innerHTML = balHidden
+    ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+
+  document.getElementById('hero-amount').textContent = balHidden ? '••••••' : document.getElementById('hero-amount').dataset.val;
+  document.getElementById('hero-interest').style.opacity = balHidden ? '0' : '1';
+
+  document.querySelectorAll('.bal-val').forEach(el => {
+    el.textContent = balHidden ? '••••••' : (el.dataset.val || el.textContent);
+  });
+}
+
+// ═══════════════════════════════════════
+// NUDGE DISMISS
+// ═══════════════════════════════════════
+function dismissNudge() {
+  const card = document.getElementById('nudge-card');
+  const h = card.offsetHeight;
+  card.style.maxHeight = h + 'px';
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(-4px)';
+  requestAnimationFrame(() => {
+    card.style.transition = 'opacity .2s, transform .2s, max-height .3s .1s, padding .3s .1s, margin-bottom .3s .1s';
+    card.style.maxHeight = '0';
+    card.style.padding = '0';
+    card.style.marginBottom = '-10px';
+  });
+  setTimeout(() => card.remove(), 450);
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
