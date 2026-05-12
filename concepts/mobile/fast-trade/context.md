@@ -91,12 +91,34 @@ Max Lot = `floor(Max Limit / (price × 100 shares/lot))`
 |---|---|
 | Tap Beli cell on any row | Places buy order at that price × current lot count; cell shows lot total; row gets amber outline highlight |
 | Tap Jual cell on any row | Same for sell side |
-| Tap W (red) | Cancels all pending buy orders; clears cell indicators |
-| Tap W (blue) | Cancels all pending sell orders |
+| Tap W (red) | Cancels all pending buy orders on the entire side; clears all cell indicators |
+| Tap W (blue) | Cancels all pending sell orders on the entire side |
 | Tap lot number | Opens numeric keyboard; blur validates and clamps to [1, max lot] |
 | Tap − / + | Decrements / increments lot by 1, clamped to [1, max lot] |
 | Tap MAX | Sets lot to current product's max lot |
 | Switch DT ↔ Regular | Recalculates Max Limit + Max Lot; clamps current lot if over new max |
+
+### Long-press → context menu
+
+Hold any cell that has a pending order (480 ms on touch; right-click on desktop) to open a bottom sheet with four actions:
+
+| Option | Behaviour |
+|---|---|
+| **Tambah Beli** | Adds current lot stepper count as an additional buy order at the same price |
+| **Tambah Jual** | Adds current lot stepper count as an additional sell order at the same price |
+| **Amend Harga** | Enters amend mode for this specific order (see below) |
+| **Withdraw** | Cancels only this order at this price (vs W button which wipes the whole side) |
+
+### Amend mode
+
+Triggered from the context menu → Amend Harga.
+
+1. An amber banner appears above the order book: *"Amend Beli/Jual N lot @ price · pilih harga baru"*
+2. Every cell on the same side transforms into a **Pilih** tap target
+3. The source cell gets an amber outline so the trader can see the current position at a glance
+4. Tapping any **Pilih** cell moves the entire lot to that price, highlights the new row, and exits amend mode
+5. Tapping **Batal** in the banner cancels with no changes
+6. The entire lot is always moved — partial amend is not supported
 
 ---
 
@@ -117,3 +139,4 @@ concepts/mobile/fast-trade/
 - [ ] Order confirmation flow — currently a toast; consider a bottom sheet for larger lot sizes
 - [ ] Real-time tick simulation for demo purposes
 - [ ] Pending order state persistence across price levels (currently in-memory only)
+- [ ] Partial amend (move subset of lot to new price) — not currently supported by design
