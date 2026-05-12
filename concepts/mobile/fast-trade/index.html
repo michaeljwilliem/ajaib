@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fast Trade — BBCA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d0d0f;--surface:#161618;--s2:#1e1e22;--s3:#252529;
+  --buy:#DC2626;--buy-cell:rgba(220,38,38,.2);--buy-hot:rgba(220,38,38,.55);
+  --sell:#2563EB;--sell-cell:rgba(37,99,235,.2);--sell-hot:rgba(37,99,235,.55);
+  --ask:#34D399;--bid:#F87171;
+  --text:#F4F4F5;--dim:#8e8e93;--dim2:#52525B;--border:#27272A;
+}
+body{background:#060608;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 16px 64px;font-family:'Inter',-apple-system,sans-serif}
+@media(max-width:500px),(pointer:coarse){body{padding:0;background:#000;justify-content:flex-start}.phone-wrap{width:100%!important;filter:none!important}.phone-shell{width:100%!important;background:none!important;border-radius:0!important;padding:0!important}.phone-shell::before{display:none}.btn-vol,.btn-vol2,.btn-pwr{display:none}.screen{width:100%!important;height:100svh!important;border-radius:0!important}}
+
+/* ── Phone frame ── */
+.phone-wrap{position:relative;width:407px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.phone-shell{width:407px;background:linear-gradient(170deg,#2a2a2e 0%,#1a1a1e 60%,#111 100%);border-radius:56px;padding:10px;position:relative}
+.phone-shell::before{content:'';position:absolute;inset:0;border-radius:56px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.btn-vol{position:absolute;left:-3px;top:130px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-vol2{position:absolute;left:-3px;top:178px;width:3px;height:38px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.btn-pwr{position:absolute;right:-3px;top:158px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+
+/* ── Screen ── */
+.screen{width:387px;height:839px;border-radius:48px;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* ── Status bar / Dynamic Island ── */
+.screen-sbar{position:absolute;top:0;left:0;right:0;height:54px;background:var(--bg);z-index:30;display:flex;align-items:flex-end;padding:0 24px 10px;justify-content:space-between;pointer-events:none}
+.di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:34px;background:#000;border-radius:20px}
+.sbar-time{font-size:15px;font-weight:600;letter-spacing:-.3px;color:var(--text)}
+.sbar-icons{display:flex;align-items:center;gap:5px}
+
+/* ── App ── */
+.app{flex:1;padding-top:54px;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Nav bar ── */
+.nav{height:52px;display:flex;align-items:center;padding:0 8px;flex-shrink:0}
+.nav-back{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;color:var(--text);flex-shrink:0}
+.nav-back:active{background:var(--s2)}
+.nav-stock{flex:1;padding:0 4px}
+.nav-ticker-row{display:flex;align-items:center;gap:5px}
+.nav-ticker{font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
+.badge{height:17px;padding:0 5px;border-radius:3px;font-size:10px;font-weight:700;display:flex;align-items:center}
+.badge-b{background:#7C3AED;color:#fff}
+.badge-m{background:#0891B2;color:#fff}
+.badge-more{background:var(--s3);color:var(--dim)}
+.nav-price{font-size:13px;font-weight:500;margin-top:2px;color:var(--bid);font-variant-numeric:tabular-nums}
+.nav-right{display:flex;align-items:center;gap:4px}
+.icon-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;color:var(--dim)}
+.icon-btn:active{background:var(--s2)}
+.lite-pro{height:26px;background:var(--s2);border-radius:6px;display:flex;align-items:center;padding:2px;gap:1px}
+.lp-tab{height:22px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:3px;cursor:pointer;color:var(--dim);letter-spacing:.3px;transition:all .15s}
+.lp-tab.active{background:var(--sell);color:#fff}
+.lp-mbadge{background:#F59E0B;color:#000;font-size:9px;font-weight:800;padding:1px 3px;border-radius:3px}
+
+/* ── Segmented control (top mode tabs) ── */
+.seg-wrapper{
+  padding:7px 14px 8px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.seg-ctrl{
+  display:flex;align-items:center;
+  background:#111113;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  padding:3px;
+  height:36px;
+  gap:2px;
+}
+.seg-tab{
+  flex:1;height:28px;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  border-radius:7px;
+  font-size:14px;font-weight:600;color:var(--dim);
+  cursor:pointer;transition:all .15s;
+  user-select:none;
+}
+.seg-tab.fast-tab{flex:.8;font-size:13px}
+.seg-tab.active{
+  background:#3a3a3c;
+  color:var(--text);
+  box-shadow:0 1px 4px rgba(0,0,0,.5);
+}
+
+/* ── Order book grid ── */
+/* Buy-cell | Bid-vol | Price | Offer-vol | Sell-cell */
+.ob-grid{display:grid;grid-template-columns:54px 1fr 62px 1fr 54px}
+
+/* Column headers */
+.ob-header{height:30px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;align-items:center}
+.oh{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--dim2);display:flex;align-items:center;justify-content:center;height:100%}
+.oh-buy{color:rgba(220,38,38,.6)}
+.oh-sell{color:rgba(37,99,235,.6)}
+.oh-bid{justify-content:flex-end;padding-right:8px}
+.oh-price{justify-content:center}
+.oh-offer{justify-content:flex-start;padding-left:8px}
+
+/* Scroll area */
+.ob-scroll{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg)}
+.ob-scroll::-webkit-scrollbar{display:none}
+
+/* Rows */
+.ob-row{height:32px;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.03);position:relative}
+
+/* Action cells */
+.ob-buy,.ob-sell{display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.2px;transition:background .08s;user-select:none}
+.ob-buy{background:var(--buy-cell)}
+.ob-buy:active{background:var(--buy-hot)}
+.ob-sell{background:var(--sell-cell)}
+.ob-sell:active{background:var(--sell-hot)}
+.ob-buy.has-order{background:rgba(220,38,38,.48)}
+.ob-sell.has-order{background:rgba(37,99,235,.48)}
+
+/* Volume cells with depth bar */
+.ob-bid-vol,.ob-offer-vol{display:flex;align-items:center;font-size:12px;font-weight:500;color:var(--dim);font-variant-numeric:tabular-nums;position:relative}
+.ob-bid-vol{justify-content:flex-end;padding-right:8px}
+.ob-offer-vol{justify-content:flex-start;padding-left:8px}
+.ob-bid-vol::before{content:'';position:absolute;top:5px;bottom:5px;right:0;border-radius:2px;background:rgba(220,38,38,.1);width:var(--d,0%)}
+.ob-offer-vol::before{content:'';position:absolute;top:5px;bottom:5px;left:0;border-radius:2px;background:rgba(37,99,235,.1);width:var(--d,0%)}
+
+/* Price cell */
+.ob-price{display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.ob-price.ask{color:var(--ask)}
+.ob-price.bid-p{color:var(--bid)}
+.ob-row.selected .ob-price{outline:1.5px solid #F59E0B;outline-offset:-2px;border-radius:3px;color:#fff}
+
+/* Last price divider */
+.ob-divider{height:2px;background:rgba(255,255,255,.07);flex-shrink:0}
+
+/* ── Totals + W row ── */
+.ob-totals{height:40px;background:var(--surface);border-top:1px solid var(--border);align-items:stretch;flex-shrink:0}
+.w-btn{display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;cursor:pointer;border:none;transition:opacity .1s}
+.w-btn:active{opacity:.7}
+.w-buy-btn{background:var(--buy)}
+.w-sell-btn{background:var(--sell)}
+.tot-bid{display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:12px;font-weight:700;color:var(--buy);font-variant-numeric:tabular-nums}
+.tot-lbl{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim2)}
+.tot-offer{display:flex;align-items:center;justify-content:flex-start;padding-left:8px;font-size:12px;font-weight:700;color:var(--sell);font-variant-numeric:tabular-nums}
+
+/* ── Bottom panel ── */
+.bottom-panel{background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+
+/* Capacity strip */
+.cap-strip{height:36px;display:flex;align-items:center;padding:0 14px;border-bottom:1px solid var(--border)}
+.cap-seg{flex:1;display:flex;flex-direction:column;gap:1px}
+.cap-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim2)}
+.cap-val{font-size:11px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cap-val.c-buy{color:var(--buy)}
+.cap-val.c-sell{color:var(--sell)}
+.cap-val.c-amber{color:#F59E0B}
+.cap-sep{width:1px;height:20px;background:var(--border);margin:0 8px;flex-shrink:0}
+
+/* Controls row: segmented DT/TL + lot stepper inline */
+.controls-row{height:56px;display:flex;align-items:center;gap:7px;padding:0 12px 10px}
+
+/* DT/TL as proper segmented control */
+.dt-tl-ctrl{
+  display:flex;align-items:center;
+  background:#111113;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:9px;
+  padding:3px;
+  height:34px;
+  gap:2px;
+  flex-shrink:0;
+}
+.dt-pill{
+  height:26px;padding:0 10px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  border-radius:6px;
+  font-size:12px;font-weight:700;color:var(--dim);
+  cursor:pointer;transition:all .15s;
+  user-select:none;white-space:nowrap;
+}
+.dt-pill.active{background:#3a3a3c;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.pmb{background:#F59E0B;color:#000;font-size:8px;font-weight:800;padding:1px 3px;border-radius:2px;line-height:1}
+.tlb{background:var(--sell);color:#fff;font-size:8px;font-weight:800;padding:1px 3px;border-radius:2px;line-height:1}
+
+/* Lot stepper */
+.lot-stepper{flex:1;display:flex;align-items:center;background:var(--s2);border:1px solid var(--border);border-radius:8px;height:38px;overflow:hidden}
+.lot-btn{width:38px;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:20px;font-weight:300;flex-shrink:0;user-select:none}
+.lot-btn:active{background:var(--s3)}
+.lot-display{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0px;cursor:text}
+.lot-input{background:none;border:none;outline:none;text-align:center;font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;font-family:inherit;width:100%;padding:0;line-height:1.1}
+.lot-input:focus{color:#fff}
+.lot-unit{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim2);line-height:1;pointer-events:none}
+.max-btn{background:var(--s3);border:1px solid var(--border);height:34px;padding:0 10px;border-radius:8px;color:var(--dim);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.max-btn:active{background:var(--border);color:var(--text)}
+
+/* ── Toast ── */
+.toast{position:absolute;bottom:130px;left:50%;transform:translateX(-50%) translateY(8px);background:#18181b;border:1px solid #3f3f46;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;opacity:0;transition:all .18s;pointer-events:none;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Page label ── */
+.page-label{margin-top:16px;font-size:12px;color:#3f3f46;font-family:'Inter',sans-serif;letter-spacing:.3px}
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-shell">
+    <div class="btn-vol"></div><div class="btn-vol2"></div><div class="btn-pwr"></div>
+    <div class="screen">
+
+      <!-- Status bar -->
+      <div class="screen-sbar">
+        <div class="di"></div>
+        <span class="sbar-time">12:30</span>
+        <div class="sbar-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="4" width="3" height="8" rx="1" fill="white"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1" fill="white"/><rect x="9" y="1" width="3" height="11" rx="1" fill="white"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity=".25"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 9.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" fill="white"/><path d="M3.5 6.5C4.9 5.1 6.8 4.2 8 4.2s3.1.9 4.5 2.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M1 4C2.8 2.1 5.2 1 8 1s5.2 1.1 7 3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".5"/></svg>
+          <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x=".5" y=".5" width="22" height="12" rx="3" stroke="white" stroke-opacity=".35"/><rect x="2" y="2" width="17" height="9" rx="2" fill="white"/><path d="M24 4.5v4c1-.5 1.5-1.2 1.5-2s-.5-1.5-1.5-2z" fill="white" opacity=".35"/></svg>
+        </div>
+      </div>
+
+      <div class="app">
+
+        <!-- Nav bar -->
+        <div class="nav">
+          <div class="nav-back"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12 5L7 10L12 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nav-stock">
+            <div class="nav-ticker-row">
+              <span class="nav-ticker">BBCA</span>
+              <span class="badge badge-b">B</span>
+              <span class="badge badge-m">M</span>
+              <span class="badge badge-more">+1</span>
+            </div>
+            <div class="nav-price">8.050 <span style="opacity:.6">(-2.5%)</span></div>
+          </div>
+          <div class="nav-right">
+            <div class="icon-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#71717A" stroke-width="1.5"/><line x1="10" y1="9" x2="10" y2="14" stroke="#71717A" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="#71717A"/></svg></div>
+            <div class="lite-pro">
+              <div class="lp-tab" id="lp-lite" onclick="switchLP('lite')">LITE</div>
+              <div class="lp-tab active" id="lp-pro" onclick="switchLP('pro')">PRO <span class="lp-mbadge">⚡1x</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segmented control: Beli / Jual / Fast -->
+        <div class="seg-wrapper">
+          <div class="seg-ctrl">
+            <div class="seg-tab beli-tab" id="seg-beli">Beli</div>
+            <div class="seg-tab jual-tab" id="seg-jual">Jual</div>
+            <div class="seg-tab fast-tab active" id="seg-fast">
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M6 0L0 7h4L3 12l7-7H6V0z"/></svg>
+              Fast
+            </div>
+          </div>
+        </div>
+
+        <!-- Order book column headers -->
+        <div class="ob-grid ob-header">
+          <div class="oh oh-buy">Beli</div>
+          <div class="oh oh-bid">Bid</div>
+          <div class="oh oh-price">Harga</div>
+          <div class="oh oh-offer">Offer</div>
+          <div class="oh oh-sell">Jual</div>
+        </div>
+
+        <!-- Scrollable order book -->
+        <div class="ob-scroll" id="ob-scroll">
+
+          <!-- 20 ASK rows (offer side, prices above last) -->
+          <div class="ob-row ob-grid" data-price="8550"><div class="ob-buy" onclick="qo(event,'buy',8550)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.550</div><div class="ob-offer-vol" style="--d:41%">298.456</div><div class="ob-sell" onclick="qo(event,'sell',8550)"></div></div>
+          <div class="ob-row ob-grid" data-price="8525"><div class="ob-buy" onclick="qo(event,'buy',8525)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.525</div><div class="ob-offer-vol" style="--d:21%">156.789</div><div class="ob-sell" onclick="qo(event,'sell',8525)"></div></div>
+          <div class="ob-row ob-grid" data-price="8500"><div class="ob-buy" onclick="qo(event,'buy',8500)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.500</div><div class="ob-offer-vol" style="--d:32%">234.567</div><div class="ob-sell" onclick="qo(event,'sell',8500)"></div></div>
+          <div class="ob-row ob-grid" data-price="8475"><div class="ob-buy" onclick="qo(event,'buy',8475)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.475</div><div class="ob-offer-vol" style="--d:12%">87.654</div><div class="ob-sell" onclick="qo(event,'sell',8475)"></div></div>
+          <div class="ob-row ob-grid" data-price="8450"><div class="ob-buy" onclick="qo(event,'buy',8450)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.450</div><div class="ob-offer-vol" style="--d:47%">345.678</div><div class="ob-sell" onclick="qo(event,'sell',8450)"></div></div>
+          <div class="ob-row ob-grid" data-price="8425"><div class="ob-buy" onclick="qo(event,'buy',8425)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.425</div><div class="ob-offer-vol" style="--d:17%">123.456</div><div class="ob-sell" onclick="qo(event,'sell',8425)"></div></div>
+          <div class="ob-row ob-grid" data-price="8400"><div class="ob-buy" onclick="qo(event,'buy',8400)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.400</div><div class="ob-offer-vol" style="--d:62%">456.789</div><div class="ob-sell" onclick="qo(event,'sell',8400)"></div></div>
+          <div class="ob-row ob-grid" data-price="8375"><div class="ob-buy" onclick="qo(event,'buy',8375)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.375</div><div class="ob-offer-vol" style="--d:24%">178.234</div><div class="ob-sell" onclick="qo(event,'sell',8375)"></div></div>
+          <div class="ob-row ob-grid" data-price="8350"><div class="ob-buy" onclick="qo(event,'buy',8350)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.350</div><div class="ob-offer-vol" style="--d:32%">234.567</div><div class="ob-sell" onclick="qo(event,'sell',8350)"></div></div>
+          <div class="ob-row ob-grid" data-price="8325"><div class="ob-buy" onclick="qo(event,'buy',8325)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.325</div><div class="ob-offer-vol" style="--d:21%">156.780</div><div class="ob-sell" onclick="qo(event,'sell',8325)"></div></div>
+          <div class="ob-row ob-grid" data-price="8300"><div class="ob-buy" onclick="qo(event,'buy',8300)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.300</div><div class="ob-offer-vol" style="--d:40%">289.456</div><div class="ob-sell" onclick="qo(event,'sell',8300)"></div></div>
+          <div class="ob-row ob-grid" data-price="8275"><div class="ob-buy" onclick="qo(event,'buy',8275)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.275</div><div class="ob-offer-vol" style="--d:61%">445.230</div><div class="ob-sell" onclick="qo(event,'sell',8275)"></div></div>
+          <div class="ob-row ob-grid" data-price="8250"><div class="ob-buy" onclick="qo(event,'buy',8250)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.250</div><div class="ob-offer-vol" style="--d:27%">198.765</div><div class="ob-sell" onclick="qo(event,'sell',8250)"></div></div>
+          <div class="ob-row ob-grid" data-price="8225"><div class="ob-buy" onclick="qo(event,'buy',8225)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.225</div><div class="ob-offer-vol" style="--d:43%">312.440</div><div class="ob-sell" onclick="qo(event,'sell',8225)"></div></div>
+          <div class="ob-row ob-grid" data-price="8200"><div class="ob-buy" onclick="qo(event,'buy',8200)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.200</div><div class="ob-offer-vol" style="--d:80%">584.260</div><div class="ob-sell" onclick="qo(event,'sell',8200)"></div></div>
+          <div class="ob-row ob-grid" data-price="8175"><div class="ob-buy" onclick="qo(event,'buy',8175)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.175</div><div class="ob-offer-vol" style="--d:56%">409.083</div><div class="ob-sell" onclick="qo(event,'sell',8175)"></div></div>
+          <div class="ob-row ob-grid" data-price="8150"><div class="ob-buy" onclick="qo(event,'buy',8150)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.150</div><div class="ob-offer-vol" style="--d:41%">298.366</div><div class="ob-sell" onclick="qo(event,'sell',8150)"></div></div>
+          <div class="ob-row ob-grid" data-price="8125"><div class="ob-buy" onclick="qo(event,'buy',8125)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.125</div><div class="ob-offer-vol" style="--d:29%">212.440</div><div class="ob-sell" onclick="qo(event,'sell',8125)"></div></div>
+          <div class="ob-row ob-grid" data-price="8100"><div class="ob-buy" onclick="qo(event,'buy',8100)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.100</div><div class="ob-offer-vol" style="--d:29%">211.100</div><div class="ob-sell" onclick="qo(event,'sell',8100)"></div></div>
+          <div class="ob-row ob-grid" data-price="8075"><div class="ob-buy" onclick="qo(event,'buy',8075)"></div><div class="ob-bid-vol" style="--d:0%"></div><div class="ob-price ask">8.075</div><div class="ob-offer-vol" style="--d:24%">175.387</div><div class="ob-sell" onclick="qo(event,'sell',8075)"></div></div>
+
+          <!-- Last price divider -->
+          <div class="ob-divider"></div>
+
+          <!-- 20 BID rows (bid side, prices below last) -->
+          <div class="ob-row ob-grid" data-price="8025"><div class="ob-buy" onclick="qo(event,'buy',8025)"></div><div class="ob-bid-vol" style="--d:64%">467.220</div><div class="ob-price bid-p">8.025</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',8025)"></div></div>
+          <div class="ob-row ob-grid" data-price="8000"><div class="ob-buy" onclick="qo(event,'buy',8000)"></div><div class="ob-bid-vol" style="--d:100%">732.338</div><div class="ob-price bid-p">8.000</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',8000)"></div></div>
+          <div class="ob-row ob-grid" data-price="7975"><div class="ob-buy" onclick="qo(event,'buy',7975)"></div><div class="ob-bid-vol" style="--d:79%">579.049</div><div class="ob-price bid-p">7.975</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7975)"></div></div>
+          <div class="ob-row ob-grid" data-price="7950"><div class="ob-buy" onclick="qo(event,'buy',7950)"></div><div class="ob-bid-vol" style="--d:75%">553.210</div><div class="ob-price bid-p">7.950</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7950)"></div></div>
+          <div class="ob-row ob-grid" data-price="7925"><div class="ob-buy" onclick="qo(event,'buy',7925)"></div><div class="ob-bid-vol" style="--d:41%">298.366</div><div class="ob-price bid-p">7.925</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7925)"></div></div>
+          <div class="ob-row ob-grid" data-price="7900"><div class="ob-buy" onclick="qo(event,'buy',7900)"></div><div class="ob-bid-vol" style="--d:38%">279.608</div><div class="ob-price bid-p">7.900</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7900)"></div></div>
+          <div class="ob-row ob-grid" data-price="7875"><div class="ob-buy" onclick="qo(event,'buy',7875)"></div><div class="ob-bid-vol" style="--d:47%">345.789</div><div class="ob-price bid-p">7.875</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7875)"></div></div>
+          <div class="ob-row ob-grid" data-price="7850"><div class="ob-buy" onclick="qo(event,'buy',7850)"></div><div class="ob-bid-vol" style="--d:62%">456.234</div><div class="ob-price bid-p">7.850</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7850)"></div></div>
+          <div class="ob-row ob-grid" data-price="7825"><div class="ob-buy" onclick="qo(event,'buy',7825)"></div><div class="ob-bid-vol" style="--d:26%">189.456</div><div class="ob-price bid-p">7.825</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7825)"></div></div>
+          <div class="ob-row ob-grid" data-price="7800"><div class="ob-buy" onclick="qo(event,'buy',7800)"></div><div class="ob-bid-vol" style="--d:78%">567.890</div><div class="ob-price bid-p">7.800</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7800)"></div></div>
+          <div class="ob-row ob-grid" data-price="7775"><div class="ob-buy" onclick="qo(event,'buy',7775)"></div><div class="ob-bid-vol" style="--d:32%">234.567</div><div class="ob-price bid-p">7.775</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7775)"></div></div>
+          <div class="ob-row ob-grid" data-price="7750"><div class="ob-buy" onclick="qo(event,'buy',7750)"></div><div class="ob-bid-vol" style="--d:47%">345.678</div><div class="ob-price bid-p">7.750</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7750)"></div></div>
+          <div class="ob-row ob-grid" data-price="7725"><div class="ob-buy" onclick="qo(event,'buy',7725)"></div><div class="ob-bid-vol" style="--d:21%">156.789</div><div class="ob-price bid-p">7.725</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7725)"></div></div>
+          <div class="ob-row ob-grid" data-price="7700"><div class="ob-buy" onclick="qo(event,'buy',7700)"></div><div class="ob-bid-vol" style="--d:61%">445.678</div><div class="ob-price bid-p">7.700</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7700)"></div></div>
+          <div class="ob-row ob-grid" data-price="7675"><div class="ob-buy" onclick="qo(event,'buy',7675)"></div><div class="ob-bid-vol" style="--d:12%">89.456</div><div class="ob-price bid-p">7.675</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7675)"></div></div>
+          <div class="ob-row ob-grid" data-price="7650"><div class="ob-buy" onclick="qo(event,'buy',7650)"></div><div class="ob-bid-vol" style="--d:32%">234.567</div><div class="ob-price bid-p">7.650</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7650)"></div></div>
+          <div class="ob-row ob-grid" data-price="7625"><div class="ob-buy" onclick="qo(event,'buy',7625)"></div><div class="ob-bid-vol" style="--d:23%">167.890</div><div class="ob-price bid-p">7.625</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7625)"></div></div>
+          <div class="ob-row ob-grid" data-price="7600"><div class="ob-buy" onclick="qo(event,'buy',7600)"></div><div class="ob-bid-vol" style="--d:53%">389.456</div><div class="ob-price bid-p">7.600</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7600)"></div></div>
+          <div class="ob-row ob-grid" data-price="7575"><div class="ob-buy" onclick="qo(event,'buy',7575)"></div><div class="ob-bid-vol" style="--d:17%">123.456</div><div class="ob-price bid-p">7.575</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7575)"></div></div>
+          <div class="ob-row ob-grid" data-price="7550"><div class="ob-buy" onclick="qo(event,'buy',7550)"></div><div class="ob-bid-vol" style="--d:38%">278.567</div><div class="ob-price bid-p">7.550</div><div class="ob-offer-vol" style="--d:0%"></div><div class="ob-sell" onclick="qo(event,'sell',7550)"></div></div>
+
+        </div><!-- /ob-scroll -->
+
+        <!-- Totals + W buttons -->
+        <div class="ob-grid ob-totals">
+          <button class="w-btn w-buy-btn" onclick="withdrawAll('buy')">W</button>
+          <div class="tot-bid">2.224.961</div>
+          <div class="tot-lbl">Total</div>
+          <div class="tot-offer">1.820.125</div>
+          <button class="w-btn w-sell-btn" onclick="withdrawAll('sell')">W</button>
+        </div>
+
+        <!-- Bottom panel -->
+        <div class="bottom-panel">
+
+          <!-- Capacity strip (dynamic on DT/TL switch) -->
+          <div class="cap-strip">
+            <div class="cap-seg">
+              <span class="cap-lbl">Max Buy</span>
+              <span class="cap-val">Rp20,0M</span>
+            </div>
+            <div class="cap-sep"></div>
+            <div class="cap-seg">
+              <span class="cap-lbl" id="lim-lbl">Max Limit (DT 20x)</span>
+              <span class="cap-val c-amber" id="lim-val">Rp400,0M</span>
+            </div>
+            <div class="cap-sep"></div>
+            <div class="cap-seg" style="align-items:flex-end">
+              <span class="cap-lbl">Max Lot</span>
+              <span class="cap-val c-buy" id="max-lot-val">496 lot</span>
+            </div>
+          </div>
+
+          <!-- DT/TL segment + lot stepper on one line -->
+          <div class="controls-row">
+            <div class="dt-tl-ctrl">
+              <div class="dt-pill active" id="pp-dt" onclick="setProd('dt')">DT <span class="pmb">⚡20x</span></div>
+              <div class="dt-pill" id="pp-tl" onclick="setProd('tl')">Regular <span class="tlb">TL 6x</span></div>
+            </div>
+            <div class="lot-stepper">
+              <div class="lot-btn" onclick="adjLot(-1)">−</div>
+              <div class="lot-display" onclick="focusLotInput()">
+                <input id="lot-input" class="lot-input" type="text" inputmode="numeric" pattern="[0-9]*" value="1" autocomplete="off">
+                <span class="lot-unit">lot</span>
+              </div>
+              <div class="lot-btn" onclick="adjLot(1)">+</div>
+            </div>
+            <button class="max-btn" onclick="setMax()">MAX</button>
+          </div>
+
+        </div><!-- /bottom-panel -->
+
+      </div><!-- /app -->
+
+      <div class="toast" id="toast"></div>
+    </div><!-- /screen -->
+  </div>
+</div>
+
+<div class="page-label">Fast Trade — BBCA · Ajaib Concept</div>
+
+<script>
+const PRICE = 8050; // last price for lot calc
+let mode = 'buy', lots = 1, prod = 'dt';
+const PRODS = {
+  dt: { label: 'DT 20x', limit: 400, lot: Math.floor(400_000_000 / (PRICE * 100)) },
+  tl: { label: 'TL 6x',  limit: 120, lot: Math.floor(120_000_000 / (PRICE * 100)) },
+};
+
+const orders = {}; // key: 'buy-8075' → lot count
+
+// Scroll to last price area on load
+window.addEventListener('load', () => {
+  const scroll = document.getElementById('ob-scroll');
+  if (scroll) {
+    // 20 ask rows × 32px = divider position; center it in the visible scroll area
+    scroll.scrollTop = (20 * 32) - (scroll.clientHeight / 2);
+  }
+});
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('seg-beli').className = 'seg-tab beli-tab' + (m==='buy' ? ' active' : '');
+  document.getElementById('seg-jual').className = 'seg-tab jual-tab' + (m==='sell' ? ' active' : '');
+}
+
+function setProd(p) {
+  prod = p;
+  document.getElementById('pp-dt').className = 'dt-pill' + (p==='dt' ? ' active' : '');
+  document.getElementById('pp-tl').className = 'dt-pill' + (p==='tl' ? ' active' : '');
+
+  const info = PRODS[p];
+  document.getElementById('lim-lbl').textContent = 'Max Limit (' + info.label + ')';
+  document.getElementById('lim-val').textContent = 'Rp' + info.limit + ',0M';
+  document.getElementById('max-lot-val').textContent = info.lot + ' lot';
+
+  // Re-clamp lot to new product's max
+  if (lots > info.lot) { lots = info.lot; document.getElementById('lot-input').value = lots; }
+}
+
+function qo(e, side, price) {
+  e.stopPropagation();
+  if (lots === 0) { showToast('Set jumlah lot terlebih dahulu'); return; }
+  const key = side + '-' + price;
+  orders[key] = (orders[key] || 0) + lots;
+
+  const cell = e.currentTarget;
+  cell.textContent = orders[key];
+  cell.classList.add('has-order');
+
+  // Highlight row
+  document.querySelectorAll('.ob-row.selected').forEach(r => r.classList.remove('selected'));
+  cell.closest('.ob-row').classList.add('selected');
+
+  const word = side === 'buy' ? 'Beli' : 'Jual';
+  showToast('✓ ' + word + ' ' + lots + ' lot @ ' + price.toLocaleString('id-ID'));
+}
+
+function withdrawAll(side) {
+  const sel = side === 'buy' ? '.ob-buy' : '.ob-sell';
+  let cleared = 0;
+  document.querySelectorAll(sel + '.has-order').forEach(c => {
+    const price = c.closest('.ob-row').dataset.price;
+    const key = side + '-' + price;
+    cleared += (orders[key] || 0);
+    delete orders[key];
+    c.textContent = '';
+    c.classList.remove('has-order');
+  });
+  const word = side === 'buy' ? 'Beli' : 'Jual';
+  showToast(cleared > 0 ? 'W: ' + cleared + ' lot order ' + word + ' dibatalkan' : 'Tidak ada order ' + word + ' aktif');
+}
+
+function adjLot(d) {
+  const max = PRODS[prod].lot;
+  lots = Math.max(1, Math.min(max, lots + d));
+  document.getElementById('lot-input').value = lots;
+}
+
+function setMax() {
+  lots = PRODS[prod].lot;
+  document.getElementById('lot-input').value = lots;
+}
+
+function focusLotInput() {
+  const inp = document.getElementById('lot-input');
+  inp.focus();
+  inp.select();
+}
+
+(function wireLotInput() {
+  const inp = document.getElementById('lot-input');
+  inp.addEventListener('focus', () => inp.select());
+  inp.addEventListener('blur', () => {
+    const max = PRODS[prod].lot;
+    const val = parseInt(inp.value, 10);
+    lots = isNaN(val) || val < 1 ? 1 : Math.min(val, max);
+    inp.value = lots;
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') inp.blur();
+  });
+})();
+
+function switchLP(t) {
+  document.getElementById('lp-lite').classList.toggle('active', t === 'lite');
+  document.getElementById('lp-pro').classList.toggle('active', t === 'pro');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
