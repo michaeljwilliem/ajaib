@@ -193,6 +193,35 @@ body{background:#060608;min-height:100vh;display:flex;flex-direction:column;alig
 .max-btn{background:var(--s3);border:1px solid var(--border);height:34px;padding:0 10px;border-radius:8px;color:var(--dim);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;font-family:inherit;flex-shrink:0}
 .max-btn:active{background:var(--border);color:var(--text)}
 
+/* ── Amend banner ── */
+.amend-banner{display:none;background:rgba(245,158,11,.1);border-bottom:1px solid rgba(245,158,11,.22);padding:6px 14px;align-items:center;gap:8px;flex-shrink:0}
+.amend-banner.show{display:flex}
+.amend-desc{flex:1;font-size:11px;font-weight:600;color:#F59E0B;line-height:1.3}
+.amend-close{background:none;border:1px solid rgba(245,158,11,.4);color:#F59E0B;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.amend-close:active{background:rgba(245,158,11,.15)}
+
+/* ── Amend cell states ── */
+.ob-buy.amend-select{background:rgba(220,38,38,.18);color:rgba(230,100,100,.95);font-size:10px;font-weight:800;letter-spacing:.3px}
+.ob-sell.amend-select{background:rgba(37,99,235,.18);color:rgba(100,140,240,.95);font-size:10px;font-weight:800;letter-spacing:.3px}
+.ob-buy.amend-select:active{background:rgba(220,38,38,.45)}
+.ob-sell.amend-select:active{background:rgba(37,99,235,.45)}
+.ob-buy.amend-source,.ob-sell.amend-source{outline:1.5px solid #F59E0B;outline-offset:-1px;color:#F59E0B!important;background:rgba(245,158,11,.15)!important;font-weight:800}
+
+/* ── Context menu ── */
+.ctx-overlay{position:absolute;inset:0;z-index:150;display:none;flex-direction:column;justify-content:flex-end}
+.ctx-overlay.show{display:flex}
+.ctx-backdrop{flex:1;background:rgba(0,0,0,.55)}
+.ctx-sheet{background:#1c1c1e;border-radius:14px 14px 0 0;overflow:hidden;padding-bottom:16px}
+.ctx-info{padding:12px 16px 10px;font-size:12px;font-weight:600;color:var(--dim);border-bottom:1px solid var(--border);text-align:center;letter-spacing:.1px}
+.ctx-btn{width:100%;height:50px;background:none;border:none;border-bottom:1px solid var(--border);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 16px;transition:background .1s}
+.ctx-btn:active{background:rgba(255,255,255,.06)}
+.ctx-btn:last-child{border-bottom:none}
+.ctx-beli{color:#F87171}
+.ctx-jual{color:#60A5FA}
+.ctx-amend{color:#F59E0B}
+.ctx-withdraw{color:#DC2626}
+.ctx-cancel{color:var(--dim);margin-top:6px}
+
 /* ── Toast ── */
 .toast{position:absolute;bottom:130px;left:50%;transform:translateX(-50%) translateY(8px);background:#18181b;border:1px solid #3f3f46;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;opacity:0;transition:all .18s;pointer-events:none;z-index:200}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -261,6 +290,12 @@ body{background:#060608;min-height:100vh;display:flex;flex-direction:column;alig
           <div class="oh oh-price">Harga</div>
           <div class="oh oh-offer">Offer</div>
           <div class="oh oh-sell">Jual</div>
+        </div>
+
+        <!-- Amend mode banner -->
+        <div class="amend-banner" id="amend-banner">
+          <span class="amend-desc" id="amend-desc"></span>
+          <button class="amend-close" onclick="exitAmend()">Batal</button>
         </div>
 
         <!-- Scrollable order book -->
@@ -366,6 +401,19 @@ body{background:#060608;min-height:100vh;display:flex;flex-direction:column;alig
 
       </div><!-- /app -->
 
+      <!-- Context menu (bottom sheet) -->
+      <div class="ctx-overlay" id="ctx-overlay">
+        <div class="ctx-backdrop" onclick="closeCtx()"></div>
+        <div class="ctx-sheet">
+          <div class="ctx-info" id="ctx-info"></div>
+          <button class="ctx-btn ctx-beli" id="ctx-beli-btn" onclick="ctxAction('beli')"></button>
+          <button class="ctx-btn ctx-jual" id="ctx-jual-btn" onclick="ctxAction('jual')"></button>
+          <button class="ctx-btn ctx-amend" onclick="ctxAction('amend')">Amend Harga</button>
+          <button class="ctx-btn ctx-withdraw" onclick="ctxAction('withdraw')">Withdraw</button>
+          <button class="ctx-btn ctx-cancel" onclick="closeCtx()">Batal</button>
+        </div>
+      </div>
+
       <div class="toast" id="toast"></div>
     </div><!-- /screen -->
   </div>
@@ -414,6 +462,17 @@ function setProd(p) {
 
 function qo(e, side, price) {
   e.stopPropagation();
+  if (longPressFired) return; // suppress click after long-press
+
+  // In amend mode: clicking the same side moves the order
+  if (amendState && amendState.side === side) {
+    const cell = e.currentTarget;
+    if (cell.classList.contains('amend-source')) {
+      showToast('Pilih harga yang berbeda'); return;
+    }
+    moveOrder(price, cell); return;
+  }
+
   if (lots === 0) { showToast('Set jumlah lot terlebih dahulu'); return; }
   const key = side + '-' + price;
   orders[key] = (orders[key] || 0) + lots;
@@ -422,12 +481,149 @@ function qo(e, side, price) {
   cell.textContent = orders[key];
   cell.classList.add('has-order');
 
-  // Highlight row
   document.querySelectorAll('.ob-row.selected').forEach(r => r.classList.remove('selected'));
   cell.closest('.ob-row').classList.add('selected');
 
   const word = side === 'buy' ? 'Beli' : 'Jual';
   showToast('✓ ' + word + ' ' + lots + ' lot @ ' + price.toLocaleString('id-ID'));
+}
+
+// ── Long-press ────────────────────────────────────────────────
+let ctxState = null, amendState = null;
+let longPressFired = false, pressTimer = null;
+
+function setupLongPress() {
+  const scroll = document.getElementById('ob-scroll');
+
+  function tryStart(cell) {
+    if (!cell || !cell.classList.contains('has-order')) return;
+    pressTimer = setTimeout(() => {
+      longPressFired = true;
+      if (navigator.vibrate) navigator.vibrate(12);
+      showCtxMenu(cell);
+    }, 480);
+  }
+
+  scroll.addEventListener('touchstart', e => tryStart(e.target.closest('.ob-buy,.ob-sell')), { passive: true });
+  scroll.addEventListener('touchend',   () => clearTimeout(pressTimer));
+  scroll.addEventListener('touchmove',  () => clearTimeout(pressTimer));
+  scroll.addEventListener('mousedown',  e => tryStart(e.target.closest('.ob-buy,.ob-sell')));
+  scroll.addEventListener('mouseup',    () => clearTimeout(pressTimer));
+  scroll.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+  scroll.addEventListener('contextmenu', e => {
+    const cell = e.target.closest('.ob-buy,.ob-sell');
+    if (cell && cell.classList.contains('has-order')) { e.preventDefault(); showCtxMenu(cell); }
+  });
+  // Block click fired immediately after long-press
+  scroll.addEventListener('click', e => {
+    if (longPressFired) { e.stopImmediatePropagation(); longPressFired = false; }
+  }, true);
+}
+
+// ── Context menu ──────────────────────────────────────────────
+function showCtxMenu(cell) {
+  const row   = cell.closest('.ob-row');
+  const price = parseInt(row.dataset.price);
+  const side  = cell.classList.contains('ob-buy') ? 'buy' : 'sell';
+  const key   = side + '-' + price;
+  const oLots = orders[key] || 0;
+
+  ctxState = { side, price, cell, row, lots: oLots };
+
+  const word = side === 'buy' ? 'Beli' : 'Jual';
+  document.getElementById('ctx-info').textContent = word + ' ' + oLots + ' lot @ ' + price.toLocaleString('id-ID');
+  document.getElementById('ctx-beli-btn').textContent = '＋ Tambah Beli (' + lots + ' lot)';
+  document.getElementById('ctx-jual-btn').textContent = '＋ Tambah Jual (' + lots + ' lot)';
+  document.getElementById('ctx-overlay').classList.add('show');
+}
+
+function closeCtx() {
+  ctxState = null;
+  document.getElementById('ctx-overlay').classList.remove('show');
+}
+
+function ctxAction(action) {
+  if (!ctxState) return;
+  const { side, price, cell, row } = ctxState;
+  closeCtx();
+
+  if (action === 'beli') {
+    const k = 'buy-' + price;
+    orders[k] = (orders[k] || 0) + lots;
+    const c = row.querySelector('.ob-buy');
+    c.textContent = orders[k]; c.classList.add('has-order');
+    showToast('＋ Beli ' + lots + ' lot @ ' + price.toLocaleString('id-ID'));
+
+  } else if (action === 'jual') {
+    const k = 'sell-' + price;
+    orders[k] = (orders[k] || 0) + lots;
+    const c = row.querySelector('.ob-sell');
+    c.textContent = orders[k]; c.classList.add('has-order');
+    showToast('＋ Jual ' + lots + ' lot @ ' + price.toLocaleString('id-ID'));
+
+  } else if (action === 'withdraw') {
+    const k = side + '-' + price;
+    delete orders[k];
+    cell.textContent = ''; cell.classList.remove('has-order');
+    row.classList.remove('selected');
+    showToast('W: order ' + (side==='buy'?'Beli':'Jual') + ' @ ' + price.toLocaleString('id-ID') + ' dibatalkan');
+
+  } else if (action === 'amend') {
+    enterAmend(ctxState);
+  }
+}
+
+// ── Amend mode ────────────────────────────────────────────────
+function enterAmend({ side, price, cell, lots: oLots }) {
+  exitAmend();
+  const sel   = side === 'buy' ? '.ob-buy' : '.ob-sell';
+  const cells = Array.from(document.querySelectorAll(sel));
+  const saved = cells.map(c => c.textContent);
+
+  cells.forEach(c => {
+    if (c === cell) {
+      c.classList.add('amend-source');
+    } else {
+      c.textContent = 'Pilih';
+      c.classList.add('amend-select');
+    }
+  });
+
+  amendState = { side, price, lots: oLots, sourceCell: cell, cells, saved };
+
+  const word = side === 'buy' ? 'Beli' : 'Jual';
+  document.getElementById('amend-desc').textContent =
+    'Amend ' + word + ' ' + oLots + ' lot @ ' + price.toLocaleString('id-ID') + '  ·  pilih harga baru';
+  document.getElementById('amend-banner').classList.add('show');
+}
+
+function exitAmend() {
+  if (!amendState) return;
+  amendState.cells.forEach((c, i) => {
+    c.textContent = amendState.saved[i];
+    c.classList.remove('amend-select', 'amend-source');
+  });
+  document.getElementById('amend-banner').classList.remove('show');
+  amendState = null;
+}
+
+function moveOrder(newPrice, targetCell) {
+  if (!amendState) return;
+  const { side, price: oldPrice, lots: oLots, sourceCell } = amendState;
+
+  delete orders[side + '-' + oldPrice];
+  const newKey = side + '-' + newPrice;
+  orders[newKey] = (orders[newKey] || 0) + oLots;
+
+  exitAmend();
+
+  sourceCell.textContent = ''; sourceCell.classList.remove('has-order');
+  targetCell.textContent = orders[newKey]; targetCell.classList.add('has-order');
+
+  document.querySelectorAll('.ob-row.selected').forEach(r => r.classList.remove('selected'));
+  targetCell.closest('.ob-row').classList.add('selected');
+
+  showToast('✓ Order dipindah ke ' + newPrice.toLocaleString('id-ID'));
 }
 
 function withdrawAll(side) {
@@ -475,6 +671,8 @@ function focusLotInput() {
     if (e.key === 'Enter') inp.blur();
   });
 })();
+
+setupLongPress();
 
 function switchLP(t) {
   document.getElementById('lp-lite').classList.toggle('active', t === 'lite');
