@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib Terminal — Alpha · Desktop Scenes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0c;
+  --s0:#000;--s1:#0d0d10;--s2:#16161a;--s3:#1f1f24;--s4:#2a2a30;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--b3:rgba(255,255,255,.16);
+  --t1:#f2f2f7;--t2:#9a9aa0;--t3:#5a5a60;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;--amber:#ffd60a;
+  --idxc:#e8334a;
+
+  /* Alpha tokens (Aurora) */
+  --tm1:#8B7CFF;--tm2:#6EE7F7;
+  --tm-grad:linear-gradient(135deg,#8B7CFF 0%,#6EE7F7 100%);
+  --tm-bg:linear-gradient(135deg,rgba(139,124,255,.20) 0%,rgba(110,231,247,.08) 100%);
+  --tm-bd:rgba(139,124,255,.45);
+}
+body{background:#040406;font-family:'Inter',-apple-system,sans-serif;color:var(--t1);min-height:100vh;display:flex;flex-direction:row;align-items:stretch;padding:0;gap:0}
+
+/* ── Sidebar (scene selector) ── */
+.sidebar{width:200px;min-height:100vh;background:rgba(6,6,8,.98);border-right:1px solid var(--b1);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;flex-shrink:0;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-head{padding:20px 14px 12px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.sb-title{font-size:13px;font-weight:600;letter-spacing:-.01em;line-height:1.4}
+.sb-title span{color:var(--tm2);font-weight:500}
+.sb-sub{font-size:10px;color:var(--t3);margin-top:4px;line-height:1.45}
+.chips{display:flex;flex-direction:column;gap:1px;padding:8px 8px 24px}
+.chip{padding:6px 10px;font-size:11px;font-weight:500;color:var(--t2);background:transparent;border:none;border-radius:7px;cursor:pointer;letter-spacing:.01em;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;width:100%;display:flex;align-items:center}
+.chip:hover{color:var(--t1);background:var(--s2)}
+.chip.act{background:var(--tm-bg);color:var(--tm1);font-weight:600}
+.chip .n{color:var(--t3);font-size:9px;margin-right:8px;font-weight:700;letter-spacing:.05em;display:inline-block;min-width:30px}
+.chip.act .n{color:var(--tm1);opacity:.7}
+.chip .dot{margin-left:auto;width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0}
+.chip[data-built="1"] .dot{background:var(--tm2);box-shadow:0 0 4px var(--tm2)}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 32px 80px;gap:24px;min-height:100vh}
+.stage{display:flex;flex-direction:column;gap:18px;align-items:center;width:100%}
+
+/* ── Desktop frame (macOS window) ── */
+.desktop-block{display:flex;flex-direction:column;gap:18px;align-items:center}
+.desktop{width:1140px;height:720px;background:#1a1a1d;border-radius:12px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 80px rgba(0,0,0,.6),0 12px 40px rgba(0,0,0,.4);flex-shrink:0}
+.dt-chrome{height:32px;background:linear-gradient(180deg,#2d2d32 0%,#232328 100%);display:flex;align-items:center;padding:0 14px;border-bottom:1px solid rgba(0,0,0,.4);position:relative;flex-shrink:0}
+.dt-lights{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.dt-light{width:12px;height:12px;border-radius:50%}
+.dt-light.r{background:#ff5f57;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2)}
+.dt-light.y{background:#febc2e;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2)}
+.dt-light.g{background:#28c840;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2)}
+.dt-tabs{display:flex;align-items:center;margin-left:24px;gap:0;height:100%}
+.dt-tab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;color:var(--t2);border-right:1px solid rgba(0,0,0,.3);position:relative;background:transparent;font-weight:500;letter-spacing:.01em;cursor:default}
+.dt-tab.act{color:var(--t1);background:rgba(255,255,255,.04)}
+.dt-tab .ttk{font-weight:600;margin-right:6px}
+.dt-tab .tch{font-size:10px;color:var(--green);font-weight:500;margin-right:6px}
+.dt-tab-x{margin-left:8px;color:var(--t3);font-size:11px}
+.dt-tab-plus{padding:0 12px;color:var(--t3);font-size:14px;font-weight:300;cursor:default;display:flex;align-items:center;height:100%}
+.dt-title{position:absolute;left:50%;transform:translateX(-50%);font-size:11px;color:var(--t3);font-weight:500;letter-spacing:.01em;pointer-events:none}
+
+/* Window content area */
+.dt-screen{background:var(--bg);width:100%;height:calc(100% - 32px);display:flex;flex-direction:column;overflow:hidden}
+
+/* App layout — grid */
+.app{flex:1;display:grid;grid-template-columns:56px 200px 1fr 240px 44px;grid-template-rows:1fr 156px;grid-template-areas:
+  "nav wl chart ob rail"
+  "nav acct acct acct rail";
+  min-height:0;
+  transition:grid-template-columns .28s ease-out;
+}
+.app.alpha-open{
+  grid-template-columns:56px 200px 1fr 240px 340px 44px;
+  grid-template-areas:
+    "nav wl chart ob alpha rail"
+    "nav acct acct acct alpha rail";
+}
+
+/* Left vertical nav */
+.app-nav{grid-area:nav;background:#0d0d10;border-right:1px solid var(--b1);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px}
+.an-logo{width:32px;height:32px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;margin-bottom:14px}
+.an-item{width:44px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--t3);cursor:pointer;border-radius:8px;font-size:9px;font-weight:500;letter-spacing:.02em}
+.an-item.act{background:rgba(10,132,255,.12);color:var(--blue)}
+.an-item:hover:not(.act){color:var(--t2)}
+.an-ic{font-size:14px;line-height:1}
+.an-spacer{flex:1}
+.an-profile{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;margin-bottom:6px}
+
+/* Watchlist */
+.app-wl{grid-area:wl;background:var(--s1);border-right:1px solid var(--b1);overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
+.app-wl::-webkit-scrollbar{display:none}
+.wl-h{padding:10px 14px 6px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1);flex-shrink:0}
+.wl-h-t{font-size:13px;font-weight:600}
+.wl-h-add{font-size:14px;color:var(--blue);cursor:pointer;line-height:1}
+.wl-row{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.025)}
+.wl-row:hover{background:rgba(255,255,255,.03)}
+.wl-row.act{background:rgba(10,132,255,.08)}
+.wl-logo{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;flex-shrink:0}
+.wl-mid{flex:1;min-width:0}
+.wl-tk{font-size:11px;font-weight:600;display:flex;align-items:center;gap:3px;line-height:1.2}
+.wl-tk .tag{font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;background:rgba(255,214,10,.15);color:var(--amber)}
+.wl-name{font-size:9px;color:var(--t3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl-rt{text-align:right;flex-shrink:0}
+.wl-px{font-size:11px;font-weight:500;font-feature-settings:'tnum';line-height:1.2}
+.wl-pct{font-size:9px;font-weight:600;margin-top:1px}
+.wl-pct.up{color:var(--green)}.wl-pct.dn{color:var(--red)}
+
+/* Chart panel */
+.app-chart{grid-area:chart;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.ch-h{padding:8px 16px 8px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.ch-tk{font-size:15px;font-weight:700;color:var(--t1)}
+.ch-name{font-size:11px;color:var(--t2);margin-left:-6px}
+.ch-tags{display:flex;gap:5px;margin-left:6px}
+.ch-tag{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;background:rgba(255,214,10,.15);color:var(--amber);border:1px solid rgba(255,214,10,.3);letter-spacing:.04em}
+.ch-tag.tl{background:rgba(110,231,247,.1);color:var(--tm2);border-color:rgba(110,231,247,.3)}
+.ch-tab-row{margin-left:auto;display:flex;gap:0;border:1px solid var(--b2);border-radius:6px;overflow:hidden;font-size:11px}
+.ch-sub{padding:5px 11px;color:var(--t2);font-weight:500;cursor:pointer;border-right:1px solid var(--b1)}
+.ch-sub:last-child{border-right:none}
+.ch-sub.act{background:var(--s3);color:var(--t1);font-weight:600}
+.ch-tools{padding:6px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:14px;flex-shrink:0;font-size:11px;color:var(--t2)}
+.ch-tool{cursor:pointer;display:flex;align-items:center;gap:4px}
+.ch-tool.act{color:var(--blue);font-weight:600}
+.ch-tf{display:flex;align-items:center;gap:0;font-size:10px;margin-left:auto}
+.ch-tf-b{padding:3px 8px;color:var(--t3);cursor:pointer;border-radius:4px;font-weight:500}
+.ch-tf-b.act{background:var(--blue);color:#fff;font-weight:600}
+.ch-canvas{flex:1;position:relative;overflow:hidden;background:var(--bg);min-height:0}
+.ch-canvas svg{width:100%;height:100%;display:block}
+.ch-axis-l{position:absolute;right:0;top:0;bottom:24px;width:50px;border-left:1px solid var(--b1);display:flex;flex-direction:column;justify-content:space-between;padding:8px 6px;font-size:9px;color:var(--t3);font-feature-settings:'tnum'}
+.ch-axis-b{position:absolute;left:0;right:50px;bottom:0;height:24px;border-top:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:9px;color:var(--t3)}
+.ch-px-label{position:absolute;right:0;top:108px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;font-feature-settings:'tnum'}
+
+/* Order Book */
+.app-ob{grid-area:ob;background:var(--s1);border-left:1px solid var(--b1);overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
+.app-ob::-webkit-scrollbar{display:none}
+.ob-h{padding:9px 12px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ob-h-t{font-size:11px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:5px}
+.ob-h-up{font-size:9px;color:var(--red)}
+.ob-h-x{font-size:11px;color:var(--t3);cursor:pointer}
+.ob-stats{padding:10px 12px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.ob-tk{display:flex;align-items:center;gap:6px}
+.ob-tk-name{font-size:11px;font-weight:600}
+.ob-tk-px{margin-left:auto;font-size:13px;font-weight:700;font-feature-settings:'tnum'}
+.ob-tk-chg{font-size:9px;color:var(--green);font-weight:500;margin-left:4px}
+.ob-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:8px;font-size:9.5px}
+.ob-grid-l{color:var(--t3);font-size:8.5px;letter-spacing:.02em}
+.ob-grid-v{color:var(--t1);font-weight:500;font-feature-settings:'tnum';text-align:right}
+.ob-iep{padding:8px 12px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.ob-iep-h{font-size:9px;color:var(--t3);letter-spacing:.04em;font-weight:600;margin-bottom:4px}
+.ob-iep-row{display:flex;align-items:center;gap:5px;font-size:10px}
+.ob-iep-pill{background:var(--red);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:.04em}
+.ob-iep-v{font-feature-settings:'tnum'}
+.ob-tbl{flex:1;overflow-y:auto;scrollbar-width:none}
+.ob-tbl::-webkit-scrollbar{display:none}
+.ob-tbl table{width:100%;border-collapse:collapse;font-size:9px}
+.ob-tbl th{font-weight:600;color:var(--t3);text-align:right;padding:4px 8px;border-bottom:1px solid var(--b1);font-size:8px;text-transform:uppercase;letter-spacing:.05em;background:var(--s1);position:sticky;top:0}
+.ob-tbl th:first-child{text-align:left}
+.ob-tbl td{padding:3px 8px;font-feature-settings:'tnum';color:var(--t1);text-align:right}
+.ob-tbl td.bid{color:var(--green);font-weight:600;text-align:left}
+.ob-tbl td.ask{color:var(--red);font-weight:600}
+.ob-tbl td.mid{color:var(--t2);text-align:center}
+
+/* Account Manager (bottom) */
+.app-acct{grid-area:acct;background:var(--s1);border-top:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.acct-h{padding:8px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:0;flex-shrink:0}
+.acct-tab{padding:4px 12px;font-size:11px;color:var(--t2);font-weight:500;cursor:pointer;border-radius:4px}
+.acct-tab.act{background:var(--s3);color:var(--t1);font-weight:600}
+.acct-body{flex:1;padding:14px 16px;font-size:10px;color:var(--t3);display:flex;align-items:center;justify-content:center}
+.acct-cta{padding:8px 14px;display:flex;gap:10px;border-top:1px solid var(--b1)}
+.acct-btn{flex:1;padding:9px;border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:.02em}
+.acct-btn.sell{background:var(--red)}
+.acct-btn.buy{background:var(--blue)}
+
+/* Alpha rail (far right, always visible) */
+.app-rail{grid-area:rail;background:#0a0a0c;border-left:1px solid var(--b1);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:8px}
+.rail-alpha{width:36px;height:36px;border-radius:9px;background:var(--tm-bg);border:1px solid var(--tm-bd);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:all .15s}
+.rail-alpha:hover{background:linear-gradient(135deg,rgba(139,124,255,.30),rgba(110,231,247,.12))}
+.rail-alpha.act{background:linear-gradient(135deg,rgba(139,124,255,.36),rgba(110,231,247,.16));border-color:var(--tm1);box-shadow:0 0 12px rgba(139,124,255,.3)}
+.rail-alpha::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--tm2);box-shadow:0 0 8px var(--tm2),0 0 3px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.82}}
+.rail-alpha .badge{position:absolute;top:-3px;right:-3px;background:var(--tm-grad);color:#0a0a0d;font-size:8px;font-weight:800;width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;border:1.5px solid #0a0a0c}
+.rail-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:13px;cursor:pointer;transition:all .15s}
+.rail-ic:hover{background:var(--s2);color:var(--t2)}
+.rail-spacer{flex:1}
+.rail-label{font-size:7px;color:var(--t3);font-weight:700;letter-spacing:.1em;writing-mode:vertical-rl;transform:rotate(180deg);text-transform:uppercase;margin-top:8px}
+
+/* Alpha panel */
+.app-alpha{grid-area:alpha;background:linear-gradient(180deg,#0e0c14 0%,var(--s1) 100%);border-left:1px solid var(--tm-bd);display:flex;flex-direction:column;overflow:hidden;position:relative;animation:alphaIn .28s ease-out}
+.app-alpha::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--tm-grad)}
+@keyframes alphaIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.al-h{padding:12px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:9px;flex-shrink:0}
+.al-mark{width:24px;height:24px;border-radius:7px;background:radial-gradient(circle,rgba(139,124,255,.4) 0%,rgba(139,124,255,0) 70%);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.al-mark::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--tm2);box-shadow:0 0 8px var(--tm2),0 0 3px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.al-title{flex:1;min-width:0}
+.al-title-t{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.al-title-s{font-size:10px;color:var(--t2);margin-top:1px}
+.al-x{width:24px;height:24px;border-radius:6px;background:transparent;color:var(--t3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .12s}
+.al-x:hover{background:var(--s2);color:var(--t1)}
+.al-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
+.al-body::-webkit-scrollbar{display:none}
+.al-msg{font-size:12px;color:var(--t1);line-height:1.6}
+.al-msg p{margin-bottom:8px}
+.al-msg strong{font-weight:600}
+.al-msg em{color:var(--tm2);font-style:normal;font-weight:500}
+.al-ref{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px}
+.al-ref-tk{font-size:11px;font-weight:700;flex-shrink:0;min-width:42px}
+.al-ref-b{flex:1;font-size:10px;color:var(--t2);line-height:1.45}
+.al-ref-pct{font-size:10px;font-weight:600;flex-shrink:0}
+.al-sug{display:flex;flex-wrap:wrap;gap:5px}
+.al-sug-c{padding:5px 10px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;font-size:10px;color:var(--t1);font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:4px}
+.al-sug-c::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--tm2);box-shadow:0 0 4px var(--tm2)}
+.al-input{padding:10px 12px;border-top:1px solid var(--b1);background:var(--s1);display:flex;gap:7px;align-items:center;flex-shrink:0}
+.al-input-f{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:7px 12px;font-size:11px;color:var(--t3)}
+.al-input-send{width:28px;height:28px;border-radius:50%;background:var(--tm-grad);display:flex;align-items:center;justify-content:center;color:#0a0a0d;font-size:13px;font-weight:700;cursor:pointer}
+
+/* ── Alpha components (ported from mobile prototype) ── */
+.t-card{background:var(--tm-bg);border:1px solid var(--tm-bd);border-radius:10px;padding:11px 13px;position:relative}
+.t-card-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.t-mark{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,rgba(139,124,255,.4) 0%,rgba(139,124,255,0) 70%);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.t-mark::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--tm2);box-shadow:0 0 6px var(--tm2),0 0 2px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.t-label{font-size:9px;color:var(--tm2);letter-spacing:.12em;font-weight:700;text-transform:uppercase}
+.t-title{font-size:12px;font-weight:600;line-height:1.35;margin-bottom:4px}
+.t-body{font-size:11px;color:var(--t2);line-height:1.5}
+.t-body strong{color:var(--t1);font-weight:600}
+.t-body em{color:var(--tm2);font-style:normal;font-weight:500}
+.t-cta{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--tm1);font-weight:600;cursor:pointer;margin-top:6px}
+.t-pill{display:inline-flex;align-items:center;gap:3px;background:var(--tm-bg);border:1px solid var(--tm-bd);color:var(--tm1);font-size:9px;font-weight:600;padding:1px 5px 1px 3px;border-radius:4px}
+.t-pill .t-mark{width:9px;height:9px}
+.t-pill .t-mark::after{width:4px;height:4px;box-shadow:0 0 3px var(--tm2)}
+
+/* ── Caption under desktop ── */
+.cap{display:flex;flex-direction:column;gap:4px;max-width:780px;font-size:11px;color:var(--t2);line-height:1.55;text-align:left;padding:0 8px}
+.cap-tag{font-size:10px;color:var(--tm1);letter-spacing:.1em;font-weight:700;text-transform:uppercase}
+.cap-title{font-size:14px;color:var(--t1);font-weight:600;letter-spacing:-.01em;margin-top:2px}
+.cap-meta{font-size:10px;color:var(--t3);margin-top:4px;font-family:'JetBrains Mono',monospace}
+
+/* ── Placeholder scene (for unbuilt scenes) ── */
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:60px}
+.ph-tag{font-size:11px;color:var(--tm1);letter-spacing:.12em;font-weight:700;text-transform:uppercase}
+.ph-title{font-size:28px;font-weight:700;letter-spacing:-.02em;max-width:580px;text-align:center;line-height:1.2}
+.ph-body{font-size:14px;color:var(--t2);max-width:560px;text-align:center;line-height:1.55}
+.ph-meta{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:8px 14px;margin-top:8px}
+
+/* ── OS Toast (macOS notification) ── */
+.os-toast{position:absolute;top:44px;right:12px;width:310px;background:rgba(30,30,36,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 2px 8px rgba(0,0,0,.3);animation:toastIn .4s cubic-bezier(.34,1.56,.64,1);z-index:100}
+@keyframes toastIn{from{opacity:0;transform:translateY(-12px) scale(.95)}to{opacity:1;transform:none}}
+.os-toast-ic{width:36px;height:36px;border-radius:9px;background:var(--tm-bg);border:1px solid var(--tm-bd);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.os-toast-ic::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--tm2);box-shadow:0 0 8px var(--tm2),0 0 3px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.os-toast-bd{flex:1;min-width:0}
+.os-toast-app{font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.os-toast-title{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:2px;line-height:1.3}
+.os-toast-sub{font-size:11px;color:var(--t2);line-height:1.4}
+
+/* ── Alpha nudge (peek bubble) ── */
+.alpha-nudge{position:absolute;bottom:72px;right:50px;width:198px;background:linear-gradient(135deg,rgba(20,16,36,.97),rgba(14,18,30,.97));backdrop-filter:blur(12px);border:1px solid var(--tm-bd);border-radius:12px;padding:10px 12px;box-shadow:0 4px 20px rgba(139,124,255,.2),0 2px 8px rgba(0,0,0,.5);animation:nudgeIn .35s cubic-bezier(.34,1.56,.64,1);z-index:50}
+@keyframes nudgeIn{from{opacity:0;transform:translateX(10px) scale(.96)}to{opacity:1;transform:none}}
+.nudge-head{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.nudge-mark{width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,rgba(139,124,255,.4),transparent 70%);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.nudge-mark::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--tm2);box-shadow:0 0 5px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.nudge-lbl{font-size:9px;font-weight:700;color:var(--tm2);letter-spacing:.1em;text-transform:uppercase}
+.nudge-text{font-size:10px;color:var(--t1);line-height:1.45;margin-bottom:7px}
+.nudge-cta{font-size:9px;color:var(--tm1);font-weight:700;cursor:pointer;letter-spacing:.02em}
+
+/* ── Hot row in order book ── */
+.ob-tbl tr.hot td{background:rgba(139,124,255,.12)}
+.ob-tbl tr.hot td.bid{color:var(--tm1);font-weight:700;text-shadow:0 0 8px rgba(139,124,255,.5)}
+.ob-tbl tr.hot{outline:1px solid rgba(139,124,255,.3);outline-offset:-1px}
+
+/* ── Macro strip ── */
+.macro-strip{display:flex;align-items:stretch;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.macro-strip::-webkit-scrollbar{display:none}
+.macro-cell{display:flex;flex-direction:column;justify-content:center;padding:4px 14px;border-right:1px solid var(--b1);cursor:default;flex-shrink:0;min-width:78px;transition:background .2s}
+.macro-cell.hot{background:var(--tm-bg);position:relative}
+.macro-cell.hot::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--tm-grad)}
+.mc-lbl{font-size:8px;color:var(--t3);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px}
+.mc-px{font-size:11px;font-weight:600;font-feature-settings:'tnum';color:var(--t1)}
+.mc-chg{font-size:9px;font-weight:500;margin-top:1px}
+.mc-chg.up{color:var(--green)}.mc-chg.dn{color:var(--red)}.mc-chg.hl{color:var(--tm2)}
+
+/* ── Broker flow view ── */
+.bv-h{padding:10px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.bv-h-t{font-size:13px;font-weight:600}
+.bv-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.bv-sect{font-size:9px;color:var(--t3);letter-spacing:.06em;font-weight:700;text-transform:uppercase;margin:8px 0 4px}
+.bv-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.bv-name{font-size:10px;font-weight:700;color:var(--t1);width:28px;flex-shrink:0}
+.bv-bar-wrap{flex:1;height:12px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden}
+.bv-bar{height:100%;border-radius:3px;transition:width .3s}
+.bv-bar.buy{background:rgba(48,209,88,.65)}
+.bv-bar.sell{background:rgba(255,69,58,.65)}
+.bv-bar.buy.hl{background:var(--tm-grad);box-shadow:0 0 8px rgba(139,124,255,.35)}
+.bv-lot{font-size:9px;color:var(--t3);width:52px;text-align:right;font-feature-settings:'tnum';flex-shrink:0}
+
+/* ── Foreign flow ── */
+.ff-h{padding:10px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ff-h-t{font-size:13px;font-weight:600}
+.ff-canvas{flex:1;padding:10px 16px;position:relative;min-height:0;display:flex;flex-direction:column}
+.ff-acc-tag{display:inline-flex;align-items:center;gap:5px;background:var(--tm-bg);border:1px solid var(--tm-bd);border-radius:6px;padding:4px 10px;align-self:flex-end;margin-bottom:8px}
+.ff-acc-lbl{font-size:9px;font-weight:700;color:var(--tm2);letter-spacing:.06em;text-transform:uppercase}
+.ff-acc-val{font-size:11px;font-weight:700;color:var(--tm2)}
+
+/* ── Order draft (S6) ── */
+.order-draft{background:rgba(10,132,255,.07);border:1px solid rgba(10,132,255,.22);border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:9px}
+.od-lbl{font-size:9px;color:var(--tm2);font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.od-lbl::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--tm2);box-shadow:0 0 4px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.od-stock-row{display:flex;align-items:center;gap:8px}
+.od-stock{font-size:16px;font-weight:700}
+.od-badge{font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--blue);color:#fff;letter-spacing:.04em}
+.od-price{font-size:22px;font-weight:700;font-feature-settings:'tnum';letter-spacing:-.02em}
+.od-detail{font-size:10px;color:var(--t2);line-height:1.5}
+.od-why{font-size:10px;color:var(--t3);border-top:1px solid rgba(255,255,255,.06);padding-top:8px;line-height:1.5;font-style:italic}
+.od-actions{display:flex;gap:7px}
+.od-btn{flex:1;padding:8px;border:none;border-radius:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.od-btn.dismiss{background:rgba(255,255,255,.07);color:var(--t2)}
+.od-btn.send{background:var(--blue);color:#fff}
+
+/* ── Cluster viz (S11) ── */
+.cluster-grid{display:flex;flex-direction:column;gap:10px}
+.cluster-item{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:9px 11px}
+.cluster-item.match{border-color:rgba(139,124,255,.4);background:rgba(139,124,255,.06)}
+.ci-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.ci-tk{font-size:11px;font-weight:700}
+.ci-name{font-size:9px;color:var(--t3);flex:1}
+.ci-score{font-size:9px;font-weight:700;color:var(--tm2)}
+.ci-spark{width:100%;height:36px;display:block}
+.ci-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.ci-tag{font-size:8px;font-weight:600;padding:2px 6px;border-radius:3px;background:rgba(139,124,255,.12);color:var(--tm1);letter-spacing:.04em}
+
+/* ── Corp timeline (S12) ── */
+.ch-timeline{padding:8px 16px;border-top:1px solid var(--b1);background:var(--s1);flex-shrink:0;overflow-x:auto;scrollbar-width:none;display:flex;align-items:center;gap:0;position:relative}
+.ch-timeline::-webkit-scrollbar{display:none}
+.ch-timeline::before{content:'';position:absolute;top:50%;left:16px;right:16px;height:1px;background:var(--b2);transform:translateY(-50%)}
+.tl-event{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;z-index:1;min-width:72px}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tl-dot.past{background:var(--t3)}
+.tl-dot.future{background:var(--tm2);box-shadow:0 0 8px var(--tm2),0 0 3px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.tl-date{font-size:8px;color:var(--t3);font-feature-settings:'tnum';text-align:center}
+.tl-label{font-size:7.5px;color:var(--t2);text-align:center;max-width:68px;line-height:1.3}
+.tl-impact{font-size:8px;font-weight:600;text-align:center}
+.tl-impact.up{color:var(--green)}.tl-impact.dn{color:var(--red)}.tl-impact.proj{color:var(--tm2)}
+
+/* ── Companion layout (S13) ── */
+.companion-block{display:flex;gap:28px;align-items:flex-start;justify-content:center;width:100%}
+.companion-desk{width:570px;height:360px;overflow:hidden;flex-shrink:0;opacity:.4;border-radius:12px}
+.companion-desk .desktop{transform:scale(.5);transform-origin:top left;pointer-events:none}
+.companion-phone{flex-shrink:0}
+
+/* ── Phone frame ── */
+.phone-frame{width:260px;height:540px;background:#0d0d10;border-radius:40px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 20px 60px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.04);flex-shrink:0}
+.pf-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100px;height:28px;background:#0d0d10;border-radius:0 0 18px 18px;z-index:10}
+.pf-status{position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:flex-start;padding:12px 18px 0;justify-content:space-between;z-index:5;pointer-events:none}
+.pf-time{font-size:12px;font-weight:600;color:var(--t1)}
+.pf-icons{font-size:10px;color:var(--t1);letter-spacing:2px}
+.pf-screen{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none}
+.pf-screen::-webkit-scrollbar{display:none}
+.pf-home{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:90px;height:4px;background:rgba(255,255,255,.28);border-radius:2px;z-index:10}
+
+/* ── Phone push notification ── */
+.phone-push{margin:52px 12px 0;background:rgba(28,28,36,.94);backdrop-filter:blur(20px);border-radius:14px;padding:13px;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 20px rgba(0,0,0,.4);animation:nudgeIn .4s cubic-bezier(.34,1.56,.64,1)}
+.pp-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pp-app-ic{width:26px;height:26px;border-radius:7px;background:var(--tm-bg);border:1px solid var(--tm-bd);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.pp-app-ic::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--tm2);box-shadow:0 0 6px var(--tm2);animation:dotPulse 1.8s ease-in-out infinite}
+.pp-app-name{font-size:10px;color:var(--t3);font-weight:600;flex:1}
+.pp-time{font-size:9px;color:var(--t3)}
+.pp-title{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px;line-height:1.3}
+.pp-body{font-size:11px;color:var(--t2);line-height:1.45}
+
+/* ── Phone morning brief ── */
+.phone-brief{padding:52px 14px 24px;display:flex;flex-direction:column;gap:10px}
+.pb-greeting{font-size:10px;color:var(--t3)}
+.pb-head{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-bottom:2px}
+.pb-head em{font-style:normal;background:var(--tm-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pb-sub{font-size:9px;color:var(--t3);margin-bottom:4px}
+.pb-card{background:var(--tm-bg);border:1px solid var(--tm-bd);border-radius:10px;padding:10px 12px}
+.pb-num{font-size:8px;color:var(--tm2);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.pb-title{font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px;line-height:1.3}
+.pb-body{font-size:9.5px;color:var(--t2);line-height:1.5}
+.pb-cta{font-size:9px;color:var(--tm1);font-weight:700;margin-top:5px}
+.pb-footer{font-size:9px;color:var(--t3);text-align:center;margin-top:6px}
+
+/* ── Hero PIP ── */
+.hero-pip{position:absolute;bottom:18px;right:18px;width:146px;height:302px;background:#0d0d10;border-radius:24px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.15),0 8px 32px rgba(0,0,0,.65);z-index:10}
+.hero-pip-notch{height:18px;display:flex;align-items:center;justify-content:center}
+.hero-pip-notch::after{content:'';width:44px;height:4px;border-radius:2px;background:#1c1c1e}
+.hero-pip-screen{padding:2px 8px 8px;display:flex;flex-direction:column;gap:5px}
+.hp-greeting{font-size:6px;color:var(--t3);margin-bottom:2px}
+.hp-card{background:var(--tm-bg);border:1px solid var(--tm-bd);border-radius:5px;padding:5px 6px}
+.hp-lbl{font-size:4.5px;color:var(--tm2);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.hp-txt{font-size:6px;color:var(--t1);line-height:1.35}
+.hero-cta-block{text-align:center;padding:20px 0 8px;max-width:780px}
+.hero-brand{font-size:11px;color:var(--t3);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.hero-tagline{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.15;color:var(--t1)}
+.hero-tagline em{font-style:normal;background:var(--tm-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ── Chaos browser (S0) ── */
+.chaos-chrome{height:36px;background:linear-gradient(180deg,#38383d,#2d2d32);display:flex;align-items:center;padding:0 10px;border-bottom:1px solid rgba(0,0,0,.4);gap:6px;flex-shrink:0;overflow:hidden}
+.chaos-tabs-wrap{display:flex;align-items:stretch;flex:1;overflow:hidden;height:100%;gap:1px}
+.chaos-tab{display:flex;align-items:center;gap:3px;padding:0 7px;height:100%;font-size:8.5px;color:rgba(255,255,255,.45);background:rgba(40,40,46,.8);border-radius:6px 6px 0 0;cursor:default;flex-shrink:0;max-width:84px;min-width:60px;overflow:hidden;margin-top:5px}
+.chaos-tab.active{background:#1a1a1e;color:rgba(255,255,255,.85)}
+.chaos-tab-ico{font-size:9px;flex-shrink:0}
+.chaos-tab-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chaos-tab-x{color:rgba(255,255,255,.25);font-size:8px;flex-shrink:0}
+.chaos-panes{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;min-height:0;position:relative;overflow:hidden}
+.chaos-pane{background:#0d0d10;overflow:hidden;display:flex;flex-direction:column}
+.cp-h{padding:5px 10px;background:#16161a;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;color:var(--t3);font-weight:600;flex-shrink:0;display:flex;align-items:center;gap:5px}
+.cp-content{flex:1;padding:8px 10px;overflow:hidden}
+.chaos-notif{position:absolute;background:rgba(26,26,32,.96);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:9px 11px;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:10}
+.cn-app{font-size:8px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.cn-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cn-title{font-size:10.5px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.cn-body{font-size:9.5px;color:var(--t2);line-height:1.4}
+
+/* ── Earnings calendar view (S1) ── */
+.cal-view{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.cal-h{padding:10px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cal-h-t{font-size:13px;font-weight:600}
+.cal-h-week{font-size:10px;color:var(--t3);margin-left:auto}
+.cal-table{flex:1;overflow-y:auto;scrollbar-width:none}
+.cal-table::-webkit-scrollbar{display:none}
+.cal-table table{width:100%;border-collapse:collapse;font-size:10px}
+.cal-table th{padding:6px 12px;font-size:8px;font-weight:700;color:var(--t3);text-align:left;border-bottom:1px solid var(--b1);letter-spacing:.06em;text-transform:uppercase;background:var(--s1);position:sticky;top:0}
+.cal-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t2);vertical-align:middle}
+.cal-table td.tk{font-weight:700;color:var(--t1);font-size:11px}
+.cal-table tr.hl td{background:rgba(255,214,10,.06)}
+.cal-table tr.hl td.tk{color:var(--amber)}
+.cal-table tr.hl-alpha td{background:rgba(139,124,255,.08)}
+.cal-table tr.hl-alpha td.tk{color:var(--tm1)}
+.cal-day{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);padding:10px 12px 4px;border-bottom:1px solid var(--b1);background:var(--s1)}
+
+/* Responsive: clamp on very small viewports */
+@media (max-width:1400px){
+  .main{padding:24px 20px 60px}
+  .desktop{transform:scale(.85);transform-origin:top center;margin-bottom:-108px}
+}
+@media (max-width:1240px){
+  .desktop{transform:scale(.75);margin-bottom:-180px}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="sb-title">Ajaib Terminal — <span>Alpha</span></div>
+    <div class="sb-sub">Desktop video scenes · ← → to navigate</div>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip" data-s="s0" data-built="1"><span class="n">S0</span>Chaos hook<span class="dot"></span></button>
+    <button class="chip act" data-s="s0b" data-built="1"><span class="n">S0b</span>Landing<span class="dot"></span></button>
+    <button class="chip" data-s="s1" data-built="1"><span class="n">S1</span>Earnings cal<span class="dot"></span></button>
+    <button class="chip" data-s="s2" data-built="1"><span class="n">S2</span>Fundamental<span class="dot"></span></button>
+    <button class="chip" data-s="s3" data-built="1"><span class="n">S3</span>Earnings toast<span class="dot"></span></button>
+    <button class="chip" data-s="s4" data-built="1"><span class="n">S4</span>Smart money<span class="dot"></span></button>
+    <button class="chip" data-s="s5" data-built="1"><span class="n">S5</span>Broker flow<span class="dot"></span></button>
+    <button class="chip" data-s="s6" data-built="1"><span class="n">S6</span>Accum alert<span class="dot"></span></button>
+    <button class="chip" data-s="s7" data-built="1"><span class="n">S7</span>Macro strip<span class="dot"></span></button>
+    <button class="chip" data-s="s8" data-built="1"><span class="n">S8</span>Foreign flow<span class="dot"></span></button>
+    <button class="chip" data-s="s9" data-built="1"><span class="n">S9</span>Entry toast<span class="dot"></span></button>
+    <button class="chip" data-s="s10" data-built="1"><span class="n">S10</span>Chart + AI<span class="dot"></span></button>
+    <button class="chip" data-s="s11" data-built="1"><span class="n">S11</span>Cluster<span class="dot"></span></button>
+    <button class="chip" data-s="s12" data-built="1"><span class="n">S12</span>Corp timeline<span class="dot"></span></button>
+    <button class="chip" data-s="s13" data-built="1"><span class="n">S13</span>Companion<span class="dot"></span></button>
+    <button class="chip" data-s="s14" data-built="1"><span class="n">S14</span>Morning brief<span class="dot"></span></button>
+    <button class="chip" data-s="s15" data-built="1"><span class="n">S15</span>Hero close<span class="dot"></span></button>
+  </div>
+</div>
+
+<div class="main">
+  <div id="stage" class="stage"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────
+
+const cap = (tag, title, copy, meta) => `
+  <div class="cap">
+    <div class="cap-tag">${tag}</div>
+    <div class="cap-title">${title}</div>
+    <div>${copy}</div>
+    <div class="cap-meta">${meta}</div>
+  </div>`;
+
+// Desktop frame open/close
+const dtOpen = (tabs = []) => {
+  const tabsHTML = tabs.map((t, i) => `
+    <div class="dt-tab ${t.act ? 'act' : ''}">
+      <span class="ttk">${t.tk}</span>${t.chg ? `<span class="tch">${t.chg}</span>` : ''}<span>${t.name || ''}</span>
+      ${t.tags ? t.tags.map(tg => `<span class="ch-tag ${tg.c || ''}" style="margin-left:5px">${tg.t}</span>`).join('') : ''}
+      <span class="dt-tab-x">×</span>
+    </div>`).join('');
+  return `
+  <div class="desktop">
+    <div class="dt-chrome">
+      <div class="dt-lights"><div class="dt-light r"></div><div class="dt-light y"></div><div class="dt-light g"></div></div>
+      <div class="dt-tabs">${tabsHTML}<span class="dt-tab-plus">+</span></div>
+      <div class="dt-title">Ajaib Terminal</div>
+    </div>
+    <div class="dt-screen">`;
+};
+const dtClose = () => `</div></div>`;
+
+// Left nav rail (always the same)
+const appNav = () => `
+  <div class="app-nav">
+    <div class="an-logo">A</div>
+    <div class="an-item act"><div class="an-ic">★</div><span>Watchlists</span></div>
+    <div class="an-item"><div class="an-ic">⌕</div><span>Screener</span></div>
+    <div class="an-item"><div class="an-ic">▣</div><span>Portfolio</span></div>
+    <div class="an-item"><div class="an-ic">📈</div><span>Market</span></div>
+    <div class="an-item"><div class="an-ic">≡</div><span>Feed</span></div>
+    <div class="an-spacer"></div>
+    <div class="an-profile">ML</div>
+  </div>`;
+
+// Watchlist column
+const stocksData = [
+  {tk:'ANTM',name:'Aneka Tambang',c:'#f7931a',px:'5,940',chg:'+190',pct:'+2.42',up:true,act:false,tag:''},
+  {tk:'BBCA',name:'Bank Central Asia',c:'#0a84ff',px:'7,000.45',chg:'+23.34',pct:'+0.39',up:true,tag:''},
+  {tk:'BBRI',name:'Bank Rakyat Indonesia',c:'#e8334a',px:'4,820.00',chg:'+60.00',pct:'+1.26',up:true,tag:'T'},
+  {tk:'BMRI',name:'Bank Mandiri',c:'#4dd9ac',px:'5,940.45',chg:'+23.34',pct:'+0.39',up:true},
+  {tk:'BBNI',name:'Bank Negara',c:'#bf5af2',px:'5,940.45',chg:'-23.34',pct:'-0.39',up:false},
+  {tk:'BUKA',name:'Bukalapak.com',c:'#30d158',px:'5,940.45',chg:'-23.34',pct:'-0.39',up:false},
+  {tk:'GOTO',name:'GoTo Gojek',c:'#0a84ff',px:'5,940.45',chg:'+23.34',pct:'+0.39',up:true},
+  {tk:'PTBA',name:'Bukit Asam',c:'#5ac8fa',px:'5,940.45',chg:'+23.34',pct:'+0.39',up:true},
+  {tk:'TLKM',name:'Telkom Indonesia',c:'#bf5af2',px:'3,540.00',chg:'-20.00',pct:'-0.56',up:false,tag:'T'},
+  {tk:'INDF',name:'Indofood',c:'#4dd9ac',px:'5,940.45',chg:'+23.34',pct:'+0.39',up:true},
+  {tk:'ASII',name:'Astra International',c:'#30d158',px:'5,940.45',chg:'+23.34',pct:'+0.39',up:true},
+  {tk:'UNVR',name:'Unilever Indo',c:'#bf5af2',px:'5,940.45',chg:'+23.34',pct:'+0.39',up:true},
+  {tk:'MDKA',name:'Merdeka Copper',c:'#f7931a',px:'2,640.00',chg:'+50.00',pct:'+1.92',up:true},
+];
+const appWl = (activeTk='ANTM') => `
+  <div class="app-wl">
+    <div class="wl-h"><div class="wl-h-t">Watchlist Saya ▾</div><div class="wl-h-add">+</div></div>
+    ${stocksData.map(s=>`
+      <div class="wl-row ${s.tk===activeTk?'act':''}">
+        <div class="wl-logo" style="background:${s.c}">${s.tk.slice(0,2)}</div>
+        <div class="wl-mid">
+          <div class="wl-tk">${s.tk}${s.tag?` <span class="tag">${s.tag}</span>`:''}</div>
+          <div class="wl-name">${s.name}</div>
+        </div>
+        <div class="wl-rt">
+          <div class="wl-px">${s.px}</div>
+          <div class="wl-pct ${s.up?'up':'dn'}">▲ ${s.pct}%</div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+
+// Candlestick chart (placeholder)
+const candleSVG = (rising=true) => {
+  // Generate ~30 candles with realistic walk
+  let candles = '';
+  let price = rising ? 4400 : 4900;
+  for (let i = 0; i < 30; i++) {
+    const range = (Math.random() - 0.5) * 40 + (rising ? 10 : -5);
+    const open = price;
+    const close = price + range;
+    const high = Math.max(open, close) + Math.random() * 15;
+    const low = Math.min(open, close) - Math.random() * 15;
+    price = close;
+    const x = 20 + i * 18;
+    const isUp = close >= open;
+    const color = isUp ? '#30d158' : '#ff453a';
+    // Map prices to y (4300-5000 → 350-30)
+    const map = (p) => 350 - ((p - 4300) / 700) * 320;
+    candles += `<line x1="${x}" y1="${map(high)}" x2="${x}" y2="${map(low)}" stroke="${color}" stroke-width="1"/>`;
+    candles += `<rect x="${x-4}" y="${map(Math.max(open,close))}" width="8" height="${Math.max(2,Math.abs(map(open)-map(close)))}" fill="${color}"/>`;
+  }
+  // Volume bars
+  let vols = '';
+  for (let i = 0; i < 30; i++) {
+    const x = 20 + i * 18;
+    const h = 10 + Math.random() * 35;
+    vols += `<rect x="${x-4}" y="${430-h}" width="8" height="${h}" fill="${Math.random()>0.5?'#30d158':'#ff453a'}" opacity=".6"/>`;
+  }
+  return `<svg viewBox="0 0 600 440" preserveAspectRatio="none">
+    ${candles}
+    <line x1="0" y1="350" x2="600" y2="350" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+    ${vols}
+  </svg>`;
+};
+
+const appChart = (opts={}) => {
+  const {tk='ANTM', name='Aneka Tambang Tbk.', px='5,940.45', chg='+23.34', pct='+0.39', rising=true} = opts;
+  return `
+  <div class="app-chart">
+    <div class="ch-h">
+      <div class="ch-tk">${tk}</div>
+      <div class="ch-name">${name}</div>
+      <div class="ch-tags">
+        <div class="ch-tag">9 GT</div>
+        <div class="ch-tag tl">TL</div>
+      </div>
+      <div class="ch-tab-row">
+        <div class="ch-sub act">Chart</div>
+        <div class="ch-sub">Insider</div>
+        <div class="ch-sub">Done Details</div>
+      </div>
+    </div>
+    <div class="ch-tools">
+      <span class="ch-tool act">1D</span>
+      <span class="ch-tool">Indicators</span>
+      <span class="ch-tool">⚡ Alert</span>
+      <span class="ch-tool">Default ▾</span>
+      <div class="ch-tf">
+        <span class="ch-tf-b">5m</span>
+        <span class="ch-tf-b">15m</span>
+        <span class="ch-tf-b">1h</span>
+        <span class="ch-tf-b act">1D</span>
+        <span class="ch-tf-b">1W</span>
+        <span class="ch-tf-b">1M</span>
+      </div>
+    </div>
+    <div class="ch-canvas">
+      ${candleSVG(rising)}
+      <div class="ch-axis-l">
+        <span>5,000</span><span>4,800</span><span>4,600</span><span>4,400</span><span>4,200</span>
+      </div>
+      <div class="ch-axis-b">
+        <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span>
+      </div>
+      <div class="ch-px-label">${px}</div>
+    </div>
+  </div>`;
+};
+
+// Order Book
+const appOb = (opts={}) => {
+  const {tk='ANTM',px='4,500',chg='+10',pct='+0.95',open='9,400',prev='9,500',low='9,300',ara='420,421',arb='7,529',avg='24,738',hi='9,575'} = opts;
+  const bids = [
+    [5935,52],[5930,165],[5925,427],[5920,288],[5915,135]
+  ];
+  const asks = [
+    [5940,82],[5945,156],[5950,294],[5955,232],[5960,388]
+  ];
+  return `
+  <div class="app-ob">
+    <div class="ob-h"><div class="ob-h-t">Order Book ⤢</div><div class="ob-h-x">−</div></div>
+    <div class="ob-stats">
+      <div class="ob-tk"><div class="ob-tk-name">${tk}</div><div class="ob-tk-px">${px}</div><div class="ob-tk-chg">${chg} (${pct}%)</div></div>
+      <div class="ob-grid">
+        <div class="ob-grid-l">Open</div><div class="ob-grid-v">${open}</div>
+        <div class="ob-grid-l">Prev</div><div class="ob-grid-v">${prev}</div>
+        <div class="ob-grid-l">High</div><div class="ob-grid-v">${hi}</div>
+        <div class="ob-grid-l">ARA</div><div class="ob-grid-v" style="color:var(--green)">${ara}</div>
+        <div class="ob-grid-l">Low</div><div class="ob-grid-v">${low}</div>
+        <div class="ob-grid-l">ARB</div><div class="ob-grid-v" style="color:var(--red)">${arb}</div>
+        <div class="ob-grid-l">Avg</div><div class="ob-grid-v">${avg}</div>
+      </div>
+    </div>
+    <div class="ob-iep">
+      <div class="ob-iep-h">Indicative Equilibrium Price/Volume</div>
+      <div class="ob-iep-row"><span class="ob-iep-pill">REVIEW</span><span class="ob-iep-v">IEP <strong>5,935</strong></span><span class="ob-iep-v">IEV <strong>25.39K</strong></span></div>
+    </div>
+    <div class="ob-tbl">
+      <table>
+        <thead><tr><th>Freq</th><th>Lot</th><th>Bid</th><th class="mid">Ask</th><th>Lot</th><th>Freq</th></tr></thead>
+        <tbody>
+          ${bids.map((b,i)=>`<tr>
+            <td>${i*7+3}</td><td>${b[1]*4}</td><td class="bid">${b[0]}</td>
+            <td class="ask">${asks[i][0]}</td><td>${asks[i][1]*4}</td><td>${i*8+5}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+};
+
+// Account manager
+const appAcct = (tk='ANTM', holding='') => `
+  <div class="app-acct">
+    <div class="acct-h">
+      <div class="acct-tab act">Aset</div>
+      <div class="acct-tab">Order</div>
+      <div class="acct-tab">Riwayat</div>
+    </div>
+    <div class="acct-body">${holding || `Tidak ada posisi aktif pada ${tk} · Dana tersedia Rp 12.420.000`}</div>
+    <div class="acct-cta">
+      <button class="acct-btn sell">Jual</button>
+      <button class="acct-btn buy">Beli</button>
+    </div>
+  </div>`;
+
+// Alpha rail (always visible)
+const appRail = (open=false) => `
+  <div class="app-rail">
+    <div class="rail-alpha ${open?'act':''}" onclick="toggleAlpha()">${open?'':'<div class="badge">3</div>'}</div>
+    <div class="rail-ic">⌕</div>
+    <div class="rail-ic">⚙</div>
+    <div class="rail-spacer"></div>
+    <div class="rail-label">Alpha</div>
+  </div>`;
+
+// Alpha panel (open state)
+const appAlpha = (content) => `
+  <div class="app-alpha">
+    <div class="al-h">
+      <div class="al-mark"></div>
+      <div class="al-title">
+        <div class="al-title-t">Alpha</div>
+        <div class="al-title-s">${content.subtitle || 'Memantau pasar untukmu'}</div>
+      </div>
+      <div class="al-x" onclick="toggleAlpha()">×</div>
+    </div>
+    <div class="al-body">${content.body || ''}</div>
+    <div class="al-input">
+      <div class="al-input-f">Tanya Alpha apa saja…</div>
+      <div class="al-input-send">↑</div>
+    </div>
+  </div>`;
+
+// Order book with a highlighted bid row (for S4)
+const appObHot = (hotPrice=4805) => `
+  <div class="app-ob">
+    <div class="ob-h"><div class="ob-h-t">Order Book ⤢</div><div class="ob-h-x">−</div></div>
+    <div class="ob-stats">
+      <div class="ob-tk"><div class="ob-tk-name">BBRI</div><div class="ob-tk-px">4,820</div><div class="ob-tk-chg">+60 (+1.26%)</div></div>
+      <div class="ob-grid">
+        <div class="ob-grid-l">Open</div><div class="ob-grid-v">4,780</div>
+        <div class="ob-grid-l">Prev</div><div class="ob-grid-v">4,760</div>
+        <div class="ob-grid-l">High</div><div class="ob-grid-v">4,840</div>
+        <div class="ob-grid-l">ARA</div><div class="ob-grid-v" style="color:var(--green)">6,426</div>
+        <div class="ob-grid-l">Low</div><div class="ob-grid-v">4,760</div>
+        <div class="ob-grid-l">ARB</div><div class="ob-grid-v" style="color:var(--red)">3,094</div>
+        <div class="ob-grid-l">Avg</div><div class="ob-grid-v">4,805</div>
+      </div>
+    </div>
+    <div class="ob-iep"><div class="ob-iep-h">Indicative Equilibrium Price/Volume</div>
+      <div class="ob-iep-row"><span class="ob-iep-pill">REVIEW</span><span class="ob-iep-v">IEP <strong>4,810</strong></span><span class="ob-iep-v">IEV <strong>142K</strong></span></div>
+    </div>
+    <div class="ob-tbl"><table>
+      <thead><tr><th>Freq</th><th>Lot</th><th>Bid</th><th class="mid">Ask</th><th>Lot</th><th>Freq</th></tr></thead>
+      <tbody>
+        <tr><td>12</td><td>452</td><td class="bid">4,820</td><td class="ask">4,825</td><td>210</td><td>8</td></tr>
+        <tr><td>18</td><td>618</td><td class="bid">4,815</td><td class="ask">4,830</td><td>388</td><td>14</td></tr>
+        <tr class="hot"><td>47</td><td>14,200</td><td class="bid">${hotPrice}</td><td class="ask">4,835</td><td>156</td><td>9</td></tr>
+        <tr><td>9</td><td>284</td><td class="bid">4,800</td><td class="ask">4,840</td><td>294</td><td>17</td></tr>
+        <tr><td>6</td><td>118</td><td class="bid">4,795</td><td class="ask">4,845</td><td>382</td><td>21</td></tr>
+      </tbody>
+    </table></div>
+  </div>`;
+
+// Candlestick chart for TLKM with cyan annotation overlays
+const appChartAnnotated = () => {
+  const candles = (() => {
+    let c='', price=3300;
+    for(let i=0;i<30;i++){
+      const rng=(Math.random()-.45)*35+(i>22?-8:2);
+      const o=price, cl=price+rng;
+      const h=Math.max(o,cl)+Math.random()*14;
+      const l=Math.min(o,cl)-Math.random()*12;
+      price=cl;
+      const x=20+i*18;
+      const col=cl>=o?'#30d158':'#ff453a';
+      const map=v=>340-((v-3100)/600)*300;
+      c+=`<line x1="${x}" y1="${map(h)}" x2="${x}" y2="${map(l)}" stroke="${col}" stroke-width="1"/>`;
+      c+=`<rect x="${x-4}" y="${map(Math.max(o,cl))}" width="8" height="${Math.max(2,Math.abs(map(o)-map(cl)))}" fill="${col}"/>`;
+    }
+    return c;
+  })();
+  const vols = (() => {
+    let v='';
+    for(let i=0;i<30;i++){
+      const x=20+i*18;
+      const h=i===8?62:i===20?54:i===27?48:10+Math.random()*28;
+      const col=i===8||i===20||i===27?'rgba(110,231,247,.8)':(Math.random()>.5?'#30d158':'#ff453a');
+      v+=`<rect x="${x-4}" y="${430-h}" width="8" height="${h}" fill="${col}" opacity="${i===8||i===20||i===27?.85:.5}"/>`;
+    }
+    return v;
+  })();
+  return `
+  <div class="app-chart">
+    <div class="ch-h">
+      <div class="ch-tk">TLKM</div>
+      <div class="ch-name">Telkom Indonesia · 1D</div>
+      <div class="ch-tags"><div class="ch-tag">9 GT</div><div class="ch-tag tl">TL</div></div>
+      <div class="ch-tab-row"><div class="ch-sub act">Chart</div><div class="ch-sub">Insider</div><div class="ch-sub">Done Details</div></div>
+    </div>
+    <div class="ch-tools">
+      <span class="ch-tool act">1D</span><span class="ch-tool">Indicators</span><span class="ch-tool">⚡ Alert</span>
+      <div class="ch-tf"><span class="ch-tf-b">5m</span><span class="ch-tf-b">15m</span><span class="ch-tf-b">1h</span><span class="ch-tf-b act">1D</span><span class="ch-tf-b">1W</span><span class="ch-tf-b">1M</span></div>
+    </div>
+    <div class="ch-canvas" style="position:relative">
+      <svg viewBox="0 0 600 440" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+        ${candles}
+        <line x1="0" y1="350" x2="600" y2="350" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        ${vols}
+        <!-- Annotation 1: vol spike at candle 8 (x=164) -->
+        <line x1="164" y1="8" x2="164" y2="350" stroke="#6EE7F7" stroke-width="1" stroke-dasharray="4,3" opacity=".7"/>
+        <rect x="118" y="8" width="92" height="18" rx="4" fill="rgba(110,231,247,.15)" stroke="rgba(110,231,247,.4)" stroke-width=".8"/>
+        <text x="164" y="20" fill="#6EE7F7" font-size="8" font-family="Inter,sans-serif" font-weight="700" text-anchor="middle" letter-spacing=".04em">LONJAKAN VOL 3,2×</text>
+        <!-- Annotation 2: warrant at candle 20 (x=380) -->
+        <line x1="380" y1="8" x2="380" y2="350" stroke="#6EE7F7" stroke-width="1" stroke-dasharray="4,3" opacity=".7"/>
+        <rect x="332" y="8" width="96" height="18" rx="4" fill="rgba(110,231,247,.15)" stroke="rgba(110,231,247,.4)" stroke-width=".8"/>
+        <text x="380" y="20" fill="#6EE7F7" font-size="8" font-family="Inter,sans-serif" font-weight="700" text-anchor="middle" letter-spacing=".04em">WARAN +540%</text>
+        <!-- Annotation 3: director filing at candle 27 (x=506) -->
+        <line x1="506" y1="8" x2="506" y2="350" stroke="#6EE7F7" stroke-width="1" stroke-dasharray="4,3" opacity=".7"/>
+        <rect x="454" y="8" width="104" height="18" rx="4" fill="rgba(110,231,247,.15)" stroke="rgba(110,231,247,.4)" stroke-width=".8"/>
+        <text x="506" y="20" fill="#6EE7F7" font-size="8" font-family="Inter,sans-serif" font-weight="700" text-anchor="middle" letter-spacing=".04em">BELI INSIDER</text>
+      </svg>
+      <div class="ch-axis-l"><span>3,700</span><span>3,500</span><span>3,300</span><span>3,100</span><span>2,900</span></div>
+      <div class="ch-axis-b"><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span></div>
+      <div class="ch-px-label">3,540</div>
+    </div>
+  </div>`;
+};
+
+// Sparkline SVG for cluster view
+const sparkline = (trend='up', col='#6EE7F7') => {
+  let pts='', p=50;
+  for(let i=0;i<20;i++){
+    const d=(Math.random()-.45)*8+(trend==='up'?1.2:-1.2);
+    p=Math.max(5,Math.min(95,p+d));
+    pts+=`${i*16},${p} `;
+  }
+  return `<svg viewBox="0 0 320 100" class="ci-spark" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+  </svg>`;
+};
+
+// Phone frame helper
+const phoneFrame = (content) => `
+  <div class="phone-frame">
+    <div class="pf-notch"></div>
+    <div class="pf-status"><span class="pf-time">9:41</span><span class="pf-icons">●●● ▲</span></div>
+    <div class="pf-screen">${content}</div>
+    <div class="pf-home"></div>
+  </div>`;
+
+// ─────────────────────────────────────────
+// SCENES
+// ─────────────────────────────────────────
+
+const scenes = {
+
+// ── S0 · Chaos hook — browser desktop, too many tabs, too much noise
+s0: () => {
+  const tabs = [
+    {ico:'📊',name:'BBRI — TradingView'},
+    {ico:'📰',name:'IDX News Today'},
+    {ico:'💬',name:'Telegram — Grup Saham'},
+    {ico:'📈',name:'RTI Business'},
+    {ico:'📱',name:'WhatsApp Web'},
+    {ico:'📰',name:'CNBC Indonesia'},
+    {ico:'🗂',name:'Stockbit'},
+    {ico:'📊',name:'Bloomberg Markets'},
+    {ico:'📧',name:'Gmail (12 unread)'},
+    {ico:'📂',name:'Portfolio — Sheets'},
+    {ico:'🏦',name:'Bareksa'},
+    {ico:'📰',name:'Detik Finance'},
+    {ico:'💹',name:'ANTM — IDX'},
+    {ico:'📋',name:'BEI Corporate'},
+    {ico:'📊',name:'TLKM Chart'},
+    {ico:'🔍',name:'Yahoo Finance'},
+    {ico:'📰',name:'Kontan.co.id'},
+    {ico:'📱',name:'OJK Newsroom'},
+    {ico:'📊',name:'Investor Daily'},
+    {ico:'🌐',name:'Reuters Asia'},
+  ];
+  return `
+<div class="desktop">
+  <div class="dt-chrome" style="background:linear-gradient(180deg,#38383d,#2d2d32);padding:0 10px;overflow:hidden">
+    <div class="dt-lights"><div class="dt-light r"></div><div class="dt-light y"></div><div class="dt-light g"></div></div>
+    <div style="display:flex;align-items:stretch;flex:1;overflow:hidden;height:100%;gap:1px;margin-left:8px">
+      ${tabs.map((t,i)=>`<div style="display:flex;align-items:center;gap:3px;padding:0 7px;height:100%;font-size:8.5px;color:rgba(255,255,255,${i===0?.85:.38});background:${i===0?'#1a1a1e':'rgba(40,40,46,.7)'};border-radius:6px 6px 0 0;flex-shrink:0;max-width:82px;min-width:58px;overflow:hidden;margin-top:5px"><span style="font-size:9px;flex-shrink:0">${t.ico}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${t.name}</span><span style="color:rgba(255,255,255,.18);font-size:8px;flex-shrink:0">×</span></div>`).join('')}
+      <div style="padding:0 10px;color:rgba(255,255,255,.3);font-size:15px;display:flex;align-items:center;height:100%;flex-shrink:0">+</div>
+    </div>
+  </div>
+  <div class="dt-screen" style="flex-direction:column">
+    <div style="height:28px;background:#2d2d32;border-bottom:1px solid rgba(0,0,0,.35);display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0">
+      <span style="font-size:11px;color:rgba(255,255,255,.28)">◂  ▸  ↻</span>
+      <div style="flex:1;background:rgba(0,0,0,.3);border-radius:4px;padding:3px 10px;font-size:10px;color:rgba(255,255,255,.38);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">https://id.tradingview.com/chart/?symbol=IDX%3ABBRI&interval=D</div>
+      <span style="font-size:11px;color:rgba(255,255,255,.25)">☆ ⊕</span>
+    </div>
+    <div class="chaos-panes" style="position:relative">
+      <!-- TradingView-like chart -->
+      <div class="chaos-pane">
+        <div class="cp-h">📊 TradingView · BBRI · 1D <span style="color:var(--green);margin-left:auto;font-weight:600">4,820 +1.26%</span></div>
+        <div class="cp-content" style="padding:4px">
+          <svg width="100%" height="95%" viewBox="0 0 280 160" preserveAspectRatio="none">
+            ${(()=>{let c='',p=4580;for(let i=0;i<20;i++){const rng=(Math.random()-.46)*36+4;const o=p,cl=p+rng;const h=Math.max(o,cl)+Math.random()*14,l=Math.min(o,cl)-Math.random()*11;p=cl;const x=14+i*13;const col=cl>=o?'#30d158':'#ff453a';const mp=v=>148-((v-4300)/600)*135;c+=`<line x1="${x}" y1="${mp(h)}" x2="${x}" y2="${mp(l)}" stroke="${col}" stroke-width="1"/><rect x="${x-3}" y="${mp(Math.max(o,cl))}" width="6" height="${Math.max(2,Math.abs(mp(o)-mp(cl)))}" fill="${col}"/>`;} return c;})()}
+          </svg>
+        </div>
+      </div>
+      <!-- News feed -->
+      <div class="chaos-pane">
+        <div class="cp-h">📰 IDX News · <span style="color:var(--red)">14 unread</span></div>
+        <div class="cp-content">
+          ${[
+            {src:'Kontan',t:'BBRI catat laba Q1 naik 3.4% YoY — analis upgrade ke Buy'},
+            {src:'Bloomberg',t:'Indonesian banks face NIM pressure as BI signals hold'},
+            {src:'CNBC Indonesia',t:'Dana asing masuk Rp 2,1T ke sektor perbankan pagi ini'},
+            {src:'Investor Daily',t:'ANTM raih kontrak emas USD 120M dengan BUMN Pertambangan'},
+            {src:'Detik Finance',t:'TLKM umumkan right issue Rp 8T — warrant melonjak 540%'},
+            {src:'Reuters',t:'MSCI adds 3 Indonesian stocks in quarterly rebalance'},
+          ].map(n=>`<div style="margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:5px"><div style="font-size:7px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${n.src}</div><div style="font-size:8.5px;color:var(--t2);line-height:1.4">${n.t}</div></div>`).join('')}
+        </div>
+      </div>
+      <!-- Group chat -->
+      <div class="chaos-pane">
+        <div class="cp-h">💬 Telegram — Grup Saham IDX <span style="color:var(--tm1);margin-left:auto">23 baru</span></div>
+        <div class="cp-content">
+          ${[
+            {u:'Bot Alert',c:'var(--amber)',m:'🚨 TLKM vol spike 3.2× avg. Warrant +540%'},
+            {u:'Pak Budi',c:'var(--green)',m:'BBCA support kuat 6800, TP 7200 kali ya?'},
+            {u:'Signal Pro',c:'var(--blue)',m:'Foreign net buy BMRI 45jt lot dalam 30 menit'},
+            {u:'Indo Trader',c:'var(--tm1)',m:'ANTM ikut gold rally hari ini. Entry 5800?'},
+            {u:'Kamu',c:'var(--t2)',m:'kapan earnings BBRI? ada yang tahu?'},
+            {u:'Bot Alert',c:'var(--amber)',m:'🔔 ANTM bid stacking 5800 — foreign accelerating'},
+          ].map(m=>`<div style="margin-bottom:7px;font-size:8.5px;line-height:1.4"><span style="color:${m.c};font-weight:700">${m.u}: </span><span style="color:var(--t2)">${m.m}</span></div>`).join('')}
+        </div>
+      </div>
+      <!-- Manual spreadsheet -->
+      <div class="chaos-pane">
+        <div class="cp-h">📂 Portfolio Tracker — Google Sheets <span style="color:var(--t3);margin-left:auto;font-size:7.5px">Last saved 3h ago</span></div>
+        <div class="cp-content" style="padding:5px 8px">
+          <table style="width:100%;border-collapse:collapse;font-size:8px">
+            <tr style="color:var(--t3);font-size:7px;font-weight:700;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.07)">
+              <td style="padding:2px 4px">Ticker</td><td style="padding:2px 4px;text-align:right">Lot</td><td style="padding:2px 4px;text-align:right">Avg</td><td style="padding:2px 4px;text-align:right">Harga</td><td style="padding:2px 4px;text-align:right">P/L</td>
+            </tr>
+            ${[['BBRI','113','4,760','4,820','+6,780','up'],['ANTM','1,890','5,750','5,940','+35,910','up'],['TLKM','42','3,560','3,540','-840','dn'],['BBCA','25','6,900','7,000','+2,500','up'],['GOTO','5,000','65','62','-15,000','dn'],['ASII','80','4,200','4,280','+6,400','up']].map(([tk,lot,avg,px,pl,d])=>`
+              <tr style="border-bottom:1px solid rgba(255,255,255,.03)">
+                <td style="padding:3px 4px;font-weight:700;color:var(--t1);font-size:9px">${tk}</td>
+                <td style="padding:3px 4px;text-align:right;color:var(--t2)">${lot}</td>
+                <td style="padding:3px 4px;text-align:right;color:var(--t3)">${avg}</td>
+                <td style="padding:3px 4px;text-align:right;color:var(--t1)">${px}</td>
+                <td style="padding:3px 4px;text-align:right;color:var(${d==='up'?'--green':'--red'})">${pl}</td>
+              </tr>`).join('')}
+          </table>
+        </div>
+      </div>
+      <!-- Notification stack -->
+      <div class="chaos-notif" style="bottom:172px;right:14px;width:236px">
+        <div class="cn-app"><div class="cn-dot" style="background:#25D366"></div>WhatsApp Web</div>
+        <div class="cn-title">Grup Saham: BBRI nih mantap bgt 🔥</div>
+        <div class="cn-body">Pak Budi dan 12 lainnya mengirim pesan</div>
+      </div>
+      <div class="chaos-notif" style="bottom:100px;right:14px;width:218px;opacity:.82">
+        <div class="cn-app"><div class="cn-dot" style="background:#0088cc"></div>Telegram</div>
+        <div class="cn-title">🚨 TLKM Alert triggered</div>
+        <div class="cn-body">Volume 3.2× above 5-day average</div>
+      </div>
+      <div class="chaos-notif" style="bottom:32px;right:14px;width:200px;opacity:.54">
+        <div class="cn-app"><div class="cn-dot" style="background:var(--red)"></div>RTI Business</div>
+        <div class="cn-title">ANTM foreign buy accelerating</div>
+        <div class="cn-body">Bid stacking at 5,800 — watch closely</div>
+      </div>
+    </div>
+  </div>
+</div>
+${cap('S0 · 0:00–0:06 · HOOK','Before Alpha — signal buried in noise.','The everyday Indonesian retail trader: 20 browser tabs, group chats pinging, news feeds refreshing, a manual spreadsheet tracking P&L. Same data, zero synthesis. The problem Alpha is the answer to.','No app chrome · browser chaos · pre-Alpha state')}
+`},
+
+// ── S1 · Earnings calendar — Alpha proactive nudge → panel opens
+s1: () => `
+${dtOpen([{tk:'Feed',name:'Earnings & Events',act:true}])}
+  <div class="app" style="position:relative">
+    ${appNav()}
+    ${appWl('BBRI')}
+    <div class="cal-view" style="grid-area:chart;border-right:1px solid var(--b1)">
+      <div class="cal-h">
+        <div class="cal-h-t">Earnings Calendar</div>
+        <div style="display:flex;gap:6px;margin-left:12px">
+          <div class="ch-sub act" style="padding:3px 10px;font-size:10px;border:1px solid var(--b2);border-radius:5px">Portfolio</div>
+          <div class="ch-sub" style="padding:3px 10px;font-size:10px;border:1px solid var(--b1);border-radius:5px">Semua</div>
+        </div>
+        <div class="cal-h-week">12–16 Mei 2025</div>
+      </div>
+      <div class="cal-table">
+        <table>
+          <thead><tr><th>Emiten</th><th>Nama</th><th>Event</th><th>Estimasi</th><th>Consensus</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr><td colspan="6" class="cal-day">Senin, 12 Mei</td></tr>
+            <tr><td class="tk">BMRI</td><td style="color:var(--t2)">Bank Mandiri</td><td style="color:var(--t2)">Earnings Q1</td><td style="color:var(--t2)">EPS Rp 234</td><td style="color:var(--green);font-weight:600">Buy · 18/22</td><td><span style="font-size:9px;font-weight:600;color:var(--t3)">—</span></td></tr>
+            <tr><td class="tk">ASII</td><td style="color:var(--t2)">Astra International</td><td style="color:var(--t2)">Ex-Date Dividen</td><td style="color:var(--t2)">Rp 180/sh</td><td style="color:var(--t3)">Hold · 12/20</td><td><span style="font-size:9px;font-weight:600;color:var(--amber)">−1.2%</span></td></tr>
+            <tr><td colspan="6" class="cal-day">Selasa, 13 Mei</td></tr>
+            <tr class="hl-alpha"><td class="tk" style="position:relative">BBRI <span style="display:inline-flex;align-items:center;gap:2px;background:var(--tm-bg);border:1px solid var(--tm-bd);border-radius:3px;padding:1px 4px;font-size:7.5px;color:var(--tm2);font-weight:700;margin-left:4px">● Kamu</span></td><td style="color:var(--t1);font-weight:500">Bank Rakyat Indonesia</td><td style="color:var(--t1)">Earnings Q1 2025</td><td style="color:var(--t1)">EPS Rp 188</td><td style="color:var(--green);font-weight:700">Buy · 28/28</td><td><span style="font-size:9px;font-weight:700;color:var(--green)">+2.1% hist</span></td></tr>
+            <tr><td class="tk">UNVR</td><td style="color:var(--t2)">Unilever Indonesia</td><td style="color:var(--t2)">Earnings Q1</td><td style="color:var(--t2)">EPS Rp 52</td><td style="color:var(--t3)">Hold · 8/15</td><td><span style="font-size:9px;color:var(--t3)">—</span></td></tr>
+            <tr><td class="tk">INDF</td><td style="color:var(--t2)">Indofood CBP</td><td style="color:var(--t2)">RUPS</td><td style="color:var(--t2)">—</td><td style="color:var(--t3)">—</td><td>—</td></tr>
+            <tr><td colspan="6" class="cal-day">Rabu, 14 Mei</td></tr>
+            <tr><td class="tk">TLKM</td><td style="color:var(--t2)">Telkom Indonesia</td><td style="color:var(--t2)">Earnings Q1</td><td style="color:var(--t2)">EPS Rp 48</td><td style="color:var(--t3)">Hold · 10/18</td><td>—</td></tr>
+            <tr><td class="tk">PTBA</td><td style="color:var(--t2)">Bukit Asam</td><td style="color:var(--t2)">Ex-Date Dividen</td><td style="color:var(--t2)">Rp 220/sh</td><td style="color:var(--green)">Buy · 14/18</td><td><span style="font-size:9px;color:var(--amber)">−1.5%</span></td></tr>
+            <tr><td colspan="6" class="cal-day">Kamis, 15 Mei</td></tr>
+            <tr><td class="tk">BBCA</td><td style="color:var(--t2)">Bank Central Asia</td><td style="color:var(--t2)">Earnings Q1</td><td style="color:var(--t2)">EPS Rp 312</td><td style="color:var(--green)">Buy · 24/26</td><td><span style="font-size:9px;color:var(--green)">+1.8% hist</span></td></tr>
+            <tr><td class="tk">MDKA</td><td style="color:var(--t2)">Merdeka Copper Gold</td><td style="color:var(--t2)">RUPS LB</td><td style="color:var(--t2)">—</td><td style="color:var(--t3)">—</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    ${appOb({tk:'BBRI',px:'4,820',chg:'+60',pct:'+1.26',open:'4,780',prev:'4,760',low:'4,760',hi:'4,840',ara:'6,426',arb:'3,094',avg:'4,805'})}
+    <div class="app-rail" style="position:relative">
+      <div class="rail-alpha act"><div class="badge">1</div></div>
+      <div class="rail-ic">⌕</div><div class="rail-ic">⚙</div>
+      <div class="rail-spacer"></div><div class="rail-label">Alpha</div>
+      <!-- Proactive nudge bubble -->
+      <div class="alpha-nudge">
+        <div class="nudge-head"><div class="nudge-mark"></div><div class="nudge-lbl">Alpha</div></div>
+        <div class="nudge-text">1 dari 4 event minggu ini berdampak pada portofoliomu. Earnings <strong>BBRI</strong> — Selasa, 13 Mei.</div>
+        <div class="nudge-cta">Lihat rincian →</div>
+      </div>
+    </div>
+  </div>
+  ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S1 · 0:09–0:13 · EARNINGS CAL','Alpha picks the one event that matters.','The earnings calendar lists all events this week. Alpha reads your portfolio and surfaces the one that affects you — BBRI on Tuesday — with a proactive nudge from the rail. Not all 9 events. The one that matters.','Alpha state · closed · proactive nudge visible')}
+`,
+
+// ── S2 · Fundamental — Alpha panel open as third column
+s2: () => `
+${dtOpen([
+  {tk:'BBRI',name:'Bank Rakyat Indonesia',chg:'+1.26%',act:true,tags:[{t:'IDX'}]},
+  {tk:'Watchlist',name:''}
+])}
+  <div class="app alpha-open">
+    ${appNav()}
+    ${appWl('BBRI')}
+    ${appChart({tk:'BBRI',name:'Bank Rakyat Indonesia · 1D',px:'4,820',rising:true})}
+    ${appOb({tk:'BBRI',px:'4,820',chg:'+60',pct:'+1.26',open:'4,780',prev:'4,760',low:'4,760',hi:'4,840',ara:'6,426',arb:'3,094',avg:'4,805'})}
+    ${appAlpha({
+      subtitle: 'Kenapa BBRI penting bagimu',
+      body: `
+        <div class="al-msg">
+          <p>BBRI adalah posisi terbesarmu — <strong>22% portofolio</strong>.</p>
+          <p>Earnings <em>Selasa 13 Mei</em>, 48 jam lagi. Tiga hal yang perlu kamu tahu sebelum itu:</p>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">📅</div>
+          <div class="al-ref-b">Consensus naik ke <strong>Buy</strong> minggu ini (sebelumnya Hold). 28 analis.</div>
+          <div class="al-ref-pct" style="color:var(--green)">↑</div>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">📊</div>
+          <div class="al-ref-b">P/E di <strong>9,2×</strong> — di bawah rata-rata 5 tahun 11,4×. Murah secara historis.</div>
+          <div class="al-ref-pct" style="color:var(--tm2)">−</div>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">🎯</div>
+          <div class="al-ref-b">Target Rp <strong>5.420</strong> · potensi naik +12% dari harga sekarang.</div>
+          <div class="al-ref-pct" style="color:var(--green)">+12%</div>
+        </div>
+        <div class="al-msg">
+          <p>4 earnings terakhir: 3 beat. Rata-rata pergerakan hari laporan: <em>+2,1%</em>.</p>
+        </div>
+        <div class="al-sug">
+          <button class="al-sug-c">Lihat riwayat earnings</button>
+          <button class="al-sug-c">Bandingkan dengan BBCA</button>
+          <button class="al-sug-c">Apa yang MG akumulasi?</button>
+        </div>
+      `
+    })}
+    ${appRail(true)}
+  </div>
+  ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S2 · 0:13–0:17 · FUNDAMENTAL','Alpha membuka sebagai kolom ketiga. Workspace meluas.','Stock detail BBRI. User mengklik ikon Alpha di rail; panel bergeser masuk mendorong chart ke kiri dan bergabung dengan workspace di samping Order Book. Data dan percakapan terlihat sekaligus. Alpha mengontekstualisasikan fundamental dalam bahasa trader — "posisi terbesarmu", "consensus naik", "murah vs historis". Saran pertanyaan lanjutan di bawah.','Alpha state · open · third column · ~340px panel + 44px rail')}
+`,
+
+// ── S3 · Desktop toast — earnings push notification
+s3: () => `
+${dtOpen([
+  {tk:'BBRI',name:'Bank Rakyat Indonesia',chg:'+1.26%',act:true,tags:[{t:'IDX'}]},
+  {tk:'Watchlist',name:''}
+])}
+  <div class="app" style="opacity:.55;filter:blur(1px);pointer-events:none">
+    ${appNav()}
+    ${appWl('BBRI')}
+    ${appChart({tk:'BBRI',name:'Bank Rakyat Indonesia · 1D',px:'4,820',rising:true})}
+    ${appOb({tk:'BBRI',px:'4,820',chg:'+60',pct:'+1.26',open:'4,780',prev:'4,760',low:'4,760',hi:'4,840',ara:'6,426',arb:'3,094',avg:'4,805'})}
+    ${appRail(false)}
+  </div>
+  ${appAcct('BBRI')}
+  <!-- macOS OS toast -->
+  <div class="os-toast">
+    <div class="os-toast-ic"></div>
+    <div class="os-toast-bd">
+      <div class="os-toast-app">Alpha · Ajaib Terminal</div>
+      <div class="os-toast-title">Earnings BBRI 48 jam lagi.</div>
+      <div class="os-toast-sub">Kamu pegang 22% portofolio. Consensus baru naik ke Buy.</div>
+    </div>
+  </div>
+${dtClose()}
+${cap('S3 · 0:15–0:18 · TOAST','Alpha is proactive — even when you\'re not in the app.','macOS notification appears over a partially active Terminal window. Alpha doesn\'t wait for you to ask. BBRI earnings in 48h, you hold 22% — it already knows what matters.','Alpha state · closed · OS notification · pre-app proactivity')}
+`,
+
+// ── S4 · Smart money — orderbook hot row + Alpha panel breakdown
+s4: () => `
+${dtOpen([{tk:'BBRI',name:'Bank Rakyat Indonesia',chg:'+1.26%',act:true,tags:[{t:'IDX'}]}])}
+  <div class="app alpha-open">
+    ${appNav()}
+    ${appWl('BBRI')}
+    ${appChart({tk:'BBRI',name:'Bank Rakyat Indonesia · 1D',px:'4,820',rising:true})}
+    ${appObHot(4805)}
+    ${appAlpha({
+      subtitle:'Smart money di BBRI',
+      body:`
+        <div class="al-msg"><p><em>Broker MG</em> sedang akumulasi BBRI di level <strong>4.805</strong>. Level sama, 4 sesi berturut-turut. Volatilitas rendah. Pola institusional.</p></div>
+        <div class="t-card">
+          <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Smart Money</div></div>
+          <div class="t-title">Akumulasi MG — 4 sesi</div>
+          <div class="t-body">Rata-rata <strong>142K lot/hari</strong> · rentang harga ketat: <em>4.800–4.810</em> · tidak ada tekanan jual. Ini akumulasi, bukan sekadar trading.</div>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">📍</div>
+          <div class="al-ref-b">Level entry 4.805 = di sinilah smart money loading. Ask saat ini 4.820 — 15 poin di atas band MG.</div>
+          <div class="al-ref-pct" style="color:var(--tm2)">15</div>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">⏱</div>
+          <div class="al-ref-b">Pola biasanya selesai dalam <strong>2–3 sesi</strong> sejak akumulasi berakhir.</div>
+          <div class="al-ref-pct" style="color:var(--t3)">2–3h</div>
+        </div>
+        <div class="al-sug">
+          <button class="al-sug-c">Lihat riwayat MG</button>
+          <button class="al-sug-c">Bandingkan broker flow</button>
+          <button class="al-sug-c">Atur alert di 4.805</button>
+        </div>
+      `
+    })}
+    ${appRail(true)}
+  </div>
+  ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S4 · 0:21–0:26 · SMART MONEY','Alpha sees the order book differently.','The Aurora-highlighted row at 4,805 is Broker MG. Same bid, 4 sessions, 142K lots/day. Alpha\'s panel explains the pattern — this is accumulation, not noise. Chart, order book, and Alpha panel all aligned on the same signal.','Alpha state · open · OB hot row 4,805 + panel explanation')}
+`,
+
+// ── S5 · Broker flow — inline t-card, no panel
+s5: () => `
+${dtOpen([{tk:'BBRI',name:'Bank Rakyat Indonesia · Broker Flow',act:true}])}
+  <div class="app">
+    ${appNav()}
+    ${appWl('BBRI')}
+    <div class="app-chart" style="grid-area:chart;display:flex;flex-direction:column;overflow:hidden">
+      <div class="bv-h">
+        <div class="bv-h-t">Broker Distribution</div>
+        <div class="bv-h-tk">BBRI · 13 Mei 2025</div>
+        <div style="margin-left:auto;display:flex;gap:8px;font-size:9px">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(48,209,88,.65);display:block"></span>Buy</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(255,69,58,.65);display:block"></span>Sell</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:var(--tm-grad);display:block"></span>Alpha signal</span>
+        </div>
+      </div>
+      <div class="bv-body">
+        <div class="bv-sect">Broker Pembeli Terbesar</div>
+        ${[
+          {n:'MG',buy:142000,hot:true},
+          {n:'YP',buy:84000,hot:false},
+          {n:'RX',buy:61000,hot:false},
+          {n:'OD',buy:48000,hot:false},
+          {n:'BK',buy:32000,hot:false},
+        ].map(b=>`
+          <div class="bv-row">
+            <div class="bv-name">${b.n}</div>
+            <div class="bv-bar-wrap"><div class="bv-bar buy ${b.hot?'hl':''}" style="width:${Math.round(b.buy/1500)}%"></div></div>
+            <div class="bv-lot">${(b.buy/1000).toFixed(0)}K lot</div>
+          </div>`).join('')}
+        <div class="bv-sect" style="margin-top:4px">Broker Penjual Terbesar</div>
+        ${[
+          {n:'ZP',sell:96000},{n:'FZ',sell:72000},{n:'CC',sell:58000},{n:'GR',sell:41000},
+        ].map(b=>`
+          <div class="bv-row">
+            <div class="bv-name">${b.n}</div>
+            <div class="bv-bar-wrap"><div class="bv-bar sell" style="width:${Math.round(b.sell/1500)}%"></div></div>
+            <div class="bv-lot">${(b.sell/1000).toFixed(0)}K lot</div>
+          </div>`).join('')}
+        <!-- Inline Alpha t-card -->
+        <div class="t-card" style="margin-top:14px">
+          <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Smart Money</div></div>
+          <div class="t-title">MG: 4 sesi, level sama. Ini akumulasi.</div>
+          <div class="t-body">Broker MG membeli <strong>142K lot/hari</strong> di 4.800–4.810 selama 4 sesi berturut-turut. Bid stacking volatilitas rendah — pola akumulasi institusional. Sisi jual tersebar di 4 nama: tidak ada penjual tunggal dominan.
+          <div class="t-cta">→ Buka analisis Alpha lengkap</div></div>
+        </div>
+      </div>
+    </div>
+    ${appOb({tk:'BBRI',px:'4,820',chg:'+60',pct:'+1.26',open:'4,780',prev:'4,760',low:'4,760',hi:'4,840',ara:'6,426',arb:'3,094',avg:'4,805'})}
+    ${appRail(false)}
+  </div>
+  ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S5 · 0:24–0:28 · BROKER FLOW','Alpha ambient — no panel needed.','Broker distribution view: BBRI. MG\'s bar glows Aurora because Alpha flagged it. The inline t-card explains the pattern without opening the full panel. Alpha fits the workflow — light-touch when that\'s all you need.','Alpha state · closed · inline t-card only')}
+`,
+
+// ── S6 · Accumulation alert — Alpha proposes an order
+s6: () => `
+${dtOpen([{tk:'BBRI',name:'Bank Rakyat Indonesia',chg:'+1.26%',act:true,tags:[{t:'IDX'}]}])}
+  <div class="app alpha-open">
+    ${appNav()}
+    ${appWl('BBRI')}
+    ${appChart({tk:'BBRI',name:'Bank Rakyat Indonesia · 1D',px:'4,820',rising:true})}
+    ${appObHot(4805)}
+    ${appAlpha({
+      subtitle:'Alpha merekomendasikan order',
+      body:`
+        <div class="al-msg"><p>MG akumulasi di <em>4.805</em> selama 4 sesi. Di sinilah smart money berpijak. Alpha sarankan masuk di level mereka.</p></div>
+        <div class="order-draft">
+          <div class="od-lbl">Alpha · Order Rekomendasi</div>
+          <div class="od-stock-row">
+            <div class="od-stock">BBRI</div>
+            <div class="od-badge">BELI LIMIT</div>
+          </div>
+          <div class="od-price">Rp 4.805</div>
+          <div class="od-detail">113 lot · Rp <strong>54.296.500</strong> · margin cukup</div>
+          <div class="od-why">Sesuai level akumulasi Broker MG (4 sesi, 142K lot/hari). Limit di bawah harga saat ini — masuk di level smart money, bukan di atasnya.</div>
+          <div class="od-actions">
+            <button class="od-btn dismiss">Abaikan</button>
+            <button class="od-btn send">Kirim Order →</button>
+          </div>
+        </div>
+        <div class="al-sug" style="margin-top:4px">
+          <button class="al-sug-c">Ubah jumlah lot</button>
+          <button class="al-sug-c">Ganti ke Market</button>
+        </div>
+      `
+    })}
+    ${appRail(true)}
+  </div>
+  ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S6 · 0:27–0:30 · ACCUM ALERT','Alpha proposes an action — not just an insight.','Alpha doesn\'t just explain the pattern. It drafts the order: Buy Limit BBRI at 4,805 — where Broker MG has been loading for 4 sessions. One click to send. This is the vision-state moment: AI as trading partner, not just data layer.','Alpha state · open · order draft inside panel · vision-state')}
+`,
+
+// ── S7 · Macro strip — Gold lights up, Alpha bridges to equities
+s7: () => `
+${dtOpen([{tk:'ANTM',name:'Aneka Tambang Tbk.',act:true,tags:[{t:'Gold β 1.28'}]}])}
+  <div class="app alpha-open">
+    ${appNav()}
+    ${appWl('ANTM')}
+    <div class="app-chart" style="grid-area:chart;display:flex;flex-direction:column;overflow:hidden">
+      <!-- Macro strip at top -->
+      <div class="macro-strip">
+        ${[
+          {lbl:'IHSG',px:'7,142',chg:'+0.62%',up:true,hot:false},
+          {lbl:'Gold',px:'$3,248',chg:'+1.41%',up:true,hot:true},
+          {lbl:'USD/IDR',px:'16,284',chg:'+0.18%',up:false,hot:false},
+          {lbl:'US 10Y',px:'4.48%',chg:'+3bps',up:false,hot:false},
+          {lbl:'Crude',px:'$63.8',chg:'+0.84%',up:true,hot:false},
+          {lbl:'Coal',px:'$118',chg:'+1.12%',up:true,hot:false},
+          {lbl:'Nickel',px:'$16,840',chg:'+0.55%',up:true,hot:false},
+        ].map(c=>`<div class="macro-cell ${c.hot?'hot':''}">
+          <div class="mc-lbl">${c.lbl}</div>
+          <div class="mc-px">${c.px}</div>
+          <div class="mc-chg ${c.hot?'hl':c.up?'up':'dn'}">${c.up?'▲':'▼'} ${c.chg}</div>
+        </div>`).join('')}
+      </div>
+      <div class="ch-h">
+        <div class="ch-tk">ANTM</div><div class="ch-name">Aneka Tambang Tbk. · 1D</div>
+        <div class="ch-tags"><div class="ch-tag">9 GT</div><div class="ch-tag tl">Gold β</div></div>
+        <div class="ch-tab-row"><div class="ch-sub act">Chart</div><div class="ch-sub">Insider</div><div class="ch-sub">Done Details</div></div>
+      </div>
+      <div class="ch-tools">
+        <span class="ch-tool act">1D</span><span class="ch-tool">Indicators</span><span class="ch-tool">⚡ Alert</span>
+        <div class="ch-tf"><span class="ch-tf-b">5m</span><span class="ch-tf-b">15m</span><span class="ch-tf-b">1h</span><span class="ch-tf-b act">1D</span><span class="ch-tf-b">1W</span><span class="ch-tf-b">1M</span></div>
+      </div>
+      <div class="ch-canvas">
+        ${candleSVG(true)}
+        <div class="ch-axis-l"><span>6,200</span><span>6,000</span><span>5,800</span><span>5,600</span><span>5,400</span></div>
+        <div class="ch-axis-b"><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span></div>
+        <div class="ch-px-label">5,940</div>
+      </div>
+    </div>
+    ${appOb({tk:'ANTM',px:'5,940',chg:'+190',pct:'+2.42',open:'5,800',prev:'5,750',low:'5,720',hi:'5,960',ara:'7,762',arb:'3,738',avg:'5,880'})}
+    ${appAlpha({
+      subtitle:'Makro → Jembatan ke Ekuitas',
+      body:`
+        <div class="al-msg"><p>Gold naik <em>+1,41%</em> hari ini. Kamu pegang dua saham berkorelasi gold. Ini dampaknya bagi posisimu:</p></div>
+        <div class="t-card">
+          <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Makro</div></div>
+          <div class="t-title">Gold +1,4% → ANTM, MDKA dalam radar</div>
+          <div class="t-body">Beta ANTM terhadap gold: <strong>1,28</strong>. Dengan gold +1,4%, ekspektasi tailwind ANTM +1,8% — saat ini di <strong>Rp 5.940 +2,42%</strong>, sesuai perkiraan.<br><br>Beta MDKA: <strong>1,44</strong> — lebih responsif. Saat ini ketinggalan (baru +1,92%). Berpotensi catch-up.</div>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">🥇</div>
+          <div class="al-ref-b">Korelasi gold dengan ANTM (90 hari): <strong>r=0,82</strong>. Terkuat di sektor tambang IDX.</div>
+          <div class="al-ref-pct" style="color:var(--tm2)">r=0,82</div>
+        </div>
+        <div class="al-ref">
+          <div class="al-ref-tk">⚡</div>
+          <div class="al-ref-b">MDKA lag hari ini. Jika gold bertahan, MDKA punya potensi catch-up +0,7% intraday.</div>
+          <div class="al-ref-pct" style="color:var(--green)">+0,7%</div>
+        </div>
+        <div class="al-sug">
+          <button class="al-sug-c">Tampilkan chart MDKA</button>
+          <button class="al-sug-c">Gold 3 bulan terakhir</button>
+        </div>
+      `
+    })}
+    ${appRail(true)}
+  </div>
+  ${appAcct('ANTM','ANTM · 1,890 lot · Avg Rp 5,750 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S7 · 0:33–0:37 · MACRO','Gold moves. Alpha tells you which stocks move with it.','The macro strip at the top of the chart panel. Gold cell pulses Aurora. Alpha panel opens with the correlation breakdown — not just "gold is up", but which of your holdings are correlated, by how much, and which is lagging.','Alpha state · nudge → open · macro strip · cross-asset reasoning')}
+`,
+
+// ── S0b · Terminal landing — Alpha closed, pulses softly in rail
+s0b: () => `
+${dtOpen([
+  {tk:'ANTM',name:'Aneka Tambang Tbk.',act:true,tags:[{t:'9 GT'},{t:'TL',c:'tl'}]},
+  {tk:'Watchlist',name:''}
+])}
+  <div class="app">
+    ${appNav()}
+    ${appWl('ANTM')}
+    ${appChart({tk:'ANTM',name:'Aneka Tambang Tbk. · 1D',px:'4,500',rising:true})}
+    ${appOb()}
+    ${appRail(false)}
+  </div>
+  ${appAcct()}
+${dtClose()}
+${cap('S0b · 0:06–0:09 · LANDING','Terminal launches. Alpha lives in the right rail.','Clean opening shot of the Ajaib Terminal desktop app. Multi-panel layout: sidebar nav → watchlist (Saham Saya) → ANTM chart center → Order Book right → Alpha rail on the far right with a soft pulse and a "3 new signals" badge. Inline T-pills mark BBRI/TLKM in the watchlist. Alpha is ambient — not demanding attention yet.','Alpha state · closed · rail pulsing · 3 signals queued')}
+`,
+
+// ── S8 · Foreign flow — inline acceleration tag, Alpha closed
+s8: () => `
+${dtOpen([{tk:'ANTM',name:'Aneka Tambang · Foreign Flow',act:true}])}
+  <div class="app">
+    ${appNav()}
+    ${appWl('ANTM')}
+    <div class="app-chart" style="grid-area:chart;display:flex;flex-direction:column;overflow:hidden">
+      <div class="ff-h">
+        <div class="ff-h-t">Foreign Flow</div>
+        <div style="font-size:11px;color:var(--t3);margin-left:6px">ANTM · Intraday</div>
+        <div style="margin-left:auto;display:flex;gap:8px;font-size:9px;align-items:center">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(48,209,88,.7);display:block"></span>Net Buy</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(255,69,58,.7);display:block"></span>Net Sell</span>
+        </div>
+      </div>
+      <div class="ff-canvas">
+        <div class="ff-acc-tag" style="margin-bottom:10px">
+          <div class="t-mark" style="width:12px;height:12px"></div>
+          <div class="ff-acc-lbl">Alpha · Velocity</div>
+          <div class="ff-acc-val">3.4×</div>
+        </div>
+        <svg width="100%" height="82%" viewBox="0 0 580 260" preserveAspectRatio="none">
+          ${(()=>{
+            const sessions=['08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','12:00','13:00','13:15','13:30','13:45','14:00','14:15','14:30','14:45','15:00','15:15','15:30'];
+            const vals=[1.2,-0.8,2.1,1.6,-0.4,3.2,2.8,1.1,-1.2,2.4,3.8,4.2,3.6,2.9,4.8,6.2,7.8,9.4,12.6,16.2,18.8,22.4,26.8,31.2];
+            const max=Math.max(...vals.map(Math.abs))*1.15;
+            const barW=580/vals.length-2;
+            return vals.map((v,i)=>{
+              const isLast3=i>=vals.length-3;
+              const h=Math.abs(v)/max*100;
+              const y=v>=0?130-h:130;
+              const col=isLast3?'url(#accGrad)':v>=0?'rgba(48,209,88,.7)':'rgba(255,69,58,.7)';
+              return `<rect x="${i*(barW+2)+1}" y="${y}" width="${barW}" height="${h}" fill="${col}" rx="2"/>`;
+            }).join('')+'<defs><linearGradient id="accGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8B7CFF"/><stop offset="100%" stop-color="#6EE7F7"/></linearGradient></defs>'
+              +'<line x1="0" y1="130" x2="580" y2="130" stroke="rgba(255,255,255,.08)" stroke-width="1"/>'
+              +'<text x="574" y="60" fill="#6EE7F7" font-size="8" font-family="Inter,sans-serif" font-weight="700" text-anchor="end">3.4× avg</text>';
+          })()}
+        </svg>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:8px;color:var(--t3)">
+          <span>08:45</span><span>10:00</span><span>11:30</span><span>13:00</span><span>14:30</span><span>15:30</span>
+        </div>
+        <div style="margin-top:10px;padding:8px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;font-size:10px;color:var(--t2)">
+          Net beli asing hari ini: <strong style="color:var(--t1)">Rp 214,8 miliar</strong> · 1 jam terakhir: <span style="color:var(--tm2);font-weight:700">Rp 89,2 miliar (3,4× rata-rata 5 hari)</span> · Tren: <span style="color:var(--green);font-weight:600">akselerasi</span>
+        </div>
+      </div>
+    </div>
+    ${appOb({tk:'ANTM',px:'5,940',chg:'+190',pct:'+2.42',open:'5,800',prev:'5,750',low:'5,720',hi:'5,960',ara:'7,762',arb:'3,738',avg:'5,880'})}
+    ${appRail(false)}
+  </div>
+  ${appAcct('ANTM','ANTM · 1,890 lot · Avg Rp 5,750 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S8 · 0:36–0:40 · FOREIGN FLOW','Foreign buying accelerating — Alpha marks the velocity.','Foreign flow chart for ANTM. The last hour bars glow Aurora with a "3.4× velocity" tag — Alpha\'s inline signal without opening the full panel. The data is visible; Alpha adds the interpretation.','Alpha state · closed · inline acceleration tag')}
+`,
+
+// ── S9 · Desktop toast — urgent entry window
+s9: () => `
+<div class="desktop">
+  <div class="dt-chrome">
+    <div class="dt-lights"><div class="dt-light r"></div><div class="dt-light y"></div><div class="dt-light g"></div></div>
+    <div class="dt-title" style="position:absolute;left:50%;transform:translateX(-50%);font-size:11px;color:var(--t3)">macOS Desktop</div>
+  </div>
+  <div class="dt-screen" style="background:linear-gradient(135deg,#0d1117 0%,#0a0e1a 50%,#0a0a0c 100%);position:relative;align-items:center;justify-content:center;display:flex;flex-direction:column;gap:10px">
+    <!-- Wallpaper hint -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(10,30,60,.6),transparent 60%),radial-gradient(ellipse at 20% 70%,rgba(30,10,60,.4),transparent 50%);pointer-events:none"></div>
+    <!-- Dock hint at bottom -->
+    <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:flex-end">
+      ${['🗂','📧','📊','💬','⚙','🌐','📱'].map(ic=>`<div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:16px">${ic}</div>`).join('')}
+    </div>
+    <!-- OS Toast - large/prominent -->
+    <div class="os-toast" style="position:relative;top:auto;right:auto;width:340px;animation:toastIn .4s cubic-bezier(.34,1.56,.64,1)">
+      <div class="os-toast-ic"></div>
+      <div class="os-toast-bd">
+        <div class="os-toast-app">Alpha · Ajaib Terminal</div>
+        <div class="os-toast-title">Peluang entry ANTM ~12 menit lagi.</div>
+        <div class="os-toast-sub">Velocity asing 3,4×. Korelasi gold aktif. MG bid stacking di 5.800.</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--t3);text-align:center;z-index:1">Alpha · Ajaib Terminal · Memantau pasar saat kamu pergi</div>
+  </div>
+</div>
+${cap('S9 · 0:40–0:45 · TOAST','Alpha watches even when you\'re not.','Full-screen macOS desktop — Terminal not open. Alpha sends an urgent notification: ANTM entry window ~12 minutes. Foreign velocity, gold correlation, and broker accumulation all converging. Alpha doesn\'t need you to be in the app.','Alpha state · closed · OS notification urgent · cross-signal')}
+`,
+
+// ── S10 · Chart annotated by Alpha — TLKM stacked observations
+s10: () => `
+${dtOpen([{tk:'TLKM',name:'Telkom Indonesia',chg:'-0.56%',act:true,tags:[{t:'VOL 3.2×'},{t:'TL',c:'tl'}]}])}
+  <div class="app alpha-open">
+    ${appNav()}
+    ${appWl('TLKM')}
+    ${appChartAnnotated()}
+    ${appOb({tk:'TLKM',px:'3,540',chg:'-20',pct:'-0.56',open:'3,560',prev:'3,560',low:'3,500',hi:'3,580',ara:'4,806',arb:'2,314',avg:'3,530'})}
+    ${appAlpha({
+      subtitle:'Tiga sinyal, satu cerita',
+      body:`
+        <div class="al-msg"><p>TLKM punya tiga kejadian tidak biasa dalam 30 hari terakhir — masing-masing adalah titik data tersendiri. Bersama-sama, Alpha membacanya sebagai satu pola.</p></div>
+        <div class="t-card">
+          <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Sinyal 1</div></div>
+          <div class="t-title">Lonjakan volume — 3,2× rata-rata 5 hari</div>
+          <div class="t-body">Volume 28 Apr mencapai <strong>3,2× rata-rata</strong>. Tidak berkorelasi dengan pergerakan indeks. Akumulasi atau distribusi tidak biasa — harga flat, mengindikasikan penyerapan (absorption).</div>
+        </div>
+        <div class="t-card">
+          <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Sinyal 2</div></div>
+          <div class="t-title">Waran TLKMW naik 540% dalam 10 sesi</div>
+          <div class="t-body">Aktivitas waran seekstrem ini biasanya mendahului aksi korporasi atau pergerakan ekuitas besar. Rights issue di Rp 3.200 sudah mendapat persetujuan OJK.</div>
+        </div>
+        <div class="t-card">
+          <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Sinyal 3</div></div>
+          <div class="t-title">Pembelian insider — 5 Mei</div>
+          <div class="t-body">Direktur Utama membeli <strong>18,4 juta saham</strong> di harga 3.450. Insider membeli di level saat ini — insider jarang membeli sebelum berita buruk.</div>
+        </div>
+        <div class="al-sug">
+          <button class="al-sug-c">Pola historis</button>
+          <button class="al-sug-c">Cluster serupa</button>
+        </div>
+      `
+    })}
+    ${appRail(true)}
+  </div>
+  ${appAcct('TLKM','TLKM · 42 lot · Avg Rp 3,560 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S10 · 0:45–0:50 · CHART + ALPHA','Alpha reads the chart — and annotates it.','TLKM chart with three Alpha annotation markers in cyan: volume spike, warrant activity, director filing. The Alpha panel stacks all three into a coherent narrative. This is Alpha\'s depth — not one signal, but the pattern across signals.','Alpha state · open · chart annotations + panel narrative')}
+`,
+
+// ── S11 · Cluster — narrative pattern matching across 3 stocks
+s11: () => `
+${dtOpen([{tk:'TLKM',name:'Cluster Analysis',act:true,tags:[{t:'TL',c:'tl'}]}])}
+  <div class="app alpha-open">
+    ${appNav()}
+    ${appWl('TLKM')}
+    ${appChart({tk:'TLKM',name:'Telkom Indonesia · 1D',px:'3,540',rising:false})}
+    ${appOb({tk:'TLKM',px:'3,540',chg:'-20',pct:'-0.56',open:'3,560',prev:'3,560',low:'3,500',hi:'3,580',ara:'4,806',arb:'2,314',avg:'3,530'})}
+    ${appAlpha({
+      subtitle:'Cluster pre-akumulasi',
+      body:`
+        <div class="al-msg"><p>Alpha menemukan <em>3 saham</em> dengan fingerprint pre-akumulasi yang sama seperti TLKM pada Oktober 2024 — sebelum naik +38%.</p></div>
+        <div class="cluster-grid">
+          <div class="cluster-item match">
+            <div class="ci-head">
+              <div class="ci-tk">TLKM</div>
+              <div class="ci-name">Telkom · acuan</div>
+              <div class="ci-score" style="color:var(--tm2)">Match: 94%</div>
+            </div>
+            ${sparkline('flat','#6EE7F7')}
+            <div class="ci-tags">
+              <div class="ci-tag">Lonjakan Vol</div><div class="ci-tag">Waran +540%</div><div class="ci-tag">Beli Insider</div>
+            </div>
+          </div>
+          <div class="cluster-item match">
+            <div class="ci-head">
+              <div class="ci-tk">ISAT</div>
+              <div class="ci-name">Indosat Ooredoo</div>
+              <div class="ci-score">Match: 81%</div>
+            </div>
+            ${sparkline('flat','#8B7CFF')}
+            <div class="ci-tags">
+              <div class="ci-tag">Lonjakan Vol</div><div class="ci-tag">Beli Asing</div>
+            </div>
+          </div>
+          <div class="cluster-item match">
+            <div class="ci-head">
+              <div class="ci-tk">EXCL</div>
+              <div class="ci-name">XL Axiata</div>
+              <div class="ci-score">Match: 76%</div>
+            </div>
+            ${sparkline('flat','rgba(139,124,255,.6)')}
+            <div class="ci-tags">
+              <div class="ci-tag">Akumulasi Broker</div><div class="ci-tag">Volatilitas Rendah</div>
+            </div>
+          </div>
+        </div>
+        <div class="al-msg" style="margin-top:4px"><p style="color:var(--t3);font-size:10px">Pola konsolidasi sektor telekomunikasi. Cluster TLKM sebelumnya pada Okt 2024 berakhir dengan +38% dalam 6 minggu. Preseden historis — bukan jaminan.</p></div>
+        <div class="al-sug">
+          <button class="al-sug-c">Kasus TLKM Okt 2024</button>
+          <button class="al-sug-c">Lihat detail ISAT</button>
+        </div>
+      `
+    })}
+    ${appRail(true)}
+  </div>
+  ${appAcct('TLKM','TLKM · 42 lot · Avg Rp 3,560 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S11 · 0:48–0:54 · CLUSTER','Alpha finds the pattern before the move.','Alpha\'s deepest read: three telco stocks showing the same pre-accumulation fingerprint. TLKM as anchor (94% match), ISAT at 81%, EXCL at 76%. Same pattern preceded TLKM\'s +38% run in October 2024. Alpha finds what no one was looking for.','Alpha state · open · cluster visualization · pattern matching')}
+`,
+
+// ── S12 · Corp timeline — historical impact annotations, Alpha closed
+s12: () => `
+${dtOpen([{tk:'BBRI',name:'Bank Rakyat Indonesia',chg:'+1.26%',act:true,tags:[{t:'IDX'}]}])}
+  <div class="app">
+    ${appNav()}
+    ${appWl('BBRI')}
+    <div class="app-chart" style="grid-area:chart;display:flex;flex-direction:column;overflow:hidden">
+      <div class="ch-h">
+        <div class="ch-tk">BBRI</div><div class="ch-name">Bank Rakyat Indonesia · 1D</div>
+        <div class="ch-tags"><div class="ch-tag">IDX</div></div>
+        <div class="ch-tab-row"><div class="ch-sub act">Chart</div><div class="ch-sub">Insider</div><div class="ch-sub">Done Details</div></div>
+      </div>
+      <div class="ch-tools">
+        <span class="ch-tool act">1D</span><span class="ch-tool">Indicators</span><span class="ch-tool">⚡ Alert</span>
+        <div class="ch-tf"><span class="ch-tf-b">5m</span><span class="ch-tf-b">15m</span><span class="ch-tf-b">1h</span><span class="ch-tf-b act">1D</span><span class="ch-tf-b">1W</span><span class="ch-tf-b">1M</span></div>
+      </div>
+      <div class="ch-canvas" style="flex:1">
+        ${candleSVG(true)}
+        <div class="ch-axis-l"><span>5,000</span><span>4,800</span><span>4,600</span><span>4,400</span><span>4,200</span></div>
+        <div class="ch-axis-b"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span></div>
+        <div class="ch-px-label">4,820</div>
+      </div>
+      <!-- Corp timeline strip -->
+      <div class="ch-timeline">
+        ${[
+          {lbl:'Ex-Date Div',date:'15 Nov 24',impact:'-1.6%',dir:'dn',future:false},
+          {lbl:'Earnings Q3',date:'28 Nov 24',impact:'+2.4%',dir:'up',future:false},
+          {lbl:'Ex-Date Div',date:'3 Feb 25',impact:'-1.8%',dir:'dn',future:false},
+          {lbl:'Earnings Q4',date:'27 Feb 25',impact:'+3.1%',dir:'up',future:false},
+          {lbl:'Ex-Date Div',date:'14 Apr 25',impact:'-2.0%',dir:'dn',future:false},
+          {lbl:'Earnings Q1',date:'13 Mei 25',impact:'proj −1.8%',dir:'proj',future:true},
+        ].map(e=>`
+          <div class="tl-event">
+            <div class="tl-dot ${e.future?'future':'past'}"></div>
+            <div class="tl-date">${e.date}</div>
+            <div class="tl-label">${e.lbl}</div>
+            <div class="tl-impact ${e.dir}">${e.impact}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    ${appOb({tk:'BBRI',px:'4,820',chg:'+60',pct:'+1.26',open:'4,780',prev:'4,760',low:'4,760',hi:'4,840',ara:'6,426',arb:'3,094',avg:'4,805'})}
+    ${appRail(false)}
+  </div>
+  ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+${dtClose()}
+${cap('S12 · 0:52–0:57 · CORP TIMELINE','Alpha anchors the future to the past.','Below the chart: Alpha\'s corporate action timeline. Every past ex-date, every earnings day, average impact, and the upcoming earnings projection. Last 5 ex-dates: avg −1.8% on day, +3.6% recovery in 7 sessions. Alpha projects the same for 13 May — inline, no panel needed.','Alpha state · closed · inline timeline annotation')}
+`,
+
+// ── S13 · Companion handoff — desktop → mobile
+s13: () => `
+<div class="companion-block">
+  <div class="companion-desk">
+    <div class="desktop">
+      <div class="dt-chrome">
+        <div class="dt-lights"><div class="dt-light r"></div><div class="dt-light y"></div><div class="dt-light g"></div></div>
+        <div class="dt-title">Ajaib Terminal</div>
+      </div>
+      <div class="dt-screen">
+        <div class="app alpha-open" style="pointer-events:none">
+          ${appNav()}${appWl('BBRI')}${appChart({tk:'BBRI',px:'4,820',rising:true})}${appObHot(4805)}
+          ${appAlpha({subtitle:'Smart money di BBRI',body:`<div class="al-msg"><p>Broker MG akumulasi di <em>4.805</em>. Level sama, 4 sesi. Pola selesai dalam 2–3 sesi.</p></div><div class="order-draft"><div class="od-lbl">Alpha · Order Rekomendasi</div><div class="od-stock-row"><div class="od-stock">BBRI</div><div class="od-badge">BELI LIMIT</div></div><div class="od-price">Rp 4.805</div></div>`})}
+          ${appRail(true)}
+        </div>
+        ${appAcct('BBRI')}
+      </div>
+    </div>
+  </div>
+  <!-- Phone: Alpha push notification -->
+  ${phoneFrame(`
+    <div class="phone-push">
+      <div class="pp-head">
+        <div class="pp-app-ic"></div>
+        <div class="pp-app-name">Alpha · Ajaib Terminal</div>
+        <div class="pp-time">baru saja</div>
+      </div>
+      <div class="pp-title">BBRI — order limit siap dikirim.</div>
+      <div class="pp-body">Alpha menyiapkan order Beli Limit 4,805 · 113 lot saat kamu meninggalkan meja. Ketuk untuk tinjau.</div>
+    </div>
+    <div style="padding:16px 12px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:9px;color:var(--t3);text-align:center;margin-bottom:4px">Analisis terbaru Alpha untuk kamu</div>
+      <div class="t-card" style="margin:0">
+        <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Smart Money</div></div>
+        <div class="t-title">MG accumulation BBRI — 4 sessions</div>
+        <div class="t-body">142K lot/hari · level 4,800–4,810. Pola resolusi dalam 2–3 sesi.</div>
+        <div class="t-cta">→ Buka di Terminal</div>
+      </div>
+    </div>
+  `)}
+</div>
+${cap('S13 · 0:57–1:02 · COMPANION HANDOFF','Same Alpha. Different surface.','Desktop Terminal fades to background — you\'re away from your desk. Your phone buzzes: Alpha prepared the order limit while you were gone. Same insight, same context, ready to act on mobile. Alpha follows you.','Cross-device · desktop thinking → mobile action · same Alpha')}
+`,
+
+// ── S14 · Mobile morning brief — Alpha companion at strength
+s14: () => `
+<div style="display:flex;justify-content:center;width:100%">
+  ${phoneFrame(`
+    <div class="phone-brief">
+      <div class="pb-greeting">Selamat pagi, Michael</div>
+      <div class="pb-head">Pre-market brief dari <em>Alpha</em></div>
+      <div class="pb-sub">Bursa buka dalam 36 menit · 12 Mei 2025</div>
+      <div class="pb-card">
+        <div class="pb-num">01 · Portofoliomu</div>
+        <div class="pb-title">BBRI earnings besok. Alpha siap.</div>
+        <div class="pb-body">Kamu pegang 22% di BBRI. Consensus naik ke Buy. P/E 9.2× — murah vs historis. Limit order tersedia di 4,805 — level akumulasi MG.</div>
+        <div class="pb-cta">→ Tinjau order</div>
+      </div>
+      <div class="pb-card">
+        <div class="pb-num">02 · Makro hari ini</div>
+        <div class="pb-title">Gold +1.4% → ANTM, MDKA dalam radar.</div>
+        <div class="pb-body">ANTM beta 1.28 vs gold. MDKA beta 1.44 — lag kemarin, potensi catch-up hari ini.</div>
+        <div class="pb-cta">→ Lihat foreign flow</div>
+      </div>
+      <div class="pb-card">
+        <div class="pb-num">03 · Sinyal baru</div>
+        <div class="pb-title">TLKM, ISAT, EXCL — pola akumulasi serupa.</div>
+        <div class="pb-body">Alpha mendeteksi cluster 3 saham telco dengan fingerprint pre-akumulasi. Mirip TLKM Oktober 2024 sebelum naik 38%.</div>
+        <div class="pb-cta">→ Buka cluster view</div>
+      </div>
+      <div class="pb-footer">Alpha · Ajaib Terminal · update setiap hari pukul 08:00</div>
+    </div>
+  `)}
+</div>
+${cap('S14 · 0:59–1:04 · MORNING BRIEF','Alpha is already working before you are.','Phone solo. Pre-market digest from Alpha: three portfolio-specific actions in plain Bahasa Indonesia. Your positions, the macro, and new signals — curated and ready before the market opens. Mobile Alpha at its best.','Mobile companion · phone solo · Alpha pre-market brief')}
+`,
+
+// ── S15 · Hero close — Alpha across your investing life
+s15: () => `
+<div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+  <div style="position:relative;display:inline-block">
+    ${dtOpen([
+      {tk:'BBRI',name:'Bank Rakyat Indonesia',chg:'+1.26%',act:true,tags:[{t:'IDX'}]},
+      {tk:'ANTM',name:'Aneka Tambang',chg:'+2.42%',tags:[]},
+    ])}
+    <div class="app alpha-open">
+      ${appNav()}
+      <div class="app-wl">
+        <div class="wl-h"><div class="wl-h-t">Watchlist Saya ▾</div><div class="wl-h-add">+</div></div>
+        ${stocksData.map(s=>`
+          <div class="wl-row ${s.tk==='BBRI'?'act':''}">
+            <div class="wl-logo" style="background:${s.c}">${s.tk.slice(0,2)}</div>
+            <div class="wl-mid">
+              <div class="wl-tk">${s.tk}${s.tk==='BBRI'||s.tk==='ANTM'?` <span class="t-pill" style="margin-left:3px"><span class="t-mark"></span>α</span>`:s.tag?` <span class="tag">${s.tag}</span>`:''}</div>
+              <div class="wl-name">${s.name}</div>
+            </div>
+            <div class="wl-rt">
+              <div class="wl-px">${s.px}</div>
+              <div class="wl-pct ${s.up?'up':'dn'}">${s.up?'▲':'▼'} ${s.pct}%</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      ${appChartAnnotated()}
+      ${appObHot(4805)}
+      ${appAlpha({
+        subtitle:'Alpha di seluruh perjalanan investasimu',
+        body:`
+          <div class="al-msg"><p>Setiap sinyal. Setiap posisi. Setiap peluang — <em>disintesis untukmu</em>.</p></div>
+          <div class="t-card">
+            <div class="t-card-head"><div class="t-mark"></div><div class="t-label">Alpha · Sekarang</div></div>
+            <div class="t-title">3 sinyal aktif di portofoliomu</div>
+            <div class="t-body">Earnings BBRI 48 jam · Korelasi gold ANTM · Cluster TLKM match 94%</div>
+          </div>
+          <div class="al-ref"><div class="al-ref-tk">🧠</div><div class="al-ref-b">Alpha membaca portofoliomu, memantau pasar, dan memberitahumu apa yang penting — sesuai urutan kepentingannya.</div></div>
+        `
+      })}
+      ${appRail(true)}
+    </div>
+    ${appAcct('BBRI','BBRI · 113 lot · Avg Rp 4,760 · Dana Rp 12.420.000')}
+    ${dtClose()}
+    <!-- Phone PIP -->
+    <div class="hero-pip">
+      <div class="hero-pip-notch"></div>
+      <div class="hero-pip-screen">
+        <div class="hp-greeting">Pre-market Alpha</div>
+        <div class="hp-card">
+          <div class="hp-lbl">01 · BBRI</div>
+          <div class="hp-txt">Earnings besok. Limit order 4,805 siap dikirim.</div>
+        </div>
+        <div class="hp-card">
+          <div class="hp-lbl">02 · ANTM</div>
+          <div class="hp-txt">Gold +1.4% → catch-up potential hari ini.</div>
+        </div>
+        <div class="hp-card">
+          <div class="hp-lbl">03 · Cluster</div>
+          <div class="hp-txt">TLKM·ISAT·EXCL pola pre-akumulasi 94%.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Hero tagline -->
+  <div class="hero-cta-block">
+    <div class="hero-brand">Ajaib Terminal · Powered by Alpha</div>
+    <div class="hero-tagline">The edge. <em>For everyone.</em></div>
+  </div>
+</div>
+${cap('S15 · 1:07–1:17 · HERO CLOSE','The edge. For everyone.','Wide desktop frame: all Alpha moments active simultaneously — t-pills in the watchlist, chart annotations, hot OB row, panel open. Phone PIP at bottom-right shows the same Alpha insights in mobile form. One AI, both surfaces. Closing copy: Ajaib Terminal · Powered by Alpha · The edge. For everyone.','Hero composition · desktop + phone PIP · closing statement')}
+`,
+
+};
+
+// ─────────────────────────────────────────
+// Placeholder for unbuilt scenes
+// ─────────────────────────────────────────
+
+const sceneMeta = {
+  s0:  {tag:'S0 · 0:00–0:06 · HOOK', title:'Chaos hook — browser desktop noise', body:'Desktop browser with 30+ open tabs, Slack/WhatsApp pings firing, news widgets blinking. The everyday trader pre-Alpha — too many sources, no signal-to-noise. Establishes the problem we are solving.', meta:'No app chrome · pre-Alpha noise'},
+  s1:  {tag:'S1 · 0:09–0:13 · EARNINGS CAL', title:'Earnings calendar — Alpha picks what matters', body:'Feed panel scrolled to calendar. Proactive nudge from Alpha icon: "1 of 4 events affects your portfolio." User clicks → Alpha panel opens with breakdown.', meta:'Alpha state · nudge → open'},
+  s3:  {tag:'S3 · 0:15–0:18 · TOAST', title:'Desktop OS toast — earnings push', body:'macOS top-right notification, Alpha-branded. Appears over a partially visible Terminal window. "Alpha · BBRI earnings in 48h. You hold 22%."', meta:'Alpha state · closed · OS notification'},
+  s4:  {tag:'S4 · 0:21–0:26 · SMART MONEY', title:'Orderbook + Alpha panel — smart-money anomaly', body:'Stock detail with hot orderbook row (MG accumulating at 4,805) glowing Aurora. Alpha panel open with explanation: "Same broker, 4 sessions, low volatility." Multi-panel highlight — chart, OB row, and Alpha panel all aligned.', meta:'Alpha state · open · OB hot row + panel'},
+  s5:  {tag:'S5 · 0:24–0:28 · BROKER FLOW', title:'Broker flow — inline Alpha t-card', body:'Broker distribution view, no panel. Inline Alpha t-card embedded in the page explains MG accumulation pattern. Light-touch, ambient.', meta:'Alpha state · closed · inline-only'},
+  s6:  {tag:'S6 · 0:27–0:30 · ACCUM ALERT', title:'Alpha proposes an order — vision state', body:'Alpha panel takes focus with a recommended buy limit at 4,805 (MG\'s level). Inline order draft inside the panel. User can dismiss or one-click to send. This is the most vision-state moment.', meta:'Alpha state · open · order draft inside panel'},
+  s7:  {tag:'S7 · 0:33–0:37 · MACRO', title:'Macro strip — Alpha lights Gold', body:'Top market strip across the chart panel. Gold cell pulses Aurora. Alpha panel opens with correlation breakdown: "Gold +1.4% → ANTM, MDKA in play." Cross-asset reasoning.', meta:'Alpha state · nudge → open · macro strip'},
+  s8:  {tag:'S8 · 0:36–0:40 · FOREIGN FLOW', title:'Foreign flow — Alpha acceleration indicator', body:'Foreign flow chart for ANTM. Last hour bar Aurora gradient — "velocity 3.4×" tag. Alpha closed; inline only.', meta:'Alpha state · closed · inline acceleration tag'},
+  s9:  {tag:'S9 · 0:40–0:45 · TOAST', title:'Time-sensitive OS toast', body:'macOS notification: "Alpha · ANTM entry window ~12 min." Urgent. Pulse Dot icon. Appears full-screen, no Terminal visible.', meta:'Alpha state · closed · OS notification urgent'},
+  s10: {tag:'S10 · 0:45–0:50 · CHART + AI', title:'Chart annotated by Alpha', body:'TLKM chart with cyan annotations across vol spike, warrant activity, director filing. Alpha panel open with narrative card stacking the three observations into one story.', meta:'Alpha state · open · chart annotations'},
+  s11: {tag:'S11 · 0:48–0:54 · CLUSTER', title:'Narrative cluster — 3 stocks, same shape', body:'Alpha panel full view: cluster viz with TLKM, ISAT, EXCL showing similar pre-accumulation pattern. Alpha\'s deepest read — finds what others miss.', meta:'Alpha state · open · cluster visualisation in panel'},
+  s12: {tag:'S12 · 0:52–0:57 · CORP TIMELINE', title:'Corporate action timeline — historical impact', body:'Stock detail tab. Alpha closed; inline timeline annotation: "Last 5 ex-dates avg -1.8% on day, +3.6% recovery in 7 sessions." Future cyan dot projects same for upcoming event.', meta:'Alpha state · closed · inline timeline annotation'},
+  s13: {tag:'S13 · 0:57–1:02 · COMPANION', title:'The handoff — desktop thinking → mobile action', body:'Split frame: desktop Terminal scene fades into background. Foreground: same person, away from desk (coffee shop / train), phone buzzes with Alpha push. Same insight, different surface. The bridge moment.', meta:'Cross-device · desktop fade + phone push'},
+  s14: {tag:'S14 · 0:59–1:04 · MORNING BRIEF', title:'Mobile morning brief — Alpha companion', body:'Phone solo. Pre-market Alpha digest: 3 portfolio-specific actions, plain language. "Markets opening in 36 min." Mobile app as Alpha\'s on-the-go surface.', meta:'Mobile companion · phone solo'},
+  s15: {tag:'S15 · 1:07–1:17 · CLOSE', title:'Hero — Alpha across your investing life', body:'Wide desktop frame, Alpha moments lit across panels (rail pulsing, t-card in chart annotation, hot row in OB). Phone PIP at bottom-right showing the same Alpha insight in mobile form. "Ajaib Terminal · Powered by Alpha · The edge. For everyone."', meta:'Hero composition · desktop + phone PIP'},
+};
+
+function placeholderScene(key) {
+  const m = sceneMeta[key];
+  if (!m) return `<div class="placeholder"><div class="ph-title">Scene ${key.toUpperCase()} not registered</div></div>`;
+  return `
+    <div class="desktop">
+      <div class="dt-chrome">
+        <div class="dt-lights"><div class="dt-light r"></div><div class="dt-light y"></div><div class="dt-light g"></div></div>
+        <div class="dt-title">Ajaib Terminal — ${key.toUpperCase()}</div>
+      </div>
+      <div class="dt-screen">
+        <div class="placeholder">
+          <div class="ph-tag">${m.tag}</div>
+          <div class="ph-title">${m.title}</div>
+          <div class="ph-body">${m.body}</div>
+          <div class="ph-meta">${m.meta}</div>
+        </div>
+      </div>
+    </div>
+    ${cap(m.tag, m.title + ' · placeholder', 'This scene is registered in the plan but not yet built. Open <code>context.md</code> for the full scene table.', m.meta)}
+  `;
+}
+
+// ─────────────────────────────────────────
+// Render + navigation
+// ─────────────────────────────────────────
+
+let currentScene = 's0b';
+
+function render(key) {
+  currentScene = key;
+  const stage = document.getElementById('stage');
+  const html = scenes[key] ? scenes[key]() : placeholderScene(key);
+  stage.innerHTML = `<div class="desktop-block">${html}</div>`;
+}
+
+// Toggle Alpha panel — pairs between closed/open variants of scenes
+const alphaPairs = {s0b:'s2', s2:'s0b', s4:'s5', s5:'s4', s7:'s8', s8:'s7', s10:'s12', s12:'s10', s11:'s10'};
+window.toggleAlpha = function() {
+  const pair = alphaPairs[currentScene];
+  if (pair) goTo(pair);
+};
+
+window.goTo = function(key){
+  const c = document.querySelector(`.chip[data-s="${key}"]`);
+  if(c) c.click();
+};
+
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('act'));
+    c.classList.add('act');
+    render(c.dataset.s);
+  });
+});
+
+document.addEventListener('keydown',e=>{
+  const chips=[...document.querySelectorAll('.chip')];
+  const i=chips.findIndex(c=>c.classList.contains('act'));
+  if(e.key==='ArrowRight'&&i<chips.length-1)chips[i+1].click();
+  if(e.key==='ArrowLeft'&&i>0)chips[i-1].click();
+});
+
+// Initial render
+render('s0b');
+</script>
+
+</body>
+</html>
