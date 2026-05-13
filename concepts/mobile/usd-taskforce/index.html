@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib — USD Prime</title>
+<link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06090d;--nav-bg:#000d14;--sf:#171f2c;--bd:#2b3b4e;
+  --t1:#fff;--t2:#849dad;--t3:#5a6e7f;
+  --ab:#165bcc;--abl:#0758db;--ab1:#e1f2fa;
+  --db:#3a83f9;--dbd:#02225d;
+  --gr:#2f9d5b;--rd:#f65858;--good:#30d158;
+  --prime:#c9a96e;--prime-dim:#6b5840;
+  --mid-mkt:#5ac8fa;
+  --surface-2:#1f2a3d;--surface-3:#243349;
+  --font:'Gabarito',sans-serif;
+}
+.tabular{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+body{background:#030508;font-family:var(--font);color:var(--t1);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px;gap:16px}
+@media(max-width:500px),(pointer:coarse){
+  body{padding:0;background:#000;justify-content:flex-start}
+  .phone-wrap{width:100%!important;filter:none!important}
+  .phone-shell{width:100%!important;background:none!important;border-radius:0!important;padding:0!important}
+  .phone-shell::before{display:none}
+  .btn-pwr{display:none}
+  .screen{width:100%!important;height:100svh!important;border-radius:0!important}
+}
+.phone-wrap{position:relative;width:400px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.phone-shell{width:400px;background:linear-gradient(170deg,#2a2a2e,#1a1a1e 60%,#111);border-radius:52px;padding:10px;position:relative}
+.phone-shell::before{content:'';position:absolute;inset:0;border-radius:52px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.btn-pwr{position:absolute;right:-3px;top:160px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+.screen{width:380px;height:824px;border-radius:44px;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+.sub{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1}
+.sub.pushed{transform:translateX(-30px);pointer-events:none}
+.sub-slide{transform:translateX(100%)}
+.sub-slide.active{transform:translateX(0)}
+
+/* Main header */
+.hdr{flex-shrink:0;position:relative;width:100%;background:transparent;z-index:2}
+.hdr-bg{position:absolute;left:-281px;top:-326px;width:1002px;height:1002px;object-fit:cover;opacity:.4;pointer-events:none;z-index:0}
+.sbar{height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;position:relative;z-index:2}
+.sbar-time{font-size:14px;font-weight:500;color:#fff;opacity:.9}
+.sbar-ic{display:flex;align-items:center;gap:5px;margin-left:8px}
+.abar{height:52px;flex-shrink:0;display:flex;align-items:center;padding:0 8px 0 16px;position:relative;z-index:2}
+.abar-title{font-size:18px;font-weight:700;color:#fff;flex:1;padding:0 8px;line-height:24px}
+.ic40{width:40px;height:40px;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;position:relative}
+.avatar{width:24px;height:24px;border-radius:40px;background:linear-gradient(135deg,#0a84ff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff}
+
+.tcc{margin:0 16px;position:relative;z-index:1}
+.tcc-hdr{background:var(--sf);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;margin-bottom:-12px}
+.tcc-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tcc-lbl-row{display:flex;align-items:center;gap:4px}
+.tcc-lbl{font-size:12px;font-weight:400;color:var(--t2);line-height:18px}
+.tcc-amt{font-size:20px;font-weight:700;color:#fff;line-height:28px}
+.dep-btn{background:var(--abl);border-radius:8px;padding:8px;display:flex;align-items:center;gap:4px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:filter .12s}
+.dep-btn:active{filter:brightness(.88)}
+.dep-lbl{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.tcc-beard{background:linear-gradient(90deg,#0b2e66,#165bcc);border-radius:0 0 12px 12px;padding:20px 12px 8px;display:flex;align-items:center;gap:4px;position:relative;z-index:1}
+.sweep-txt{flex:1;font-size:12px;font-weight:700;color:#fff;line-height:18px}
+
+.qas{display:flex;align-items:flex-start;padding:16px 16px 32px;position:relative;z-index:2;gap:8px}
+.qa{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:0 8px;border-radius:12px;flex-shrink:0;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;width:59px}
+.qa-ic{width:40px;height:40px;border-radius:32px;background:rgba(2,34,93,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qa-lbl{font-size:10px;font-weight:800;color:#fff;white-space:nowrap;text-align:center;line-height:16px}
+.gratis{position:absolute;top:-7px;left:50%;transform:translateX(calc(-50% + .5px));background:var(--rd);color:#fff;font-size:8px;font-weight:700;padding:2px 8px;border-radius:16px;white-space:nowrap;z-index:3}
+.stockback-ic{position:relative;width:40px;height:40px;flex-shrink:0}
+.stockback-img{width:40px;height:40px;border-radius:50%;display:block}
+
+.cscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:transparent;position:relative;z-index:1}
+.cscroll::-webkit-scrollbar{display:none}
+.hero-wrap{padding:0 16px}
+.body-wrap{background:#0b1320;border-radius:16px 16px 0 0;padding:16px;display:flex;flex-direction:column;gap:16px}
+
+.cgrid{display:flex;flex-direction:column;gap:8px}
+.crow{display:flex;gap:8px}
+
+/* Wallet card — base */
+.wc{flex:1;min-width:0;height:188px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px 8px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;transition:filter .12s;position:relative}
+.wc.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wc.tap:active{filter:brightness(.88)}
+.wc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.wc-ico{width:40px;height:40px;object-fit:contain}
+.wc-body{display:flex;flex-direction:column;gap:4px;padding:4px;min-height:98px;position:relative;z-index:1}
+.wc-info{display:flex;flex-direction:column;gap:1px}
+.wc-name{font-size:11px;font-weight:500;color:var(--t2);line-height:16px}
+.wc-bal{font-size:15px;font-weight:700;color:#fff;line-height:20px;white-space:nowrap}
+.wc-sub-bal{font-size:10px;font-weight:500;color:var(--t2);line-height:14px;white-space:nowrap}
+.wc-sub{font-size:9px;font-weight:400;color:var(--t3);line-height:14px;margin-top:auto}
+.wc-yield-strip{display:flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--good);margin-top:4px;line-height:14px}
+
+/* Premium card — USD */
+.wc.prime{
+  background:linear-gradient(135deg,#0e1b34 0%,#171f2c 55%,#0c1424 100%);
+  border:1px solid rgba(201,169,110,.25);
+}
+.wc.prime::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at top right,rgba(201,169,110,.08),transparent 55%);
+  pointer-events:none;
+}
+
+/* Badges */
+.bdg-int{background:var(--ab1);color:var(--ab);border-radius:8px;padding:2px 8px;font-size:10px;font-weight:700;line-height:16px;display:inline-flex;align-items:center;gap:4px;align-self:flex-start}
+.bdg-proc{background:var(--dbd);color:var(--db);border-radius:8px;padding:2px 8px;font-size:10px;font-weight:700;line-height:16px;display:inline-flex;align-items:center;gap:4px;align-self:flex-start}
+.bdg-yield{background:var(--gr);color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:700;line-height:14px;white-space:nowrap;flex-shrink:0;letter-spacing:.02em}
+.autosweep{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;line-height:16px;padding:2px 8px;border-radius:8px;align-self:flex-start}
+.autosweep.on{background:rgba(47,157,91,.18);color:#2f9d5b}
+
+/* Banner */
+.bnr-wrap{position:relative;overflow:hidden;width:100%;touch-action:pan-y}
+.bnr-track{display:flex;gap:8px;transition:transform .35s ease}
+.bnr-track.drag{transition:none}
+.bnr-slide{width:328px;height:96px;flex-shrink:0;border-radius:8px;overflow:hidden}
+.bnr-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.bnr-dots{display:flex;gap:4px;justify-content:center;margin-top:8px}
+.bnr-dot{height:6px;border-radius:3px;background:var(--bd);transition:background .3s,width .3s;width:6px}
+.bnr-dot.act{background:var(--ab);width:16px}
+
+/* Bottom nav */
+.bnav{flex-shrink:0;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;z-index:2}
+.tabs{width:100%;background:var(--nav-bg);border-top:1px solid var(--bd);display:flex;align-items:center;padding-bottom:8px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;cursor:pointer;min-width:0}
+.tab-pip{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;border-radius:16px;padding:4px 2px}
+.tab.act .tab-pip{background:#0c293e}
+.tab-lbl{font-size:12px;font-weight:700;color:var(--ab);text-align:center;width:56px;line-height:18px}
+
+.qris-fab{position:absolute;right:16px;bottom:82px;display:flex;align-items:center;gap:6px;background:var(--ab);border-radius:24px;padding:11px 20px;box-shadow:0 4px 24px rgba(22,91,204,.5),0 1px 4px rgba(0,0,0,.4);cursor:pointer;z-index:20;-webkit-tap-highlight-color:transparent;transition:filter .15s,transform .15s}
+.qris-fab:active{filter:brightness(.88);transform:scale(.97)}
+.qris-fab-lbl{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.1px}
+
+/* Detail screen — new scroll structure */
+.det-nav{flex-shrink:0;height:60px;display:flex;align-items:flex-end;padding:0 16px 10px;gap:10px;border-bottom:1px solid var(--bd);background:var(--sf);z-index:6}
+.det-back{display:flex;align-items:center;gap:4px;color:var(--db);font-size:14px;font-weight:500;cursor:pointer;padding:4px 0}
+.det-title{flex:1;text-align:center;font-size:15px;font-weight:700;color:var(--t1)}
+.det-opts{width:60px;display:flex;justify-content:flex-end}
+.ic-btn-sm{width:34px;height:34px;border-radius:50%;background:rgba(58,131,249,.1);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* Single scroll body — hero scrolls with content, filter bar sticky */
+.det-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);position:relative}
+.det-body::-webkit-scrollbar{display:none}
+
+.det-hero{padding:14px 16px 12px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,#171f2c 0%,#1a2435 100%)}
+.det-hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.det-acctno{font-size:11px;color:var(--t2);letter-spacing:.05em;font-family:monospace}
+.det-amount{font-size:30px;font-weight:700;letter-spacing:-.7px;color:var(--t1);line-height:1.05}
+.det-amt-sub{font-size:12px;color:var(--t2);margin-top:3px}
+.det-yield{font-size:12px;font-weight:500;margin-top:6px;color:var(--db);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.det-yield-monthly{color:var(--good);font-weight:700}
+
+/* Settlement chip in detail hero */
+.det-settling-row{margin-top:8px}
+.det-settling-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--dbd);border:1px solid rgba(58,131,249,.3);
+  color:var(--db);font-size:11px;font-weight:700;
+  padding:5px 10px;border-radius:8px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:filter .12s;
+  max-width:100%;
+}
+.det-settling-chip:active{filter:brightness(.88)}
+.det-settling-chip-amt{font-variant-numeric:tabular-nums}
+.det-settling-chip-note{color:var(--t2);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.det-acts{display:flex;gap:10px;margin-top:12px}
+.det-btn{flex:1;padding:11px;border-radius:12px;font-size:13px;font-weight:700;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;border:none;font-family:var(--font);transition:filter .1s}
+.det-btn:active{filter:brightness(.88)}
+.det-btn-p{background:var(--ab);color:#fff}
+.det-btn-s{background:transparent;color:var(--t1);border:1px solid var(--bd)}
+
+/* Compact FX row */
+.fx-compact{
+  margin-top:12px;padding:9px 12px;
+  background:var(--surface-2);border:1px solid var(--bd);border-radius:10px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  display:flex;align-items:center;gap:10px;
+  transition:filter .12s;
+}
+.fx-compact:active{filter:brightness(.92)}
+.fx-compact-dot{width:6px;height:6px;border-radius:50%;background:var(--good);flex-shrink:0;animation:fxpulse 2.4s infinite}
+@keyframes fxpulse{0%{box-shadow:0 0 0 0 rgba(48,209,88,.5)}70%{box-shadow:0 0 0 6px rgba(48,209,88,0)}100%{box-shadow:0 0 0 0 rgba(48,209,88,0)}}
+.fx-compact-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.fx-compact-l1{font-size:12px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px}
+.fx-compact-l1 .trend{font-size:11px;font-weight:700}
+.fx-compact-l1 .trend.up{color:var(--good)}
+.fx-compact-l1 .trend.down{color:var(--rd)}
+.fx-compact-l2{font-size:10px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.fx-compact-l2 .hemat{color:var(--good);font-weight:700}
+.fx-compact-chev{color:var(--t3);flex-shrink:0}
+
+.trust-strip{font-size:10px;color:var(--t3);text-align:center;line-height:15px;padding:10px 16px}
+
+/* Sticky bar (statement header + filter) */
+.det-sticky{
+  position:sticky;top:0;z-index:5;background:var(--bg);
+  border-bottom:1px solid var(--bd);
+  box-shadow:0 1px 0 rgba(0,0,0,.2);
+}
+.txn-statement-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;background:var(--bg)}
+.txn-hdr-title{font-size:14px;font-weight:700;color:var(--t1)}
+.txn-hdr-tools{display:flex;align-items:center;gap:6px}
+.txn-tool{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:14px;background:var(--surface-2);border:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:var(--font);transition:filter .12s}
+.txn-tool:active{filter:brightness(.85)}
+.txn-tool.icon-only{padding:6px;color:var(--db);width:28px;height:28px;border-radius:50%;justify-content:center}
+.txn-tool svg{display:block}
+.txn-filter{display:flex;padding:0 16px 10px;background:var(--bg);overflow-x:auto;scrollbar-width:none;gap:4px}
+.txn-filter::-webkit-scrollbar{display:none}
+.txn-ftab{font-size:11px;font-weight:700;color:var(--t2);padding:5px 12px;border-radius:14px;background:transparent;border:1px solid var(--bd);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.txn-ftab.act{color:#fff;background:var(--ab);border-color:var(--ab)}
+
+.det-txn-list{padding-bottom:24px}
+.txn-group{padding:0 16px;background:var(--bg)}
+.txn-date{font-size:11px;font-weight:700;color:var(--t2);padding:14px 0 8px;letter-spacing:.03em;text-transform:uppercase}
+.txn-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.txn-row:last-child{border-bottom:none}
+.txn-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.txn-info{flex:1;min-width:0}
+.txn-name{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txn-sub{font-size:11px;color:var(--t2);margin-top:1px;display:flex;align-items:center;gap:6px}
+.txn-pill{font-size:9px;font-weight:700;color:var(--db);background:var(--dbd);padding:1px 6px;border-radius:8px}
+.txn-right{text-align:right;flex-shrink:0}
+.txn-amt{font-size:13px;font-weight:700}
+.txn-amt.in{color:var(--good)}
+.txn-amt.out{color:var(--t1)}
+.txn-amt.pending{color:var(--db)}
+.txn-bal{font-size:11px;color:var(--t2);margin-top:1px}
+
+/* FX bottom sheet */
+#sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .3s;z-index:30}
+#sheet-backdrop.open{opacity:1;pointer-events:auto}
+#sheet-fx,#sheet-settling{position:absolute;bottom:0;left:0;right:0;background:var(--sf);border-radius:16px 16px 0 0;border-top:1px solid var(--bd);padding:0 0 24px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:31;display:flex;flex-direction:column;max-height:78%}
+#sheet-fx.open,#sheet-settling.open{transform:translateY(0)}
+.sheet-handle{width:32px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 16px;flex-shrink:0}
+.sheet-title{font-size:16px;font-weight:700;color:var(--t1);padding:0 16px 16px;flex-shrink:0;border-bottom:1px solid var(--bd)}
+.sheet-body{padding:16px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.fx-rate-section{display:flex;flex-direction:column;gap:2px}
+.fx-rate-section-lbl{font-size:11px;color:var(--t2)}
+.fx-rate-section-val{font-size:16px;font-weight:700;color:var(--t1)}
+.fx-mid-val{font-size:26px;font-weight:700;color:var(--t1)}
+.fx-rate-ts{font-size:11px;color:var(--t2);margin-top:2px}
+.fx-divider{height:1px;background:var(--bd)}
+.fx-spread-note{font-size:11px;color:var(--t2);line-height:16px}
+.fx-vs-bca-card{padding:10px 12px;background:rgba(48,209,88,.08);border:1px solid rgba(48,209,88,.25);border-radius:8px;font-size:12px;color:var(--good);font-weight:700;display:flex;align-items:center;gap:8px}
+
+.settle-summary{padding:8px 16px 14px;display:flex;flex-direction:column;gap:12px}
+.settle-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--bd)}
+.settle-row:last-child{border-bottom:none}
+.settle-row-lbl{font-size:13px;color:var(--t2)}
+.settle-row-val{font-size:15px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums}
+.settle-row-val.muted{color:var(--db)}
+.settle-info{font-size:11px;color:var(--t2);line-height:16px}
+
+/* Deposit screens */
+.dep-screen{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.dep-screen::-webkit-scrollbar{display:none}
+.dep-section-lbl{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+
+.dep-bidi{position:relative;background:var(--surface-2);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.dep-bidi-row{display:flex;align-items:center;padding:14px 14px;gap:10px;position:relative}
+.dep-bidi-row + .dep-bidi-row{border-top:1px solid var(--bd)}
+.dep-bidi-side{display:flex;flex-direction:column;flex-shrink:0;min-width:90px}
+.dep-bidi-lbl{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em}
+.dep-bidi-cur{font-size:14px;font-weight:700;color:var(--t1);margin-top:2px}
+.dep-input{flex:1;background:transparent;border:none;outline:none;font-family:var(--font);font-size:22px;font-weight:700;color:var(--t1);text-align:right;font-variant-numeric:tabular-nums;letter-spacing:-.02em;min-width:0;width:100%}
+.dep-input::placeholder{color:var(--t3)}
+
+.dep-chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.dep-chip{flex:0 0 auto;padding:7px 12px;border-radius:18px;background:var(--surface-2);border:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s;font-variant-numeric:tabular-nums}
+.dep-chip:active{filter:brightness(.88)}
+.dep-chip.act{background:var(--ab);border-color:var(--ab);color:#fff}
+
+/* Payment methods */
+.dep-methods{display:flex;flex-direction:column;gap:8px}
+.dep-method{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--bd);border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s}
+.dep-method:active{filter:brightness(.92)}
+.dep-method.sel{background:rgba(22,91,204,.10);border-color:var(--ab)}
+.dep-method-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s}
+.dep-method.sel .dep-method-radio{border-color:var(--ab)}
+.dep-method.sel .dep-method-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--ab);display:block}
+.dep-method-ic{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.dep-method-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.dep-method-row1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dep-method-name{font-size:13px;font-weight:700;color:var(--t1)}
+.dep-method-sub{font-size:11px;color:var(--t2);font-variant-numeric:tabular-nums}
+.dep-method-tag{font-size:9px;font-weight:700;color:var(--t2);padding:2px 6px;border-radius:6px;background:rgba(132,157,173,.12);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.dep-method-tag.instant{color:var(--good);background:rgba(48,209,88,.12)}
+.dep-method-tag.prime{color:var(--prime);background:rgba(201,169,110,.14)}
+
+/* RM panel */
+.rm-panel{background:linear-gradient(135deg,rgba(201,169,110,.08) 0%,rgba(201,169,110,.02) 100%);border:1px solid rgba(201,169,110,.3);border-radius:12px;padding:14px;display:none;flex-direction:column;gap:12px}
+.rm-panel.show{display:flex}
+.rm-hdr{display:flex;align-items:center;gap:10px}
+.rm-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#c9a96e,#8c7547);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#0c0c0c;flex-shrink:0}
+.rm-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.rm-name{font-size:13px;font-weight:700;color:var(--t1)}
+.rm-role{font-size:10px;color:var(--prime);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.rm-status{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--good);font-weight:700;flex-shrink:0}
+.rm-status-dot{width:6px;height:6px;border-radius:50%;background:var(--good);animation:fxpulse 2.4s infinite}
+.rm-msg{font-size:12px;color:var(--t1);line-height:18px;padding:10px 12px;background:rgba(0,0,0,.2);border-radius:8px}
+.rm-msg strong{color:var(--prime)}
+.rm-actions{display:flex;gap:8px}
+.rm-btn{flex:1;padding:9px;border-radius:8px;background:var(--surface-3);border:1px solid var(--bd);font-size:12px;font-weight:700;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font);transition:filter .12s}
+.rm-btn:active{filter:brightness(.88)}
+.rm-btn svg{color:var(--good)}
+
+.dep-breakdown{background:var(--surface-2);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:5px}
+.dep-breakdown-row{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.dep-breakdown-lbl{color:var(--t2)}
+.dep-breakdown-val{color:var(--t1);font-weight:500;font-variant-numeric:tabular-nums}
+.dep-breakdown-val.zero{color:var(--good);font-weight:700}
+
+.info-inline{font-size:11px;color:var(--t3);text-align:center;line-height:15px;padding:4px 0}
+.info-inline strong{color:var(--t2);font-weight:700}
+
+.dep-footer{padding:12px 16px 14px;flex-shrink:0;border-top:1px solid var(--bd);background:var(--bg)}
+
+/* Confirm */
+.dir-strip{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 16px 6px;background:var(--sf);font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.dir-strip-arrow{color:var(--db)}
+.conv-ladder{padding:6px 16px 18px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;gap:4px}
+.conv-ladder-send{font-size:22px;font-weight:500;color:var(--t2);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.conv-ladder-rate{font-size:11px;font-weight:700;color:var(--mid-mkt);font-variant-numeric:tabular-nums;padding:2px 8px;background:rgba(90,200,250,.08);border-radius:6px;margin:2px 0}
+.conv-ladder-receive{font-size:34px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:-.8px;margin-top:2px}
+.conv-ladder-arrow{color:var(--t3);opacity:.6}
+.conf-rincian{padding:14px 16px;display:flex;flex-direction:column}
+.conf-rincian-hdr{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.conf-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.conf-row:last-child{border-bottom:none}
+.conf-row-lbl{color:var(--t2)}
+.conf-row-lbl-sub{font-size:10px;color:var(--t3);margin-left:4px}
+.conf-row-val{color:var(--t1);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.conf-row-val.zero{color:var(--good)}
+.conf-footer{padding:12px 16px 14px;flex-shrink:0;border-top:1px solid var(--bd);background:var(--bg)}
+.lock-cta-row{display:flex;align-items:center;gap:10px}
+.lock-ring{position:relative;width:40px;height:40px;flex-shrink:0}
+.lock-ring svg{transform:rotate(-90deg);width:40px;height:40px}
+.lock-ring-bg{fill:none;stroke:var(--bd);stroke-width:3}
+.lock-ring-fg{fill:none;stroke:var(--db);stroke-width:3;stroke-linecap:round;transition:stroke .3s}
+.lock-ring-fg.urgent{stroke:var(--rd)}
+.lock-ring-secs{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums}
+.lock-ring-secs.urgent{color:var(--rd)}
+.conf-cta-btn{flex:1}
+.conf-expired{font-size:11px;color:var(--rd);text-align:center;padding:8px 0 0;display:none}
+.conf-expired a{color:var(--rd);text-decoration:underline;cursor:pointer;font-weight:700}
+
+/* Success */
+.success-screen{flex:1;display:flex;flex-direction:column;align-items:center;padding:24px 20px 14px;gap:0;overflow-y:auto}
+.success-screen::-webkit-scrollbar{display:none}
+.success-check-wrap{position:relative;width:64px;height:64px;margin-bottom:18px}
+.success-check-ring{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(47,157,91,.18) 0%,rgba(47,157,91,.04) 70%);border:2px solid var(--gr);animation:ringdraw .55s cubic-bezier(.2,.7,.4,1.1) both}
+.success-check-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;animation:checkpop .55s .25s cubic-bezier(.2,.7,.4,1.4) both}
+@keyframes ringdraw{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes checkpop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+.success-amt{font-size:34px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:-.9px;text-align:center}
+.success-caption{font-size:13px;color:var(--t2);text-align:center;margin-top:6px}
+.yield-projection{width:100%;margin-top:22px;padding:14px 16px;background:linear-gradient(135deg,rgba(47,157,91,.10) 0%,rgba(47,157,91,.02) 100%);border:1px solid rgba(47,157,91,.25);border-radius:12px;display:flex;flex-direction:column;gap:2px}
+.yield-projection-lbl{font-size:11px;color:var(--t2);line-height:16px}
+.yield-projection-amt{font-size:20px;font-weight:700;color:var(--good);font-variant-numeric:tabular-nums;margin-top:2px}
+.yield-projection-sub{font-size:11px;color:var(--t2);margin-top:2px;font-variant-numeric:tabular-nums}
+.success-meta{width:100%;margin-top:16px;padding:12px 0;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.success-meta-row{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.success-meta-lbl{color:var(--t2)}
+.success-meta-val{color:var(--t1);font-weight:500;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.success-copy-btn{cursor:pointer;color:var(--db);padding:2px 4px;-webkit-tap-highlight-color:transparent}
+.success-utility{width:100%;display:flex;gap:8px;margin-top:14px}
+.utility-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-radius:10px;background:var(--surface-2);border:1px solid var(--bd);font-size:12px;font-weight:700;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:filter .12s}
+.utility-chip:active{filter:brightness(.88)}
+.utility-chip svg{color:var(--db)}
+.success-footer{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.success-link{font-size:13px;color:var(--t2);text-align:center;padding:10px 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.success-link:active{color:var(--t1)}
+
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--t1);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-shell">
+    <div class="btn-pwr"></div>
+    <div class="screen">
+
+      <!-- ═══ MAIN ═══ -->
+      <div class="sub" id="sub-main">
+        <img class="hdr-bg" src="https://www.figma.com/api/mcp/asset/76775bf4-4692-4634-a0fc-0e81e52e12f5" alt="">
+
+        <div class="hdr">
+          <div class="sbar">
+            <span class="sbar-time">12:30</span>
+            <div class="sbar-ic">
+              <svg width="16" height="12" viewBox="0 0 24 18" fill="none" stroke="#fff" stroke-width="2" opacity=".9"><path d="M1 6C5 2 10 0 12 0s7 2 11 6M5 10c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3M9 14c.8-.8 1.9-1 3-1s2.2.2 3 1"/><circle cx="12" cy="17" r="1" fill="#fff" stroke="none"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff" opacity=".9"><rect x="0" y="3" width="3" height="9" rx=".5"/><rect x="4.5" y="2" width="3" height="10" rx=".5"/><rect x="9" y="1" width="3" height="11" rx=".5"/><rect x="13.5" y="0" width="2.5" height="12" rx=".5"/></svg>
+              <svg width="24" height="12" viewBox="0 0 25 12" fill="none" opacity=".9"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#fff" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="#fff"/><path d="M23 4v4a2 2 0 000-4z" fill="#fff" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+          <div class="abar">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.6" stroke-opacity=".8"/>
+              <text x="12" y="16.5" text-anchor="middle" font-family="Gabarito,sans-serif" font-weight="700" font-size="10" fill="#fff">Rp</text>
+            </svg>
+            <span class="abar-title">Cash</span>
+            <div class="ic40" onclick="showToast('Notifikasi')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-opacity=".8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </div>
+            <div class="ic40"><div class="avatar">ML</div></div>
+          </div>
+          <div class="tcc">
+            <div class="tcc-hdr">
+              <div class="tcc-left">
+                <div class="tcc-lbl-row"><span class="tcc-lbl">Est. Total Cash</span></div>
+                <div class="tcc-amt tabular">Rp10.563.254</div>
+              </div>
+              <div class="dep-btn" onclick="showToast('Deposit dana')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span class="dep-lbl">Deposit</span>
+              </div>
+            </div>
+            <div class="tcc-beard" onclick="showToast('Aktifkan Auto Sweep')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" style="flex-shrink:0"><path d="M3 12a9 9 0 009-9v0a9 9 0 019 9"/><path d="M21 12H3M15 6l6 6-6 6"/></svg>
+              <span class="sweep-txt">Optimalkan dana nganggur dengan sweep</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="cscroll">
+          <div class="hero-wrap">
+          <div class="qas">
+            <div class="qa" onclick="showToast('QRIS')"><div class="qa-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#fff" stroke="none" rx=".5"/><rect x="16" y="5" width="3" height="3" fill="#fff" stroke="none" rx=".5"/><rect x="5" y="16" width="3" height="3" fill="#fff" stroke="none" rx=".5"/></svg></div><span class="qa-lbl">QRIS</span></div>
+            <div class="qa" onclick="showToast('Pindah dana')"><div class="gratis">Gratis</div><div class="qa-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></div><span class="qa-lbl">Pindah</span></div>
+            <div class="qa" onclick="showToast('Tarik dana')"><div class="gratis">Gratis</div><div class="qa-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M12 3v14M5 10l7 7 7-7"/><line x1="5" y1="21" x2="19" y2="21"/></svg></div><span class="qa-lbl">Tarik</span></div>
+            <div class="qa" onclick="showToast('Riwayat transaksi')"><div class="qa-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M3 12a9 9 0 109-9H3"/><path d="M3 3v5h5M12 7v5l3 3"/></svg></div><span class="qa-lbl">Riwayat</span></div>
+            <div class="qa" style="justify-content:space-between;height:60px">
+              <div class="stockback-ic"><img class="stockback-img" src="https://www.figma.com/api/mcp/asset/79c842f6-6625-44b3-ac02-d78e60a65e5d" alt="Stockback"></div>
+              <span class="qa-lbl">Stockback</span>
+            </div>
+          </div>
+          </div>
+
+          <div class="body-wrap">
+            <div class="cgrid">
+              <div class="crow">
+                <!-- Tabungan -->
+                <div class="wc tap" onclick="openDetail('tabungan')">
+                  <div class="wc-top">
+                    <img class="wc-ico" src="https://www.figma.com/api/mcp/asset/a3f90e85-2009-4ce9-9fc5-52eab1d4d5ff" alt="Tabungan Ajaib">
+                    <span class="bdg-yield">Bunga hingga 4% p.a.</span>
+                  </div>
+                  <div class="wc-body">
+                    <div class="wc-info">
+                      <span class="wc-name">Tabungan Ajaib</span>
+                      <span class="wc-bal tabular">Rp1.667.090</span>
+                      <span class="wc-sub">Bayar Tagihan • QRIS</span>
+                    </div>
+                    <div class="autosweep on">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2f9d5b" stroke-width="2"><path d="M3 12a9 9 0 009-9v0a9 9 0 019 9"/><path d="M21 12H3M15 6l6 6-6 6"/></svg>
+                      Autosweep: On
+                    </div>
+                  </div>
+                </div>
+
+                <!-- USD Prime: yield badge (no PRIME ribbon), $5,000 diproses -->
+                <div class="wc tap prime" onclick="openDetail('usd')">
+                  <div class="wc-top">
+                    <img class="wc-ico" src="https://www.figma.com/api/mcp/asset/eac32420-d9dc-4be6-a028-979fa8845077" alt="USD Prime" onerror="this.outerHTML='<div class=\'wc-ico\' style=\'background:rgba(58,131,249,.2);border-radius:50%;display:flex;align-items:center;justify-content:center\'><svg width=22 height=22 viewBox=\'0 0 24 24\' fill=none stroke=\'#3a83f9\' stroke-width=1.8><circle cx=12 cy=12 r=10/></svg></div>'">
+                    <span class="bdg-yield">Yield 4,75% p.a.</span>
+                  </div>
+                  <div class="wc-body">
+                    <div class="wc-info">
+                      <span class="wc-name">USD Prime</span>
+                      <span class="wc-bal tabular">$24,500.00</span>
+                      <span class="wc-sub-bal tabular">≈ Rp 399.260.000</span>
+                    </div>
+                    <div class="wc-yield-strip tabular">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="17 17 7 17 7 7"/><polyline points="7 17 17 7"/></svg>
+                      +$96.98 bulan ini
+                    </div>
+                    <div class="bdg-proc tabular" style="font-size:9px;padding:1px 6px">
+                      $5,000 diproses
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="crow">
+                <div class="wc">
+                  <img class="wc-ico" src="https://www.figma.com/api/mcp/asset/ad49ca12-f8a0-469d-b3b6-6cd83f2398aa" alt="RDN">
+                  <div class="wc-body">
+                    <div class="wc-info">
+                      <span class="wc-name">RDN</span>
+                      <span class="wc-bal tabular">Rp1.667.090</span>
+                      <span class="wc-sub">Saham • Reksa Dana • Obligasi</span>
+                    </div>
+                    <div class="bdg-proc">Rp0 diproses<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+                  </div>
+                </div>
+                <div class="wc">
+                  <img class="wc-ico" src="https://www.figma.com/api/mcp/asset/d8b6c60c-d912-463e-9131-ba1a8c318b5f" alt="Aset Global">
+                  <div class="wc-body">
+                    <div class="wc-info">
+                      <span class="wc-name">Rekening Aset Global</span>
+                      <span class="wc-bal tabular">Rp1.667.090</span>
+                      <span class="wc-sub">Aset Kripto Spot • Futures</span>
+                    </div>
+                    <div class="bdg-proc">Rp0 diproses<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bnr-wrap" id="bnr-wrap">
+              <div class="bnr-track" id="bnr-track">
+                <div class="bnr-slide"><img src="https://www.figma.com/api/mcp/asset/1c249ab1-4510-423a-bd35-d7c2e4c573f2" alt="Promo 1"></div>
+                <div class="bnr-slide"><img src="https://www.figma.com/api/mcp/asset/e99663f1-5def-4555-890d-33b5e3f74e0e" alt="Promo 2"></div>
+                <div class="bnr-slide"><img src="https://www.figma.com/api/mcp/asset/55077cb5-ce25-48ed-b012-9ca26c9a52e1" alt="Promo 3"></div>
+              </div>
+              <div class="bnr-dots" id="bnr-dots">
+                <div class="bnr-dot act"></div><div class="bnr-dot"></div><div class="bnr-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qris-fab" onclick="showToast('QRIS')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#fff" stroke="none" rx=".5"/><rect x="16" y="5" width="3" height="3" fill="#fff" stroke="none" rx=".5"/><rect x="5" y="16" width="3" height="3" fill="#fff" stroke="none" rx=".5"/></svg>
+          <span class="qris-fab-lbl">QRIS</span>
+        </div>
+
+        <div class="bnav">
+          <div class="tabs">
+            <div class="tab" onclick="showToast('Beranda')"><div class="tab-pip"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#849dad" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div></div>
+            <div class="tab" onclick="showToast('Investasi')"><div class="tab-pip"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#849dad" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div></div>
+            <div class="tab" onclick="showToast('Kripto')"><div class="tab-pip"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#849dad" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.7 0-3 1.3-3 3s1.3 3 3 3c1 0 2-.5 2.5-1.5M12 7v1m0 8v1"/></svg></div></div>
+            <div class="tab" onclick="showToast('Saham AS')"><div class="tab-pip"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#849dad" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18M12 3c-2.5 2.5-4 6-4 9s1.5 6.5 4 9M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9M3 12h18"/></svg></div></div>
+            <div class="tab act"><div class="tab-pip"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#165bcc" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="4" stroke="none" fill="rgba(22,91,204,.2)"/></svg></div><span class="tab-lbl">Cash</span></div>
+            <div class="tab" onclick="showToast('Portfolio')"><div class="tab-pip"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#849dad" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div></div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══ DETAIL — restructured: single scroll body, sticky filter bar ═══ -->
+      <div class="sub sub-slide" id="sub-detail">
+        <div class="det-nav">
+          <div class="det-back" onclick="closeDetail()">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="#3a83f9" stroke-width="1.8" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+            Kembali
+          </div>
+          <div class="det-title" id="det-title">—</div>
+          <div class="det-opts">
+            <div class="ic-btn-sm" onclick="showToast('Menu rekening')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="1.8"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Single scroll body — everything below nav scrolls together -->
+        <div class="det-body">
+          <div class="det-hero" id="det-hero"></div>
+          <div class="trust-strip" id="trust-strip" style="display:none">Diawasi OJK · LPS hingga Rp 2 miliar · Custodian: Citibank N.A.</div>
+
+          <!-- Sticky once scrolled past hero -->
+          <div class="det-sticky">
+            <div class="txn-statement-hdr">
+              <span class="txn-hdr-title">Riwayat Transaksi</span>
+              <div class="txn-hdr-tools">
+                <div class="txn-tool" onclick="showToast('Pilih periode')">
+                  30 hari
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="txn-tool icon-only" onclick="showToast('Cari transaksi')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <div class="txn-tool icon-only" onclick="showToast('Unduh statement PDF')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="txn-filter" id="det-filter">
+              <div class="txn-ftab act" data-filter="all" onclick="setFilter(this,'det-scroll','det-filter')">Semua</div>
+              <div class="txn-ftab" data-filter="in" onclick="setFilter(this,'det-scroll','det-filter')">Masuk</div>
+              <div class="txn-ftab" data-filter="out" onclick="setFilter(this,'det-scroll','det-filter')">Keluar</div>
+              <div class="txn-ftab" id="yield-tab" data-filter="interest" onclick="setFilter(this,'det-scroll','det-filter')" style="display:none">Yield</div>
+              <div class="txn-ftab" id="swap-tab" data-filter="swap" onclick="setFilter(this,'det-scroll','det-filter')" style="display:none">Konversi</div>
+              <div class="txn-ftab" id="trade-tab" data-filter="trade" onclick="setFilter(this,'det-scroll','det-filter')" style="display:none">Saham AS</div>
+            </div>
+          </div>
+
+          <div class="det-txn-list" id="det-scroll"></div>
+        </div>
+      </div>
+
+
+      <!-- ═══ DEPOSIT — AMOUNT (V2.3) ═══ -->
+      <div class="sub sub-slide" id="sub-deposit-amount">
+        <div class="det-nav">
+          <div class="det-back" onclick="closeDeposit()">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="#3a83f9" stroke-width="1.8" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+            Kembali
+          </div>
+          <div class="det-title">Deposit USD</div>
+          <div class="det-opts"></div>
+        </div>
+        <div class="dep-screen">
+
+          <div>
+            <div class="dep-section-lbl">Jumlah</div>
+            <div class="dep-bidi" id="dep-bidi">
+              <div class="dep-bidi-row" data-side="idr">
+                <div class="dep-bidi-side"><span class="dep-bidi-lbl">Dalam IDR</span><span class="dep-bidi-cur">Rupiah</span></div>
+                <input class="dep-input" id="dep-idr" type="text" inputmode="numeric" placeholder="0" oninput="onIdrInput()">
+              </div>
+              <div class="dep-bidi-row" data-side="usd">
+                <div class="dep-bidi-side"><span class="dep-bidi-lbl">Dalam USD</span><span class="dep-bidi-cur">Dolar AS</span></div>
+                <input class="dep-input" id="dep-usd" type="text" inputmode="decimal" placeholder="0" oninput="onUsdInput()">
+              </div>
+            </div>
+          </div>
+
+          <div class="dep-chip-row" id="dep-chips">
+            <div class="dep-chip" data-usd="1000" onclick="pickAmount(this,1000)">$1,000</div>
+            <div class="dep-chip" data-usd="5000" onclick="pickAmount(this,5000)">$5,000</div>
+            <div class="dep-chip" data-usd="10000" onclick="pickAmount(this,10000)">$10,000</div>
+            <div class="dep-chip" data-usd="25000" onclick="pickAmount(this,25000)">$25,000</div>
+            <div class="dep-chip" data-usd="100000" onclick="pickAmount(this,100000)">$100,000</div>
+            <div class="dep-chip" data-usd="1000000" onclick="pickAmount(this,1000000)">Maks $1M</div>
+          </div>
+
+          <!-- Method picker — REORDERED: Tabungan, RDN, VA/Bank Lainnya, OTC -->
+          <div>
+            <div class="dep-section-lbl">Metode Pembayaran</div>
+            <div class="dep-methods">
+              <div class="dep-method sel" data-method="tabungan" onclick="pickMethod(this)">
+                <div class="dep-method-radio"></div>
+                <div class="dep-method-ic" style="background:rgba(48,209,88,.12)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.5" fill="#30d158" stroke="none"/></svg>
+                </div>
+                <div class="dep-method-info">
+                  <div class="dep-method-row1">
+                    <span class="dep-method-name">Tabungan Ajaib</span>
+                    <span class="dep-method-tag instant">Instan</span>
+                  </div>
+                  <span class="dep-method-sub tabular">Rp 5.321.225 tersedia</span>
+                </div>
+              </div>
+              <div class="dep-method" data-method="rdn" onclick="pickMethod(this)">
+                <div class="dep-method-radio"></div>
+                <div class="dep-method-ic" style="background:rgba(232,51,74,.12)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8334a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M8 8h8M8 16h5"/></svg>
+                </div>
+                <div class="dep-method-info">
+                  <div class="dep-method-row1">
+                    <span class="dep-method-name">RDN</span>
+                    <span class="dep-method-tag instant">Instan</span>
+                  </div>
+                  <span class="dep-method-sub tabular">Rp 1.667.090 tersedia</span>
+                </div>
+              </div>
+              <div class="dep-method" data-method="va" onclick="pickMethod(this)">
+                <div class="dep-method-radio"></div>
+                <div class="dep-method-ic" style="background:rgba(58,131,249,.12)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+                </div>
+                <div class="dep-method-info">
+                  <div class="dep-method-row1">
+                    <span class="dep-method-name">Virtual Account / Bank Lainnya</span>
+                    <span class="dep-method-tag">1–10 mnt</span>
+                  </div>
+                  <span class="dep-method-sub">Transfer dari bank apapun</span>
+                </div>
+              </div>
+              <div class="dep-method" data-method="otc" onclick="pickMethod(this)">
+                <div class="dep-method-radio"></div>
+                <div class="dep-method-ic" style="background:rgba(201,169,110,.14)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="dep-method-info">
+                  <div class="dep-method-row1">
+                    <span class="dep-method-name">OTC Deposit</span>
+                    <span class="dep-method-tag prime">Prime · RM</span>
+                  </div>
+                  <span class="dep-method-sub">Hubungi RM Anda untuk deposit besar</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rm-panel" id="rm-panel">
+            <div class="rm-hdr">
+              <div class="rm-avatar">EK</div>
+              <div class="rm-info">
+                <span class="rm-name">Eka Kurniawan</span>
+                <span class="rm-role">Relationship Manager</span>
+              </div>
+              <div class="rm-status"><span class="rm-status-dot"></span>Online</div>
+            </div>
+            <div class="rm-msg">RM akan menghubungi Anda dalam <strong>1 jam kerja</strong> untuk konfirmasi jumlah, kurs, dan instruksi transfer/penjemputan dana.</div>
+            <div class="rm-actions">
+              <div class="rm-btn" onclick="showToast('Membuka WhatsApp...')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+                Chat
+              </div>
+              <div class="rm-btn" onclick="showToast('Menelepon RM...')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+                Telepon
+              </div>
+            </div>
+          </div>
+
+          <div class="dep-breakdown" id="dep-breakdown" style="display:none">
+            <div class="dep-breakdown-row">
+              <span class="dep-breakdown-lbl">Kurs Anda</span>
+              <span class="dep-breakdown-val">Rp 16.240 / USD</span>
+            </div>
+            <div class="dep-breakdown-row">
+              <span class="dep-breakdown-lbl">Spread <span style="opacity:.6">Rp 57/USD</span></span>
+              <span class="dep-breakdown-val" id="brk-spread">Rp 0</span>
+            </div>
+            <div class="dep-breakdown-row">
+              <span class="dep-breakdown-lbl">Biaya layanan</span>
+              <span class="dep-breakdown-val zero">Rp 0</span>
+            </div>
+          </div>
+
+          <div class="info-inline"><strong>Tanpa batas deposit</strong> · Tujuan investasi sesuai POJK</div>
+        </div>
+        <div class="dep-footer">
+          <div class="det-btn det-btn-p" id="dep-lanjutkan-btn" onclick="depositPrimaryAction()" style="opacity:.4;pointer-events:none">Lanjutkan</div>
+        </div>
+      </div>
+
+
+      <!-- ═══ DEPOSIT — CONFIRM ═══ -->
+      <div class="sub sub-slide" id="sub-deposit-confirm">
+        <div class="det-nav">
+          <div class="det-back" onclick="backToAmount()">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="#3a83f9" stroke-width="1.8" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+            Kembali
+          </div>
+          <div class="det-title">Konfirmasi</div>
+          <div class="det-opts"></div>
+        </div>
+        <div style="flex:1;overflow-y:auto">
+          <div class="dir-strip">
+            <span id="dir-from">Tabungan Ajaib</span>
+            <svg class="dir-strip-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            USD Prime
+          </div>
+          <div class="conv-ladder">
+            <div class="conv-ladder-send tabular" id="conv-send">Rp 162.400.000</div>
+            <svg class="conv-ladder-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <div class="conv-ladder-rate tabular">× Rp 16.240 / USD</div>
+            <svg class="conv-ladder-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <div class="conv-ladder-receive tabular" id="conv-receive">$10,000.00</div>
+          </div>
+
+          <div class="conf-rincian">
+            <div class="conf-rincian-hdr">Rincian Kurs</div>
+            <div class="conf-row">
+              <span class="conf-row-lbl">Kurs Tengah BI</span>
+              <span class="conf-row-val tabular" style="color:var(--mid-mkt)">Rp 16.297</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-row-lbl">Kurs Anda</span>
+              <span class="conf-row-val tabular">Rp 16.240</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-row-lbl">Spread <span class="conf-row-lbl-sub">Rp 57/USD</span></span>
+              <span class="conf-row-val tabular" id="conf-spread-total">Rp 570.000</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-row-lbl">Biaya layanan</span>
+              <span class="conf-row-val zero">Rp 0</span>
+            </div>
+          </div>
+
+          <div class="trust-strip" style="padding:8px 16px 16px;text-align:center">Diawasi OJK · LPS hingga Rp 2 miliar · Custodian: Citibank N.A.</div>
+        </div>
+        <div class="conf-footer">
+          <div class="conf-expired" id="conf-expired">Kurs kedaluwarsa. <a onclick="resetCountdown()">Perbarui</a></div>
+          <div class="lock-cta-row">
+            <div class="lock-ring" title="Kurs dikunci">
+              <svg viewBox="0 0 40 40">
+                <circle class="lock-ring-bg" cx="20" cy="20" r="16"/>
+                <circle class="lock-ring-fg" id="lock-ring-fg" cx="20" cy="20" r="16" stroke-dasharray="100.53" stroke-dashoffset="0"/>
+              </svg>
+              <span class="lock-ring-secs tabular" id="lock-ring-secs">60</span>
+            </div>
+            <div class="det-btn det-btn-p conf-cta-btn" id="conf-cta-btn" onclick="goToSuccess()">Konfirmasi Deposit</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══ DEPOSIT — SUCCESS ═══ -->
+      <div class="sub sub-slide" id="sub-deposit-success">
+        <div class="det-nav" style="background:var(--bg);border-bottom:none">
+          <div style="width:60px"></div>
+          <div class="det-title"></div>
+          <div class="det-opts">
+            <div class="ic-btn-sm" onclick="backToMain()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="success-screen">
+          <div class="success-check-wrap">
+            <div class="success-check-ring"></div>
+            <div class="success-check-ic">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2f9d5b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="success-amt tabular" id="success-amt">$10,000.00</div>
+          <div class="success-caption">masuk ke USD Prime</div>
+
+          <div class="yield-projection">
+            <span class="yield-projection-lbl">Mulai hari ini, dana Anda menghasilkan</span>
+            <span class="yield-projection-amt tabular" id="success-yield-monthly">+$39.58 / bulan</span>
+            <span class="yield-projection-sub tabular" id="success-yield-yearly">Proyeksi 1 tahun: +$475.00</span>
+          </div>
+
+          <div class="success-meta">
+            <div class="success-meta-row"><span class="success-meta-lbl">No. Referensi</span><span class="success-meta-val tabular">TXN-2026-48821 <span class="success-copy-btn" onclick="showToast('Disalin')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3a83f9" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></span></div>
+            <div class="success-meta-row"><span class="success-meta-lbl">Tanggal</span><span class="success-meta-val tabular">13 Mei 2026, 14:35 WIB</span></div>
+            <div class="success-meta-row"><span class="success-meta-lbl">Estimasi aktif</span><span class="success-meta-val tabular">14 Mei 2026, 14:35 WIB</span></div>
+          </div>
+
+          <div class="success-utility">
+            <div class="utility-chip" onclick="showToast('Atur deposit berkala')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Atur Berkala</div>
+            <div class="utility-chip" onclick="showToast('Mengunduh bukti...')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Unduh Bukti</div>
+          </div>
+
+          <div class="success-footer">
+            <div class="det-btn det-btn-p" onclick="backToDetail()">Lihat Detail Rekening</div>
+            <div class="success-link" onclick="backToMain()">Selesai</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Sheets -->
+      <div id="sheet-backdrop" onclick="closeAllSheets()"></div>
+      <div id="sheet-fx">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Nilai Tukar USD/IDR</div>
+        <div class="sheet-body">
+          <div class="fx-rate-section">
+            <span class="fx-rate-section-lbl">Kurs Tengah BI</span>
+            <span class="fx-mid-val tabular">1 USD = Rp 16.297</span>
+            <span class="fx-rate-ts">Live · 14:31 WIB</span>
+          </div>
+          <div class="fx-divider"></div>
+          <div class="fx-rate-section"><span class="fx-rate-section-lbl">Kurs Beli Anda (Deposit)</span><span class="fx-rate-section-val tabular">1 USD = Rp 16.240</span></div>
+          <div class="fx-rate-section"><span class="fx-rate-section-lbl">Kurs Jual Anda (Tarik)</span><span class="fx-rate-section-val tabular">1 USD = Rp 16.354</span></div>
+          <div class="fx-vs-bca-card"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Hemat Rp 92/USD vs BCA</div>
+          <div class="fx-divider"></div>
+          <div class="fx-spread-note">Spread: <span class="tabular">Rp 57</span> per USD &nbsp;·&nbsp; Biaya layanan: <span class="tabular">Rp 0</span><br><br>Kurs berubah sesuai kondisi pasar. Dikonfirmasi saat transaksi.</div>
+          <div class="det-btn det-btn-p" onclick="closeAllSheets();openDeposit()">Deposit USD sekarang</div>
+        </div>
+      </div>
+
+      <div id="sheet-settling">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Dana Diproses</div>
+        <div class="sheet-body">
+          <div class="settle-summary">
+            <div class="settle-row"><span class="settle-row-lbl">Saldo Total</span><span class="settle-row-val tabular">$24,500.00</span></div>
+            <div class="settle-row"><span class="settle-row-lbl">Tersedia</span><span class="settle-row-val tabular">$19,500.00</span></div>
+            <div class="settle-row"><span class="settle-row-lbl">Diproses</span><span class="settle-row-val tabular muted">$5,000.00</span></div>
+          </div>
+          <div class="fx-divider"></div>
+          <div class="settle-summary" style="padding-top:14px">
+            <div class="dep-section-lbl" style="margin-bottom:0">Sumber Settlement</div>
+            <div class="settle-row">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;color:var(--t1);font-weight:500">Penjualan saham AAPL · 50 lot</span>
+                <span class="settle-info">Settle T+1 · selesai 14 Mei 2026, 22:00 WIB</span>
+              </div>
+              <span class="settle-row-val tabular" style="font-size:13px">$5,000.00</span>
+            </div>
+          </div>
+          <div class="settle-info" style="text-align:center;padding-top:6px">Dana yang diproses tetap menghasilkan yield 4,75% p.a. selama menunggu settle.</div>
+          <div class="det-btn det-btn-s" onclick="closeAllSheets()">Tutup</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BUY_RATE = 16240;
+const MID_RATE = 16297;
+const SPREAD = 57;
+const YIELD_PA = 0.0475;
+
+const WALLETS = {
+  tabungan: {
+    name:'Tabungan Ajaib', color:'#30d158', acct:'8800 •••• •••• 5621',
+    bal:'Rp5.321.225', balSub:null,
+    yield:'Bunga 4% p.a. · +Rp12.400 bulan ini', yieldColor:'#30d158',
+    actions:['Setor','Transfer'], isUsd:false,
+    txn:[
+      { date:'12 Mei 2026', items:[
+        { type:'out', icon:'qris',     name:'QRIS Indomaret',     sub:'08:24', amt:'−Rp45.000',  bal:'Rp5.321.225' },
+        { type:'in',  icon:'transfer', name:'Transfer masuk BCA', sub:'07:10', amt:'+Rp500.000', bal:'Rp5.366.225' },
+      ]},
+      { date:'11 Mei 2026', items:[
+        { type:'in',  icon:'interest', name:'Bunga harian',       sub:'00:01', amt:'+Rp425',     bal:'Rp4.866.225' },
+        { type:'out', icon:'qris',     name:'QRIS Alfamart',      sub:'19:33', amt:'−Rp22.000',  bal:'Rp4.865.800' },
+      ]},
+    ],
+  },
+  usd: {
+    name:'USD Prime', color:'#3a83f9', acct:'•••• •••• 4821',
+    bal:'$24,500.00', balSub:'≈ Rp 399.260.000',
+    available:'$19,500.00', settling:'$5,000.00', settlingNote:'Penjualan saham AAPL · selesai 14 Mei',
+    yield:'4,75% p.a.', yieldMonthly:'+$96.98 bulan ini', yieldColor:'#3a83f9',
+    fxRate:'Rp 16.297', fxUpdated:'14:31 WIB', fxTrend:'up', fxTrendVal:'0,3%',
+    isUsd:true, isPrime:true,
+    txn:[
+      { date:'13 Mei 2026', items:[
+        { type:'in',  icon:'deposit',  name:'Deposit dari Tabungan Ajaib', sub:'14:35', amt:'+$10,000.00', bal:'$24,500.00' },
+        { type:'in',  icon:'interest', name:'Yield harian',                sub:'00:01', amt:'+$3.24',     bal:'$14,503.24' },
+      ]},
+      { date:'12 Mei 2026', items:[
+        { type:'in',  icon:'trade',    name:'Jual AAPL · 50 lot',          sub:'21:30', pill:'Settle T+1', amt:'+$5,000.00', bal:'$14,500.00', pending:true },
+        { type:'out', icon:'trade',    name:'Beli MSFT · 25 lot',          sub:'21:15', amt:'−$5,250.00', bal:'$9,500.00' },
+        { type:'in',  icon:'swap',     name:'Konversi IDR→USD',            sub:'09:15', amt:'+$5,000.00', bal:'$14,750.00' },
+        { type:'in',  icon:'interest', name:'Yield harian',                sub:'00:01', amt:'+$3.19',     bal:'$9,750.00' },
+      ]},
+      { date:'10 Mei 2026', items:[
+        { type:'out', icon:'withdraw', name:'Penarikan ke Tabungan Ajaib', sub:'11:20', amt:'−$500.00',   bal:'$9,750.00' },
+      ]},
+    ],
+  },
+};
+
+let currentDetailKey = null;
+
+function openDetail(key) {
+  currentDetailKey = key;
+  const w = WALLETS[key];
+
+  document.getElementById('yield-tab').style.display = w.isUsd ? 'block' : 'none';
+  document.getElementById('swap-tab').style.display = w.isUsd ? 'block' : 'none';
+  document.getElementById('trade-tab').style.display = w.isUsd ? 'block' : 'none';
+  document.getElementById('trust-strip').style.display = w.isUsd ? 'block' : 'none';
+
+  let heroHtml = '';
+
+  if (w.isUsd) {
+    // Yield badge replaces PRIME ribbon
+    heroHtml += `
+      <div class="det-hero-top">
+        <span class="det-acctno">${w.acct}</span>
+        <span class="bdg-yield" style="font-size:9px;padding:2px 7px">Yield ${w.yield}</span>
+      </div>
+      <div class="det-amount tabular">${w.bal}</div>
+      <div class="det-amt-sub tabular">${w.balSub}</div>
+      <div class="det-yield">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.5" stroke-linecap="round"><polyline points="17 17 7 17 7 7"/><polyline points="7 17 17 7"/></svg>
+        <span class="det-yield-monthly tabular">${w.yieldMonthly}</span>
+      </div>
+      <div class="det-settling-row">
+        <div class="det-settling-chip" onclick="openSettlingSheet()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          <span class="det-settling-chip-amt">${w.settling} diproses</span>
+          <span class="det-settling-chip-note">· ${w.settlingNote}</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+      <div class="det-acts">
+        <div class="det-btn det-btn-p" onclick="openDeposit()">Deposit USD</div>
+        <div class="det-btn det-btn-s" onclick="showToast('Tarik USD')">Tarik</div>
+      </div>
+      <div class="fx-compact" onclick="openFxSheet()">
+        <span class="fx-compact-dot"></span>
+        <div class="fx-compact-body">
+          <div class="fx-compact-l1 tabular">
+            1 USD = ${w.fxRate}
+            <span class="trend ${w.fxTrend}">${w.fxTrend==='up'?'↑':'↓'} ${w.fxTrendVal}</span>
+          </div>
+          <div class="fx-compact-l2 tabular">
+            Kurs Anda Rp 16.240 · <span class="hemat">Hemat Rp 92/USD vs BCA</span>
+          </div>
+        </div>
+        <svg class="fx-compact-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    `;
+  } else {
+    heroHtml += `
+      <div class="det-acctno">${w.acct}</div>
+      <div class="det-amount tabular">${w.bal}</div>
+      ${w.balSub ? `<div class="det-amt-sub tabular">${w.balSub}</div>` : ''}
+      <div class="det-yield" style="color:${w.yieldColor}">${w.yield}</div>
+      <div class="det-acts">${w.actions.map(a=>`<div class="det-btn det-btn-p" onclick="showToast('${a} — ${w.name}')">${a}</div>`).join('')}</div>
+    `;
+  }
+
+  document.getElementById('det-hero').innerHTML = heroHtml;
+  document.getElementById('det-title').textContent = w.name;
+
+  renderTxn('det-scroll', w.txn, w.color);
+  document.querySelectorAll('#det-filter .txn-ftab').forEach((t,i) => t.classList.toggle('act', i===0));
+  document.querySelectorAll('#det-scroll .txn-row').forEach(r => r.style.display = '');
+
+  // Reset scroll position when opening
+  const body = document.querySelector('#sub-detail .det-body');
+  if (body) body.scrollTop = 0;
+
+  document.getElementById('sub-detail').classList.add('active');
+  document.getElementById('sub-main').classList.add('pushed');
+}
+
+function closeDetail() {
+  document.getElementById('sub-detail').classList.remove('active');
+  document.getElementById('sub-main').classList.remove('pushed');
+  currentDetailKey = null;
+}
+
+function renderTxn(containerId, groups, color) {
+  let h = '';
+  groups.forEach(g => {
+    h += `<div class="txn-group"><div class="txn-date">${g.date}</div>`;
+    g.items.forEach(item => {
+      const isInterest = item.icon === 'interest';
+      const isDeposit = item.icon === 'deposit';
+      const isWithdraw = item.icon === 'withdraw';
+      const isSwap = item.icon === 'swap';
+      const isTrade = item.icon === 'trade';
+      let bg = 'rgba(255,255,255,.06)';
+      if (isInterest) bg = 'rgba(48,209,88,.12)';
+      else if (isDeposit) bg = 'rgba(48,209,88,.10)';
+      else if (isWithdraw) bg = 'rgba(246,88,88,.10)';
+      else if (isSwap) bg = 'rgba(58,131,249,.10)';
+      else if (isTrade) bg = 'rgba(90,200,250,.10)';
+
+      let ico = '';
+      if (item.icon === 'qris') ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="${color}" stroke-width=1.8><rect x=3 y=3 width=7 height=7 rx=1/><rect x=14 y=3 width=7 height=7 rx=1/><rect x=3 y=14 width=7 height=7 rx=1/></svg>`;
+      else if (item.icon === 'transfer') ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="${color}" stroke-width=1.8><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>`;
+      else if (isInterest) ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="#30d158" stroke-width=1.8><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+      else if (isDeposit) ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="#30d158" stroke-width=2 stroke-linecap=round><path d="M12 3v14"/><path d="M5 11l7 7 7-7"/></svg>`;
+      else if (isWithdraw) ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="#f65858" stroke-width=2 stroke-linecap=round><path d="M12 21V7"/><path d="M5 13l7-7 7 7"/></svg>`;
+      else if (isSwap) ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="${color}" stroke-width=1.8 stroke-linecap=round><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>`;
+      else if (isTrade) ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="#5ac8fa" stroke-width=1.8 stroke-linecap=round><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`;
+      else ico = `<svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke="${color}" stroke-width=1.8><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>`;
+
+      const iconType = isInterest ? 'interest' : (isDeposit ? 'deposit' : (isWithdraw ? 'withdraw' : (isSwap ? 'swap' : (isTrade ? 'trade' : item.icon))));
+      const amtClass = item.pending ? 'pending' : item.type;
+      h += `<div class="txn-row" data-type="${item.type}" data-icon="${iconType}">
+        <div class="txn-ico" style="background:${bg}">${ico}</div>
+        <div class="txn-info">
+          <div class="txn-name">${item.name}</div>
+          <div class="txn-sub">
+            <span>${item.sub}</span>
+            ${item.pill ? `<span class="txn-pill">${item.pill}</span>` : ''}
+          </div>
+        </div>
+        <div class="txn-right">
+          <div class="txn-amt ${amtClass} tabular">${item.amt}</div>
+          ${item.bal ? `<div class="txn-bal tabular">${item.bal}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+  });
+  document.getElementById(containerId).innerHTML = h;
+}
+
+function setFilter(el, scrollId, filterId) {
+  document.getElementById(filterId).querySelectorAll('.txn-ftab').forEach(t => t.classList.remove('act'));
+  el.classList.add('act');
+  const filter = el.dataset.filter;
+  document.getElementById(scrollId).querySelectorAll('.txn-row').forEach(row => {
+    if (filter === 'all') row.style.display = '';
+    else if (filter === 'in') row.style.display = row.dataset.type === 'in' ? '' : 'none';
+    else if (filter === 'out') row.style.display = row.dataset.type === 'out' ? '' : 'none';
+    else if (filter === 'interest') row.style.display = row.dataset.icon === 'interest' ? '' : 'none';
+    else if (filter === 'swap') row.style.display = row.dataset.icon === 'swap' ? '' : 'none';
+    else if (filter === 'trade') row.style.display = row.dataset.icon === 'trade' ? '' : 'none';
+  });
+}
+
+function openFxSheet() {
+  document.getElementById('sheet-backdrop').classList.add('open');
+  document.getElementById('sheet-fx').classList.add('open');
+}
+function openSettlingSheet() {
+  document.getElementById('sheet-backdrop').classList.add('open');
+  document.getElementById('sheet-settling').classList.add('open');
+}
+function closeAllSheets() {
+  document.getElementById('sheet-backdrop').classList.remove('open');
+  document.getElementById('sheet-fx').classList.remove('open');
+  document.getElementById('sheet-settling').classList.remove('open');
+}
+
+const METHODS = {
+  tabungan: { name:'Tabungan Ajaib', dirFrom:'Tabungan Ajaib' },
+  rdn:      { name:'RDN', dirFrom:'RDN' },
+  va:       { name:'Virtual Account / Bank Lainnya', dirFrom:'Transfer Bank' },
+  otc:      { name:'OTC (RM)', dirFrom:'OTC via RM' },
+};
+let selectedMethod = 'tabungan';
+
+function pickMethod(el) {
+  document.querySelectorAll('#sub-deposit-amount .dep-method').forEach(m => m.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedMethod = el.dataset.method;
+  updateMethodUI();
+  updateBreakdownAndCta();
+}
+
+function updateMethodUI() {
+  const rmPanel = document.getElementById('rm-panel');
+  const chips = document.getElementById('dep-chips');
+  const isOtc = selectedMethod === 'otc';
+  rmPanel.classList.toggle('show', isOtc);
+  chips.style.display = isOtc ? 'none' : 'flex';
+}
+
+let depUsd = 0;
+let depIdr = 0;
+let countdownTimer = null;
+
+const fmtIdr = v => 'Rp ' + Math.round(v).toLocaleString('id-ID');
+const fmtUsd = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtIdrInput = v => Math.round(v).toLocaleString('id-ID');
+const fmtUsdInput = v => v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:2});
+const parseIdrInput = s => parseInt(String(s).replace(/[^\d]/g,''), 10) || 0;
+const parseUsdInput = s => parseFloat(String(s).replace(/,/g,'')) || 0;
+
+function onIdrInput() {
+  const el = document.getElementById('dep-idr');
+  const raw = parseIdrInput(el.value);
+  depIdr = raw;
+  depUsd = depIdr / BUY_RATE;
+  el.value = raw > 0 ? fmtIdrInput(raw) : '';
+  document.getElementById('dep-usd').value = depUsd > 0 ? fmtUsdInput(depUsd) : '';
+  clearChipSelection();
+  updateBreakdownAndCta();
+}
+function onUsdInput() {
+  const el = document.getElementById('dep-usd');
+  const raw = parseUsdInput(el.value);
+  depUsd = raw;
+  depIdr = Math.round(depUsd * BUY_RATE);
+  document.getElementById('dep-idr').value = depIdr > 0 ? fmtIdrInput(depIdr) : '';
+  clearChipSelection();
+  updateBreakdownAndCta();
+}
+function pickAmount(el, usdVal) {
+  clearChipSelection();
+  el.classList.add('act');
+  depUsd = usdVal;
+  depIdr = Math.round(usdVal * BUY_RATE);
+  document.getElementById('dep-usd').value = fmtUsdInput(depUsd);
+  document.getElementById('dep-idr').value = fmtIdrInput(depIdr);
+  updateBreakdownAndCta();
+}
+function clearChipSelection() {
+  document.querySelectorAll('#dep-chips .dep-chip').forEach(c => c.classList.remove('act'));
+}
+
+function updateBreakdownAndCta() {
+  const brk = document.getElementById('dep-breakdown');
+  const btn = document.getElementById('dep-lanjutkan-btn');
+  const isOtc = selectedMethod === 'otc';
+
+  if (isOtc) {
+    brk.style.display = 'none';
+    btn.textContent = 'Hubungi RM untuk Deposit';
+    btn.style.opacity = depUsd > 0 ? '1' : '.6';
+    btn.style.pointerEvents = 'auto';
+  } else {
+    btn.textContent = 'Lanjutkan';
+    if (depUsd > 0) {
+      brk.style.display = 'flex';
+      document.getElementById('brk-spread').textContent = fmtIdr(SPREAD * depUsd);
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    } else {
+      brk.style.display = 'none';
+      btn.style.opacity = '.4';
+      btn.style.pointerEvents = 'none';
+    }
+  }
+}
+
+function depositPrimaryAction() {
+  if (selectedMethod === 'otc') {
+    showToast('Permintaan terkirim. RM akan menghubungi dalam 1 jam.');
+    return;
+  }
+  goToConfirm();
+}
+
+function openDeposit() {
+  depUsd = 0; depIdr = 0;
+  selectedMethod = 'tabungan';
+  document.getElementById('dep-idr').value = '';
+  document.getElementById('dep-usd').value = '';
+  document.getElementById('dep-breakdown').style.display = 'none';
+  clearChipSelection();
+  document.querySelectorAll('#sub-deposit-amount .dep-method').forEach(m => {
+    m.classList.toggle('sel', m.dataset.method === 'tabungan');
+  });
+  updateMethodUI();
+  const btn = document.getElementById('dep-lanjutkan-btn');
+  btn.textContent = 'Lanjutkan';
+  btn.style.opacity = '.4';
+  btn.style.pointerEvents = 'none';
+  document.getElementById('sub-deposit-amount').classList.add('active');
+  document.getElementById('sub-detail').classList.add('pushed');
+  setTimeout(() => document.getElementById('dep-idr').focus(), 350);
+}
+
+function closeDeposit() {
+  document.getElementById('sub-deposit-amount').classList.remove('active');
+  document.getElementById('sub-detail').classList.remove('pushed');
+}
+
+function goToConfirm() {
+  if (depUsd <= 0) return;
+  document.getElementById('dir-from').textContent = METHODS[selectedMethod].dirFrom;
+  document.getElementById('conv-send').textContent = fmtIdr(depIdr);
+  document.getElementById('conv-receive').textContent = fmtUsd(depUsd);
+  document.getElementById('conf-spread-total').textContent = fmtIdr(SPREAD * depUsd);
+  document.getElementById('sub-deposit-confirm').classList.add('active');
+  document.getElementById('sub-deposit-amount').classList.add('pushed');
+  startCountdown();
+}
+
+function backToAmount() {
+  clearInterval(countdownTimer);
+  document.getElementById('sub-deposit-confirm').classList.remove('active');
+  document.getElementById('sub-deposit-amount').classList.remove('pushed');
+}
+
+function startCountdown() {
+  clearInterval(countdownTimer);
+  let secs = 60;
+  const TOTAL = 60;
+  const CIRC = 2 * Math.PI * 16;
+  const ring = document.getElementById('lock-ring-fg');
+  const secsEl = document.getElementById('lock-ring-secs');
+  const expired = document.getElementById('conf-expired');
+  const ctaBtn = document.getElementById('conf-cta-btn');
+  expired.style.display = 'none';
+  ctaBtn.style.opacity = '1';
+  ctaBtn.style.pointerEvents = 'auto';
+  ring.classList.remove('urgent');
+  secsEl.classList.remove('urgent');
+  function tick() {
+    ring.setAttribute('stroke-dashoffset', ((TOTAL-secs)/TOTAL) * CIRC);
+    secsEl.textContent = secs;
+    const urgent = secs <= 10;
+    ring.classList.toggle('urgent', urgent);
+    secsEl.classList.toggle('urgent', urgent);
+    if (secs <= 0) {
+      clearInterval(countdownTimer);
+      expired.style.display = 'block';
+      ctaBtn.style.opacity = '.4';
+      ctaBtn.style.pointerEvents = 'none';
+      secsEl.textContent = '!';
+    }
+    secs--;
+  }
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+function resetCountdown() { document.getElementById('conf-expired').style.display = 'none'; startCountdown(); }
+
+function goToSuccess() {
+  clearInterval(countdownTimer);
+  document.getElementById('success-amt').textContent = fmtUsd(depUsd);
+  const monthly = depUsd * YIELD_PA / 12;
+  const yearly  = depUsd * YIELD_PA;
+  document.getElementById('success-yield-monthly').textContent = '+' + fmtUsd(monthly) + ' / bulan';
+  document.getElementById('success-yield-yearly').textContent = 'Proyeksi 1 tahun: +' + fmtUsd(yearly);
+  const ring = document.querySelector('.success-check-ring');
+  const ic = document.querySelector('.success-check-ic');
+  ring.style.animation = 'none'; ic.style.animation = 'none';
+  void ring.offsetHeight; void ic.offsetHeight;
+  ring.style.animation = ''; ic.style.animation = '';
+  document.getElementById('sub-deposit-success').classList.add('active');
+  document.getElementById('sub-deposit-confirm').classList.add('pushed');
+}
+
+function backToDetail() {
+  ['sub-deposit-success','sub-deposit-confirm','sub-deposit-amount'].forEach(id => {
+    document.getElementById(id).classList.remove('active','pushed');
+  });
+  document.getElementById('sub-detail').classList.remove('pushed');
+}
+function backToMain() {
+  clearInterval(countdownTimer);
+  ['sub-deposit-success','sub-deposit-confirm','sub-deposit-amount','sub-detail'].forEach(id => {
+    document.getElementById(id).classList.remove('active','pushed');
+  });
+  document.getElementById('sub-main').classList.remove('pushed');
+  currentDetailKey = null;
+}
+
+(function() {
+  const track = document.getElementById('bnr-track');
+  const dots  = document.querySelectorAll('.bnr-dot');
+  let cur = 0, total = 3, timer, startX, isDrag = false, dragDelta = 0;
+  function go(idx) { cur = (idx + total) % total; track.style.transform = `translateX(${-cur*336}px)`; dots.forEach((d,i) => d.classList.toggle('act', i===cur)); }
+  function startAutoplay() { timer = setInterval(() => go(cur+1), 3000); }
+  track.addEventListener('touchstart', e => { clearInterval(timer); startX = e.touches[0].clientX; isDrag = true; track.classList.add('drag'); }, {passive:true});
+  track.addEventListener('touchmove', e => { if (!isDrag) return; dragDelta = e.touches[0].clientX - startX; track.style.transform = `translateX(${-cur*336+dragDelta}px)`; }, {passive:true});
+  track.addEventListener('touchend', () => { track.classList.remove('drag'); isDrag = false; if (dragDelta < -50) go(cur+1); else if (dragDelta > 50) go(cur-1); else go(cur); dragDelta = 0; startAutoplay(); });
+  track.addEventListener('mousedown', e => { clearInterval(timer); startX = e.clientX; isDrag = true; track.classList.add('drag'); });
+  window.addEventListener('mousemove', e => { if (!isDrag) return; dragDelta = e.clientX - startX; track.style.transform = `translateX(${-cur*336+dragDelta}px)`; });
+  window.addEventListener('mouseup', () => { if (!isDrag) return; track.classList.remove('drag'); isDrag = false; if (dragDelta < -50) go(cur+1); else if (dragDelta > 50) go(cur-1); else go(cur); dragDelta = 0; startAutoplay(); });
+  startAutoplay();
+})();
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
