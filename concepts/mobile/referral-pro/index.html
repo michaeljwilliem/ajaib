@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ajaib — Referral</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --s0:#000;--s1:#0d0d10;--s2:#1c1c1f;--s3:#242428;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t1:#f2f2f7;--t2:#8e8e93;--t3:#48484a;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;
+  --amber:#ffd60a;--purple:#bf5af2;
+  --prime:#c9a96e;--prime-bg:rgba(201,169,110,.12);--prime-bd:rgba(201,169,110,.28);
+  --safe-top:54px;--safe-bot:34px;
+}
+.n{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+body{background:#060608;font-family:'Inter',-apple-system,sans-serif;color:var(--t1);min-height:100vh;display:flex;flex-direction:row;align-items:flex-start;justify-content:center;padding:24px 16px 48px;gap:20px}
+
+/* ── Controller sidebar ── */
+.ctrl{width:192px;flex-shrink:0;position:sticky;top:24px;background:#111214;border:1px solid var(--b2);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:2px}
+.ctrl-hdr{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;padding:2px 6px 8px;display:flex;align-items:center;justify-content:space-between}
+.ctrl-badge{font-size:9px;font-weight:600;background:rgba(10,132,255,.12);color:var(--blue);border-radius:5px;padding:2px 6px;letter-spacing:.04em}
+.ctrl-divider{height:1px;background:var(--b1);margin:6px 0 8px}
+.ctrl-section{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:0 8px 6px}
+.ctrl-btn{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:9px;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent;position:relative}
+.ctrl-btn:active{background:var(--s3)}
+.ctrl-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ctrl-body{flex:1;min-width:0}
+.ctrl-lbl{font-size:12px;font-weight:600;color:var(--t2);line-height:1.2;transition:color .15s}
+.ctrl-sub{font-size:10px;color:var(--t3);margin-top:2px;line-height:1.3}
+.ctrl-pip{width:5px;height:5px;border-radius:50%;position:absolute;right:8px;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .15s}
+/* active state variants */
+.ctrl-btn[data-s="lite"].on{background:rgba(10,132,255,.1)}
+.ctrl-btn[data-s="lite"].on .ctrl-lbl{color:var(--blue)}
+.ctrl-btn[data-s="lite"].on .ctrl-pip{background:var(--blue);opacity:1}
+.ctrl-btn[data-s="pro"].on{background:rgba(201,169,110,.1)}
+.ctrl-btn[data-s="pro"].on .ctrl-lbl{color:var(--prime)}
+.ctrl-btn[data-s="pro"].on .ctrl-pip{background:var(--prime);opacity:1}
+.ctrl-btn[data-s="dash"].on{background:rgba(201,169,110,.08)}
+.ctrl-btn[data-s="dash"].on .ctrl-lbl{color:var(--prime)}
+.ctrl-btn[data-s="dash"].on .ctrl-pip{background:var(--prime);opacity:1}
+.ctrl-btn[data-s="ref"].on{background:rgba(10,132,255,.1)}
+.ctrl-btn[data-s="ref"].on .ctrl-lbl{color:var(--blue)}
+.ctrl-btn[data-s="ref"].on .ctrl-pip{background:var(--blue);opacity:1}
+
+@media(max-width:640px),(pointer:coarse){
+  body{padding:0;background:#000;justify-content:flex-start;flex-direction:column;align-items:stretch}
+  .pw{width:100%!important;filter:none!important}
+  .ps{width:100%!important;background:none!important;border-radius:0!important;padding:0!important}
+  .ps::before{display:none}
+  .bv,.bv2,.bp{display:none}
+  .screen{width:100%!important;height:100svh!important;border-radius:0!important}
+  /* sidebar → fixed dropdown from top on notch tap */
+  .ctrl{display:none;position:fixed;top:54px;left:0;right:0;z-index:9999;width:100%;border-radius:0 0 18px 18px;border-left:none;border-right:none;border-top:none;box-shadow:0 16px 48px rgba(0,0,0,.96);padding:12px 14px 18px;flex-direction:column;gap:0}
+  .ctrl.on{display:flex}
+  .ctrl-hdr{padding-bottom:10px}
+  .ctrl-section{display:none}
+  .ctrl-divider{display:none}
+  /* 2×2 grid of screen buttons */
+  .ctrl-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ctrl-btn{flex-direction:column;align-items:flex-start;padding:11px 12px 10px;gap:7px;border-radius:12px;background:var(--s2);border:1px solid var(--b1)}
+  .ctrl-btn[data-s="lite"].on,.ctrl-btn[data-s="pro"].on,.ctrl-btn[data-s="dash"].on,.ctrl-btn[data-s="ref"].on{border-color:transparent}
+  .ctrl-ico{width:28px;height:28px;border-radius:7px}
+  .ctrl-sub{display:none}
+  .ctrl-pip{display:none}
+  /* Dynamic Island → Controller pill */
+  .di{background:rgba(18,18,22,.96)!important;border-color:rgba(255,255,255,.18)!important;cursor:pointer;display:flex!important;align-items:center;justify-content:center;width:136px!important;height:34px!important}
+  .di-lbl{display:flex!important;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.04em;pointer-events:none;user-select:none}
+  .di-chev{transition:transform .18s;flex-shrink:0}
+  .di.open .di-lbl{color:var(--blue)}
+  .di.open .di-chev{transform:rotate(180deg)}
+}
+.pw{position:relative;width:393px;filter:drop-shadow(0 32px 80px rgba(0,0,0,.9))}
+.ps{width:393px;background:linear-gradient(170deg,#2a2a2e,#1a1a1e 60%,#111);border-radius:54px;padding:10px;position:relative}
+.ps::before{content:'';position:absolute;inset:0;border-radius:54px;border:1px solid rgba(255,255,255,.12);pointer-events:none}
+.bv{position:absolute;left:-3px;top:132px;width:3px;height:36px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.bv2{position:absolute;left:-3px;top:178px;width:3px;height:36px;background:#2a2a2e;border-radius:2px 0 0 2px}
+.bp{position:absolute;right:-3px;top:158px;width:3px;height:64px;background:#2a2a2e;border-radius:0 2px 2px 0}
+.screen{width:373px;height:812px;border-radius:46px;background:var(--s0);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* Sub screens */
+.sub{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--s0);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1}
+.sub.pushed{transform:translateX(-30px);pointer-events:none}
+.ss{transform:translateX(100%)}
+.ss.act{transform:translateX(0)}
+
+/* Status bar */
+.sbar{height:var(--safe-top);display:flex;align-items:flex-end;padding:0 28px 10px;justify-content:space-between;flex-shrink:0;position:relative}
+.sbar-t{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;border:1px solid #1c1c1e}
+.di-lbl{display:none}
+.di-chev{transition:transform .18s;flex-shrink:0}
+.sbar-r{display:flex;align-items:center;gap:6px}
+
+/* Nav */
+.nav{flex-shrink:0;display:flex;align-items:center;padding:4px 6px 2px}
+.nav-back{display:flex;align-items:center;gap:4px;color:var(--blue);font-size:14px;font-weight:500;cursor:pointer;padding:8px 10px;border-radius:8px;-webkit-tap-highlight-color:transparent;min-width:72px}
+.nav-back:active{background:rgba(255,255,255,.06)}
+.nav-title{flex:1;text-align:center;font-size:17px;font-weight:600;letter-spacing:-.3px}
+.nav-sp{min-width:72px}
+
+/* Tab bar */
+.tbar{flex-shrink:0;display:flex;padding:0 8px;border-bottom:1px solid var(--b1);position:relative}
+.tbtn{padding:10px 18px 12px;font-size:15px;font-weight:600;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;transition:color .18s}
+.tbtn.al{color:var(--t1)}
+.tbtn.ap{color:var(--prime)}
+.tind{position:absolute;bottom:0;height:2px;border-radius:2px 2px 0 0;background:var(--blue);transition:left .22s cubic-bezier(.4,0,.2,1),width .22s cubic-bezier(.4,0,.2,1),background .22s}
+.tind.gold{background:var(--prime)}
+
+/* Scroll */
+.scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scr::-webkit-scrollbar{display:none}
+
+/* Pane transitions */
+.pane{animation:panein .2s ease}
+@keyframes panein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+#pl{display:block}
+#pp{display:none;padding-bottom:96px}
+
+/* ── Sticky Dashboard CTA (Pro tab only) ── */
+.sticky-cta{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:0 14px calc(var(--safe-bot) + 10px);
+  background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.98) 32%);
+  z-index:4;display:none;pointer-events:none
+}
+.sticky-cta.on{display:block}
+.sticky-cta-btn{
+  pointer-events:all;
+  background:var(--prime-bg);border:1px solid var(--prime-bd);
+  border-radius:14px;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s
+}
+.sticky-cta-btn:active{background:rgba(201,169,110,.2)}
+.sticky-cta-left{display:flex;flex-direction:column;gap:1px}
+.sticky-cta-lbl{font-size:14px;font-weight:700;color:var(--prime)}
+.sticky-cta-sub{font-size:11px;color:rgba(201,169,110,.6)}
+
+/* ══════════════════════════════
+   LITE — Hero
+══════════════════════════════ */
+.lhero{margin:14px 14px 0;border-radius:18px;padding:22px 20px 20px;position:relative;overflow:hidden;background:linear-gradient(145deg,#0f0828 0%,#1e0d58 40%,#0a2060 100%)}
+.lhero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 90% 0%,rgba(90,60,220,.35),transparent 60%);pointer-events:none}
+.lhero-lbl{font-size:12px;font-weight:500;color:rgba(255,255,255,.6);margin-bottom:10px;position:relative;z-index:1;display:flex;align-items:center;gap:6px}
+.lhero-brand{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border-radius:20px;padding:2px 8px 2px 4px;font-size:11px;font-weight:700;color:#fff}
+.lhero-dot{width:16px;height:16px;background:linear-gradient(135deg,var(--blue),#5ac8fa);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:#fff}
+.lhero-val{font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1;position:relative;z-index:1;color:#fff;margin-bottom:4px}
+.lhero-val em{font-style:normal;background:linear-gradient(92deg,#ffd60a 10%,#ff9500 90%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lhero-sub{font-size:13px;color:rgba(255,255,255,.55);position:relative;z-index:1}
+.lhero-deco{position:absolute;right:-10px;top:-10px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,10,.12),transparent 70%);pointer-events:none}
+.lhero-deco2{position:absolute;right:20px;bottom:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(10,132,255,.12),transparent 70%);pointer-events:none}
+
+.share-cta{margin:14px 14px 0;padding:15px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:filter .12s;letter-spacing:-.1px}
+.share-cta:active{filter:brightness(.86)}
+
+.code-card{margin:10px 14px 0;background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:10px}
+.code-val{flex:1;font-size:15px;font-weight:600;color:var(--t1);letter-spacing:.02em;font-family:'Inter',monospace;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.code-actions{display:flex;gap:8px;flex-shrink:0}
+.code-copy{font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;padding:4px 0;-webkit-tap-highlight-color:transparent}
+.code-copy:active{opacity:.6}
+.code-sep{width:1px;background:var(--b2);align-self:stretch}
+.code-share{font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;padding:4px 0;-webkit-tap-highlight-color:transparent}
+.code-share:active{opacity:.6}
+
+.benefit-list{padding:16px 14px 0}
+.blabel{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.brow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.brow:last-child{border-bottom:none}
+.bico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bbody{flex:1;min-width:0;padding-top:1px}
+.btitle{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.bsub{font-size:12px;color:var(--t2);line-height:1.5}
+
+.stats-list{margin:16px 14px 28px;background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden}
+.srow{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
+.srow:last-child{border-bottom:none}
+.srow:active{background:var(--s2)}
+.sico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sbody{flex:1;font-size:13px;font-weight:500;color:var(--t1)}
+.scta{font-size:13px;font-weight:600;color:var(--blue);flex-shrink:0}
+
+/* ══════════════════════════════
+   PRO — Earnings Hero
+══════════════════════════════ */
+.pro-hero{margin:14px 14px 0;border-radius:18px;padding:20px;background:linear-gradient(150deg,#1c1408 0%,#2a1e0a 50%,#151510 100%);border:1px solid var(--prime-bd);position:relative;overflow:hidden}
+.pro-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 10%,rgba(201,169,110,.14),transparent 55%);pointer-events:none}
+.pro-hero-tag{display:inline-flex;align-items:center;gap:5px;background:var(--prime-bg);border:1px solid var(--prime-bd);border-radius:20px;padding:3px 10px 3px 6px;margin-bottom:14px;position:relative;z-index:1}
+.pro-hero-tag-ico{width:16px;height:16px;background:linear-gradient(135deg,var(--prime),#9c7a3c);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.pro-hero-tag-lbl{font-size:11px;font-weight:700;color:var(--prime);letter-spacing:.05em}
+.pro-hero-lbl{font-size:12px;color:rgba(201,169,110,.6);margin-bottom:4px;position:relative;z-index:1}
+.pro-hero-val{font-size:36px;font-weight:800;letter-spacing:-1px;color:var(--prime);line-height:1;position:relative;z-index:1}
+.pro-hero-sub{font-size:13px;color:var(--t2);margin-top:4px;position:relative;z-index:1}
+.pro-progress{margin-top:16px;position:relative;z-index:1}
+.pro-progress-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.pro-progress-lbl{font-size:12px;font-weight:500;color:var(--t2)}
+.pro-progress-count{font-size:12px;font-weight:700;color:var(--prime)}
+.pro-progress-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.pro-progress-fill{height:100%;background:linear-gradient(90deg,var(--prime),#a07840);border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.pro-progress-pills{display:flex;gap:8px;margin-top:10px}
+.pro-pp{font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px}
+.pro-pp.trading{background:rgba(48,209,88,.12);color:var(--green)}
+.pro-pp.waiting{background:rgba(255,255,255,.06);color:var(--t2)}
+
+.pro-code{margin:10px 14px 0;background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:10px}
+.pro-code-val{flex:1;font-size:14px;font-weight:600;color:var(--t1);letter-spacing:.08em;font-family:'Inter',monospace;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pro-code-btns{display:flex;gap:7px;flex-shrink:0}
+.pcbtn{height:38px;padding:0 12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;-webkit-tap-highlight-color:transparent;transition:filter .12s;border:none}
+.pcbtn:active{filter:brightness(.86)}
+.pcbtn.cp{background:var(--s2);color:var(--t1);border:1px solid var(--b2)}
+.pcbtn.sh{background:var(--blue);color:#fff}
+
+/* Preview referee link — subtle, below code card */
+.ref-preview-link{margin:8px 14px 0;display:flex;align-items:center;justify-content:flex-end;gap:4px;cursor:pointer;padding:4px 2px;-webkit-tap-highlight-color:transparent}
+.ref-preview-link:active{opacity:.6}
+.ref-preview-link span{font-size:12px;font-weight:500;color:var(--t2)}
+
+.pro-blist{padding:14px 14px 0}
+.pro-brow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.pro-brow:last-child{border-bottom:none}
+.pro-bico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pro-bbody{flex:1;min-width:0;padding-top:1px}
+.pro-btitle{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.pro-bsub{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* ══════════════════════════════
+   DASHBOARD
+══════════════════════════════ */
+.dash-hero{padding:18px 14px 16px;border-bottom:1px solid var(--b1)}
+.dash-hero-lbl{font-size:12px;color:var(--t2);margin-bottom:4px;font-weight:500}
+.dash-hero-val{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--prime);line-height:1}
+.dash-hero-sub{font-size:13px;color:var(--t2);margin-top:5px}
+.dash-progress{margin-top:14px}
+.dph{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.dph-lbl{font-size:12px;font-weight:500;color:var(--t2)}
+.dph-val{font-size:12px;font-weight:700;color:var(--prime)}
+.dp-track{height:5px;background:var(--b1);border-radius:3px;overflow:hidden}
+.dp-fill{height:100%;background:linear-gradient(90deg,var(--prime),#a07840);border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+
+.period-bar{display:flex;gap:8px;padding:14px 14px 0}
+.pbtn{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;color:var(--t2);background:var(--s2);border:1px solid var(--b1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s}
+.pbtn:active{filter:brightness(.86)}
+.pbtn.act{background:var(--prime-bg);border-color:var(--prime-bd);color:var(--prime)}
+
+.shdr{display:flex;align-items:baseline;justify-content:space-between;padding:18px 14px 10px}
+.shdr-t{font-size:13px;font-weight:700}
+.shdr-s{font-size:12px;color:var(--t2)}
+
+.ref-list{padding:0 14px}
+.rrow{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.rrow:last-child{border-bottom:none}
+.ravatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.rinfo{flex:1;min-width:0}
+.rname{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:4px}
+.rmeta{display:flex;align-items:center;gap:6px}
+.spill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.spill.r{background:rgba(142,142,147,.12);color:var(--t2)}
+.spill.k{background:rgba(255,214,10,.12);color:var(--amber)}
+.spill.t{background:rgba(48,209,88,.12);color:var(--green)}
+.rprod{font-size:10px;color:var(--t3)}
+.rright{text-align:right;flex-shrink:0}
+.rcomm{font-size:13px;font-weight:600;color:var(--green)}
+.rcomm.z{color:var(--t3);font-weight:400}
+.rnudge{font-size:12px;font-weight:600;color:var(--blue);margin-top:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rnudge:active{opacity:.6}
+.rjoin{font-size:10px;color:var(--t3);margin-top:2px}
+
+.rwd-list{padding:0 14px 32px}
+.rwd-date{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;padding:6px 0 8px}
+.rwrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--b1)}
+.rwrow:last-child{border-bottom:none}
+.rwico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rwico.paid{background:rgba(48,209,88,.1)}
+.rwico.sched{background:rgba(255,214,10,.1)}
+.rwinfo{flex:1;min-width:0}
+.rwdesc{font-size:13px;font-weight:500;color:var(--t1)}
+.rwsub{font-size:11px;color:var(--t3);margin-top:2px}
+.rwamt{font-size:13px;font-weight:600;color:var(--green)}
+.rwst{font-size:10px;font-weight:500;margin-top:3px}
+.rwst.paid{color:var(--green)}
+.rwst.sched{color:var(--amber)}
+
+/* ══════════════════════════════
+   REFEREE WELCOME SCREEN
+══════════════════════════════ */
+.ref-welcome-hero{
+  padding:28px 20px 24px;
+  background:linear-gradient(165deg,#080c1a 0%,#0f1836 45%,#060810 100%);
+  position:relative;overflow:hidden;flex-shrink:0
+}
+.ref-welcome-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(10,80,255,.2),transparent 60%);pointer-events:none}
+.ref-avatar-ring{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 14px;position:relative;z-index:1;box-shadow:0 0 0 4px rgba(10,132,255,.2),0 0 0 8px rgba(10,132,255,.08)}
+.ref-invited-by{font-size:13px;color:rgba(255,255,255,.55);text-align:center;margin-bottom:4px;position:relative;z-index:1}
+.ref-referrer-name{font-size:20px;font-weight:700;color:#fff;text-align:center;letter-spacing:-.3px;position:relative;z-index:1;margin-bottom:4px}
+.ref-invited-to{font-size:14px;color:rgba(255,255,255,.55);text-align:center;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:5px}
+.ref-brand-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border-radius:20px;padding:2px 8px 2px 4px;font-size:12px;font-weight:700;color:#fff}
+.ref-brand-dot{width:14px;height:14px;background:linear-gradient(135deg,var(--blue),#5ac8fa);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:900;color:#fff}
+
+/* Reward card */
+.ref-reward-card{margin:0 14px;background:var(--prime-bg);border:1px solid var(--prime-bd);border-radius:16px;padding:16px;position:relative;overflow:hidden}
+.ref-reward-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 90% 50%,rgba(201,169,110,.1),transparent 60%);pointer-events:none}
+.ref-reward-title{font-size:11px;font-weight:600;color:rgba(201,169,110,.6);letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px}
+.ref-reward-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--prime-bd)}
+.ref-reward-row:last-child{border-bottom:none}
+.ref-reward-ico{width:32px;height:32px;border-radius:8px;background:var(--prime-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ref-reward-body{flex:1;min-width:0}
+.ref-reward-val{font-size:14px;font-weight:700;color:var(--prime)}
+.ref-reward-sub{font-size:11px;color:rgba(201,169,110,.6);margin-top:1px}
+
+/* Steps */
+.ref-steps{padding:20px 14px 0}
+.ref-steps-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:14px}
+.ref-step{display:flex;align-items:flex-start;gap:12px;padding-bottom:16px;position:relative}
+.ref-step:not(:last-child)::after{content:'';position:absolute;left:15px;top:32px;bottom:0;width:1px;background:var(--b2)}
+.ref-step-num{width:30px;height:30px;border-radius:50%;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--t2);flex-shrink:0}
+.ref-step-body{flex:1;min-width:0;padding-top:4px}
+.ref-step-title{font-size:13px;font-weight:600;color:var(--t1)}
+.ref-step-sub{font-size:12px;color:var(--t2);margin-top:2px;line-height:1.45}
+
+/* Register CTA */
+.ref-cta-wrap{padding:16px 14px calc(var(--safe-bot) + 16px)}
+.ref-cta{padding:15px;background:var(--blue);border-radius:14px;text-align:center;font-size:16px;font-weight:700;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:filter .12s;letter-spacing:-.1px;margin-bottom:12px}
+.ref-cta:active{filter:brightness(.86)}
+.ref-cta-secondary{text-align:center;font-size:14px;color:var(--t2);cursor:pointer}
+.ref-cta-secondary span{color:var(--blue);font-weight:600}
+
+/* ══════════════════════════════
+   Sheets + Backdrop + Toast
+══════════════════════════════ */
+#bd{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:10;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:46px}
+#bd.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:var(--s1);border-radius:20px 20px 0 0;z-index:11;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);padding-bottom:var(--safe-bot)}
+.sheet.on{transform:translateY(0)}
+.sh-handle{width:36px;height:4px;background:rgba(255,255,255,.16);border-radius:2px;margin:10px auto 0}
+.sh-title{font-size:15px;font-weight:700;padding:14px 20px 12px;border-bottom:1px solid var(--b1)}
+.sh-opts{display:flex;padding:16px 12px 8px;justify-content:space-around}
+.sh-opt{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:0 8px;-webkit-tap-highlight-color:transparent}
+.sh-opt:active .sh-ico{filter:brightness(.8)}
+.sh-ico{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center}
+.sh-lbl{font-size:11px;font-weight:500;color:var(--t2)}
+.sh-cancel{margin:6px 14px 0;padding:14px;text-align:center;font-size:15px;font-weight:600;color:var(--red);background:var(--s2);border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sh-cancel:active{background:var(--s3)}
+.toast{position:absolute;bottom:calc(var(--safe-bot)+18px);left:50%;transform:translateX(-50%) translateY(8px);background:var(--s3);border:1px solid var(--b2);border-radius:12px;padding:10px 18px;font-size:13px;color:var(--t1);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="ctrl" id="ctrl-panel">
+  <div class="ctrl-hdr">Navigator <span class="ctrl-badge">PROTO</span></div>
+  <div class="ctrl-divider"></div>
+  <div class="ctrl-section">Hub</div>
+  <div class="ctrl-btns">
+    <div class="ctrl-btn on" data-s="lite" onclick="ctrlGo('lite')">
+      <div class="ctrl-ico" style="background:rgba(10,132,255,.1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <div class="ctrl-body">
+        <div class="ctrl-lbl">Lite</div>
+        <div class="ctrl-sub">One-time reward</div>
+      </div>
+      <div class="ctrl-pip"></div>
+    </div>
+    <div class="ctrl-btn" data-s="pro" onclick="ctrlGo('pro')">
+      <div class="ctrl-ico" style="background:var(--prime-bg)">
+        <svg width="14" height="14" viewBox="0 0 12 12" fill="var(--prime)"><path d="M6 0l1.5 4.5H12L8.5 7.3l1.3 4.2L6 9l-3.8 2.5 1.3-4.2L0 4.5h4.5z"/></svg>
+      </div>
+      <div class="ctrl-body">
+        <div class="ctrl-lbl">Pro</div>
+        <div class="ctrl-sub">Komisioner aktif</div>
+      </div>
+      <div class="ctrl-pip"></div>
+    </div>
+  </div>
+  <div class="ctrl-divider"></div>
+  <div class="ctrl-section">Screens</div>
+  <div class="ctrl-btns">
+    <div class="ctrl-btn" data-s="dash" onclick="ctrlGo('dash')">
+      <div class="ctrl-ico" style="background:rgba(201,169,110,.08)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="ctrl-body">
+        <div class="ctrl-lbl">Dashboard</div>
+        <div class="ctrl-sub">Referrer view</div>
+      </div>
+      <div class="ctrl-pip"></div>
+    </div>
+    <div class="ctrl-btn" data-s="ref" onclick="ctrlGo('ref')">
+      <div class="ctrl-ico" style="background:rgba(10,132,255,.1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="ctrl-body">
+        <div class="ctrl-lbl">Referee</div>
+        <div class="ctrl-sub">Welcome screen</div>
+      </div>
+      <div class="ctrl-pip"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pw">
+<div class="ps">
+  <div class="bv"></div><div class="bv2"></div><div class="bp"></div>
+  <div class="screen">
+
+  <!-- ═══════════════════════════
+       SCREEN 1 — Referral Hub
+  ═══════════════════════════ -->
+  <div class="sub" id="s-main">
+    <div class="sbar">
+      <span class="sbar-t">12:30</span>
+      <div class="di" onclick="toggleCtrl()"><span class="di-lbl">Navigator <svg class="di-chev" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 1 5 5 9 1"/></svg></span></div>
+      <div class="sbar-r">
+        <svg width="17" height="12" viewBox="0 0 16 12" fill="var(--t1)"><rect x="0" y="3" width="3" height="9" rx=".5"/><rect x="4.5" y="2" width="3" height="10" rx=".5"/><rect x="9" y="1" width="3" height="11" rx=".5"/><rect x="13.5" y="0" width="2.5" height="12" rx=".5"/></svg>
+        <svg width="16" height="12" viewBox="0 0 24 18" fill="none" stroke="var(--t1)" stroke-width="2"><path d="M1 6C5 2 10 0 12 0s7 2 11 6M5 10c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3M9 14c.8-.8 1.9-1 3-1s2.2.2 3 1"/><circle cx="12" cy="17" r="1" fill="var(--t1)" stroke="none"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="var(--t1)" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="var(--t1)"/><path d="M23 4v4a2 2 0 000-4z" fill="var(--t1)" fill-opacity=".4"/></svg>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-back" onclick="toast('Kembali ke Profil')">
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+        Kembali
+      </div>
+      <div class="nav-title">Hadiah Saham</div>
+      <div class="nav-sp"></div>
+    </div>
+
+    <div class="tbar" id="tbar">
+      <div class="tbtn al" id="tl" onclick="tab('lite')">Lite</div>
+      <div class="tbtn" id="tp" onclick="tab('pro')">Pro
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="var(--prime)" style="vertical-align:middle;margin-left:2px;opacity:.8"><path d="M6 0l1.5 4.5H12L8.5 7.3l1.3 4.2L6 9l-3.8 2.5 1.3-4.2L0 4.5h4.5z"/></svg>
+      </div>
+      <div class="tind" id="tind"></div>
+    </div>
+
+    <div class="scr" id="ms">
+
+      <!-- ─ LITE PANE ─ -->
+      <div id="pl">
+        <div class="lhero">
+          <div class="lhero-deco"></div><div class="lhero-deco2"></div>
+          <div class="lhero-lbl">
+            <div class="lhero-brand"><div class="lhero-dot">a</div>ajaib</div>
+            mengajak kamu &amp; temanmu
+          </div>
+          <div class="lhero-val">hingga <em>Rp100 Juta</em></div>
+          <div class="lhero-sub">hadiah saham untuk berdua, tiap referral</div>
+        </div>
+
+        <div class="share-cta" onclick="openShare()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Bagikan Kode Ajaib
+        </div>
+
+        <div class="code-card">
+          <div class="code-val">ManagementEventUNJ</div>
+          <div class="code-actions">
+            <div class="code-copy" id="lc" onclick="copyCode('lc','ManagementEventUNJ')">Salin</div>
+            <div class="code-sep"></div>
+            <div class="code-share" onclick="openShare()">Bagikan</div>
+          </div>
+        </div>
+
+        <div class="benefit-list">
+          <div class="blabel">Cara kerjanya</div>
+          <div class="brow">
+            <div class="bico" style="background:rgba(48,209,88,.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+            </div>
+            <div class="bbody">
+              <div class="btitle">Berdua dapat hadiah saham</div>
+              <div class="bsub">Kamu dan temanmu masing-masing dapat saham senilai hingga Rp100 Juta.</div>
+            </div>
+          </div>
+          <div class="brow">
+            <div class="bico" style="background:rgba(10,132,255,.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="bbody">
+              <div class="btitle">100% pasti dapat saham</div>
+              <div class="bsub">Hadiah langsung masuk setelah transaksi pertama temanmu selesai.</div>
+            </div>
+          </div>
+          <div class="brow">
+            <div class="bico" style="background:rgba(255,214,10,.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            </div>
+            <div class="bbody">
+              <div class="btitle">Saham perusahaan top Indonesia</div>
+              <div class="bsub">Pilih dari saham BRMS, BUMI, GOTO, dan lainnya.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-list">
+          <div class="srow" onclick="toast('1 hadiah saham menunggumu')">
+            <div class="sico" style="background:rgba(48,209,88,.1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+            </div>
+            <div class="sbody">1 Hadiah Saham Tersedia</div>
+            <div class="scta">Ambil Hadiah</div>
+          </div>
+          <div class="srow" onclick="toast('Kirim pengingat ke temanmu')">
+            <div class="sico" style="background:rgba(10,132,255,.1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="sbody">10 Teman Terdaftar</div>
+            <div class="scta">Ingatkan Teman</div>
+          </div>
+          <div class="srow" onclick="toast('Lihat bonus yang tersedia')">
+            <div class="sico" style="background:rgba(201,169,110,.1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="sbody">Bonus Tersedia</div>
+            <div class="scta">Lihat Bonus</div>
+          </div>
+        </div>
+      </div><!-- /pl -->
+
+      <!-- ─ PRO PANE ─ -->
+      <div id="pp">
+        <div class="pro-hero">
+          <div class="pro-hero-tag">
+            <div class="pro-hero-tag-ico">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="#fff"><path d="M6 0l1.5 4.5H12L8.5 7.3l1.3 4.2L6 9l-3.8 2.5 1.3-4.2L0 4.5h4.5z"/></svg>
+            </div>
+            <div class="pro-hero-tag-lbl">Referrer Pro · IDS · 15% Komisi</div>
+          </div>
+          <div class="pro-hero-lbl">Total komisi yang kamu terima</div>
+          <div class="pro-hero-val n" id="ph-val">Rp274.500</div>
+          <div class="pro-hero-sub">dari 8 teman yang sudah aktif trading</div>
+          <div class="pro-progress">
+            <div class="pro-progress-hdr">
+              <div class="pro-progress-lbl">Kemajuan referral</div>
+              <div class="pro-progress-count">8/12 teman trading</div>
+            </div>
+            <div class="pro-progress-track">
+              <div class="pro-progress-fill" id="ph-bar" style="width:0%"></div>
+            </div>
+            <div class="pro-progress-pills">
+              <div class="pro-pp trading">8 Sudah Trading</div>
+              <div class="pro-pp waiting">4 Belum Mulai</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="share-cta" style="background:var(--prime);color:#0a0800" onclick="openShare()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0800" stroke-width="2.2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Bagikan Link Pro
+        </div>
+
+        <div class="pro-code">
+          <div class="pro-code-val">MICH-PRO-2026</div>
+          <div class="pro-code-btns">
+            <div class="pcbtn cp" id="pc" onclick="copyCode('pc','MICH-PRO-2026')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Salin
+            </div>
+            <div class="pcbtn sh" onclick="openShare()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Bagikan
+            </div>
+          </div>
+        </div>
+
+        <div class="pro-blist">
+          <div class="blabel" style="padding-top:4px">Keuntungan Referral Pro</div>
+          <div class="pro-brow">
+            <div class="pro-bico" style="background:var(--prime-bg)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="pro-bbody">
+              <div class="pro-btitle">Komisi dari setiap transaksi</div>
+              <div class="pro-bsub">Dapat 15% dari biaya broker temanmu — tiap kali mereka trading, bukan hanya sekali.</div>
+            </div>
+          </div>
+          <div class="pro-brow">
+            <div class="pro-bico" style="background:rgba(48,209,88,.1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div class="pro-bbody">
+              <div class="pro-btitle">Tanpa batas penghasilan</div>
+              <div class="pro-bsub">Tidak ada cap komisi. Makin aktif teman tradingnya, makin besar pendapatanmu.</div>
+            </div>
+          </div>
+          <div class="pro-brow">
+            <div class="pro-bico" style="background:rgba(10,132,255,.1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="pro-bbody">
+              <div class="pro-btitle">Pantau performa real-time</div>
+              <div class="pro-bsub">Lihat stage setiap referee, total TPV, dan riwayat komisi kapan saja.</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /pp -->
+
+    </div><!-- /scr -->
+
+    <!-- Sticky Dashboard CTA — floats above Pro tab content -->
+    <div class="sticky-cta" id="sticky-cta">
+      <div class="sticky-cta-btn" onclick="openDash()">
+        <div class="sticky-cta-left">
+          <div class="sticky-cta-lbl">Lihat Dashboard Referral Pro</div>
+          <div class="sticky-cta-sub">Daftar referee &amp; riwayat komisi</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+
+  </div><!-- /s-main -->
+
+
+  <!-- ═══════════════════════════
+       SCREEN 2 — Dashboard Pro
+  ═══════════════════════════ -->
+  <div class="sub ss" id="s-dash">
+    <div class="sbar">
+      <span class="sbar-t">12:30</span><div class="di" onclick="toggleCtrl()"><span class="di-lbl">Navigator <svg class="di-chev" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 1 5 5 9 1"/></svg></span></div>
+      <div class="sbar-r">
+        <svg width="17" height="12" viewBox="0 0 16 12" fill="var(--t1)"><rect x="0" y="3" width="3" height="9" rx=".5"/><rect x="4.5" y="2" width="3" height="10" rx=".5"/><rect x="9" y="1" width="3" height="11" rx=".5"/><rect x="13.5" y="0" width="2.5" height="12" rx=".5"/></svg>
+        <svg width="16" height="12" viewBox="0 0 24 18" fill="none" stroke="var(--t1)" stroke-width="2"><path d="M1 6C5 2 10 0 12 0s7 2 11 6M5 10c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3M9 14c.8-.8 1.9-1 3-1s2.2.2 3 1"/><circle cx="12" cy="17" r="1" fill="var(--t1)" stroke="none"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="var(--t1)" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="var(--t1)"/><path d="M23 4v4a2 2 0 000-4z" fill="var(--t1)" fill-opacity=".4"/></svg>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-back" onclick="closeDash()">
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M8 1L1.5 7.5 8 14"/></svg>
+        Kembali
+      </div>
+      <div class="nav-title">Dashboard Pro</div>
+      <div class="nav-sp"></div>
+    </div>
+    <div class="scr">
+      <div class="dash-hero">
+        <div class="dash-hero-lbl">Total komisi diterima</div>
+        <div class="dash-hero-val n" id="dh-val">Rp274.500</div>
+        <div class="dash-hero-sub" id="dh-sub">dari 8 teman yang sudah aktif trading</div>
+        <div class="dash-progress">
+          <div class="dph">
+            <div class="dph-lbl">Kemajuan</div>
+            <div class="dph-val" id="dp-lbl">8 dari 12 teman trading</div>
+          </div>
+          <div class="dp-track"><div class="dp-fill" id="dp-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="period-bar">
+        <div class="pbtn" id="pw" onclick="period('week')">Minggu ini</div>
+        <div class="pbtn act" id="pm" onclick="period('month')">Bulan ini</div>
+        <div class="pbtn" id="pa" onclick="period('all')">Semua</div>
+      </div>
+      <div class="shdr">
+        <div class="shdr-t">Daftar Referee</div>
+        <div class="shdr-s" id="ref-stat">8 aktif · 4 menunggu</div>
+      </div>
+      <div class="ref-list" id="ref-list"></div>
+      <div class="shdr" style="padding-top:22px">
+        <div class="shdr-t">Riwayat Komisi</div>
+      </div>
+      <div class="rwd-list" id="rwd-list"></div>
+    </div>
+  </div><!-- /s-dash -->
+
+
+  <!-- ═══════════════════════════
+       SCREEN 3 — Referee Welcome
+  ═══════════════════════════ -->
+  <div class="sub ss" id="s-ref">
+    <div class="sbar">
+      <span class="sbar-t">12:30</span><div class="di" onclick="toggleCtrl()"><span class="di-lbl">Navigator <svg class="di-chev" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 1 5 5 9 1"/></svg></span></div>
+      <div class="sbar-r">
+        <svg width="17" height="12" viewBox="0 0 16 12" fill="var(--t1)"><rect x="0" y="3" width="3" height="9" rx=".5"/><rect x="4.5" y="2" width="3" height="10" rx=".5"/><rect x="9" y="1" width="3" height="11" rx=".5"/><rect x="13.5" y="0" width="2.5" height="12" rx=".5"/></svg>
+        <svg width="16" height="12" viewBox="0 0 24 18" fill="none" stroke="var(--t1)" stroke-width="2"><path d="M1 6C5 2 10 0 12 0s7 2 11 6M5 10c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3M9 14c.8-.8 1.9-1 3-1s2.2.2 3 1"/><circle cx="12" cy="17" r="1" fill="var(--t1)" stroke="none"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="var(--t1)" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="var(--t1)"/><path d="M23 4v4a2 2 0 000-4z" fill="var(--t1)" fill-opacity=".4"/></svg>
+      </div>
+    </div>
+    <!-- Nav: close (not back — this is a new-user entry point) -->
+    <div class="nav" style="padding:2px 6px">
+      <div class="nav-back" onclick="closeRef()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Tutup
+      </div>
+      <div class="nav-title" style="font-size:14px;color:var(--t2)">Undangan Referral</div>
+      <div class="nav-sp"></div>
+    </div>
+
+    <div class="scr">
+      <!-- Referrer identity — trust anchor -->
+      <div class="ref-welcome-hero">
+        <div class="ref-avatar-ring">ML</div>
+        <div class="ref-invited-by">Kamu diundang oleh</div>
+        <div class="ref-referrer-name">Michael Liem</div>
+        <div class="ref-invited-to">
+          untuk bergabung di
+          <div class="ref-brand-pill"><div class="ref-brand-dot">a</div>ajaib</div>
+        </div>
+      </div>
+
+      <!-- What referee gets -->
+      <div style="padding:16px 14px 0">
+        <div class="ref-reward-card">
+          <div class="ref-reward-title">Hadiah untuk kamu sebagai teman</div>
+          <div class="ref-reward-row">
+            <div class="ref-reward-ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="ref-reward-body">
+              <div class="ref-reward-val">Diskon biaya broker</div>
+              <div class="ref-reward-sub">Komisi sharing aktif setelah trading pertama</div>
+            </div>
+          </div>
+          <div class="ref-reward-row">
+            <div class="ref-reward-ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="ref-reward-body">
+              <div class="ref-reward-val">Berlaku tiap transaksi</div>
+              <div class="ref-reward-sub">Tidak hanya sekali — selama kamu aktif trading</div>
+            </div>
+          </div>
+          <div class="ref-reward-row">
+            <div class="ref-reward-ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--prime)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div class="ref-reward-body">
+              <div class="ref-reward-val">Aman &amp; diawasi OJK</div>
+              <div class="ref-reward-sub">Ajaib terdaftar dan diawasi OJK sejak 2019</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steps to activate -->
+      <div class="ref-steps">
+        <div class="ref-steps-title">3 langkah untuk mulai</div>
+        <div class="ref-step">
+          <div class="ref-step-num">1</div>
+          <div class="ref-step-body">
+            <div class="ref-step-title">Daftar akun Ajaib</div>
+            <div class="ref-step-sub">Buat akun gratis dengan email atau Google SSO. Kode referral otomatis tersimpan.</div>
+          </div>
+        </div>
+        <div class="ref-step">
+          <div class="ref-step-num">2</div>
+          <div class="ref-step-body">
+            <div class="ref-step-title">Selesaikan verifikasi KYC</div>
+            <div class="ref-step-sub">Upload KTP dan selfie. Proses verifikasi biasanya selesai dalam 1×24 jam.</div>
+          </div>
+        </div>
+        <div class="ref-step">
+          <div class="ref-step-num" style="background:var(--prime-bg);border-color:var(--prime-bd);color:var(--prime)">3</div>
+          <div class="ref-step-body">
+            <div class="ref-step-title" style="color:var(--prime)">Lakukan trading pertama</div>
+            <div class="ref-step-sub">Trading saham IDS minimal Rp1 juta → reward &amp; komisi langsung aktif untuk kamu dan Michael.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="ref-cta-wrap">
+        <div class="ref-cta" onclick="toast('Daftar akun baru — alur registrasi')">Daftar Sekarang</div>
+        <div class="ref-cta-secondary" onclick="toast('Masuk ke akun yang sudah ada')">
+          Sudah punya akun? <span>Masuk</span>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /s-ref -->
+
+
+  <!-- Backdrop -->
+  <div id="bd" onclick="closeSheets()"></div>
+
+  <!-- Share sheet -->
+  <div class="sheet" id="sh-share">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Bagikan Kode Referral</div>
+    <div class="sh-opts">
+      <div class="sh-opt" onclick="closeSheets();toast('Dibagikan via WhatsApp')">
+        <div class="sh-ico" style="background:rgba(37,211,102,.14)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="#25d166"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2.003a9.998 9.998 0 00-8.613 14.984L2 22l5.15-1.351A9.997 9.997 0 1012.004 2.003zm0 18.25a8.246 8.246 0 01-4.207-1.151l-.302-.179-3.056.802.816-2.98-.196-.306A8.253 8.253 0 1120.254 12a8.26 8.26 0 01-8.25 8.253z"/></svg>
+        </div>
+        <div class="sh-lbl">WhatsApp</div>
+      </div>
+      <div class="sh-opt" onclick="closeSheets();toast('Link disalin')">
+        <div class="sh-ico" style="background:rgba(10,132,255,.1)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="sh-lbl">Salin Link</div>
+      </div>
+      <div class="sh-opt" onclick="closeSheets();toast('Dibagikan via Telegram')">
+        <div class="sh-ico" style="background:rgba(0,136,204,.1)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.829.941z"/></svg>
+        </div>
+        <div class="sh-lbl">Telegram</div>
+      </div>
+      <div class="sh-opt" onclick="closeSheets();toast('Opsi berbagi lainnya')">
+        <div class="sh-ico" style="background:var(--s2)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.5" fill="var(--t2)"/><circle cx="12" cy="12" r="1.5" fill="var(--t2)"/><circle cx="19" cy="12" r="1.5" fill="var(--t2)"/></svg>
+        </div>
+        <div class="sh-lbl">Lainnya</div>
+      </div>
+    </div>
+    <div class="sh-cancel" onclick="closeSheets()">Batal</div>
+  </div>
+
+  <div class="toast" id="tst"></div>
+
+  </div><!-- /screen -->
+</div></div>
+
+<script>
+const REFS=[
+  {n:'Andi Kurniawan', i:'AK',c:'#0a84ff',s:'t',comm:125000,prod:'IDS',   j:'2 Mei'},
+  {n:'Budi Santoso',   i:'BS',c:'#30d158',s:'t',comm:87500, prod:'IDS',   j:'5 Mei'},
+  {n:'Dian Pratama',   i:'DP',c:'#ff9f0a',s:'t',comm:62000, prod:'IDS',   j:'9 Mei'},
+  {n:'Gani Hartono',   i:'GH',c:'#5ac8fa',s:'t',comm:45000, prod:'IDS',   j:'13 Mei'},
+  {n:'Hana Sari',      i:'HS',c:'#ffd60a',s:'t',comm:34500, prod:'IDS',   j:'13 Mei'},
+  {n:'Ivan Kristanto', i:'IK',c:'#0a84ff',s:'t',comm:28000, prod:'IDS',   j:'14 Mei'},
+  {n:'Kartika Sari',   i:'KS',c:'#bf5af2',s:'t',comm:21000, prod:'IDS',   j:'15 Mei'},
+  {n:'Lukman Hakim',   i:'LH',c:'#30d158',s:'t',comm:18000, prod:'IDS',   j:'15 Mei'},
+  {n:'Citra Dewi',     i:'CD',c:'#8e8e93',s:'k',comm:0,     prod:'Crypto',j:'8 Mei'},
+  {n:'Fitri Rahayu',   i:'FR',c:'#8e8e93',s:'k',comm:0,     prod:'Crypto',j:'12 Mei'},
+  {n:'Eko Wibowo',     i:'EW',c:'#48484a',s:'r',comm:0,     prod:'IDS',   j:'11 Mei'},
+  {n:'Joko Purnomo',   i:'JP',c:'#48484a',s:'r',comm:0,     prod:'Crypto',j:'15 Mei'},
+];
+const RWD={
+  week:[{d:'15 Mei 2026',rows:[
+    {desc:'Komisi dari Kartika Sari', prod:'IDS',amt:21000,st:'sched'},
+    {desc:'Komisi dari Ivan Kristanto',prod:'IDS',amt:28000,st:'sched'},
+  ]}],
+  month:[
+    {d:'15 Mei 2026',rows:[
+      {desc:'Komisi dari Kartika Sari', prod:'IDS',amt:21000,st:'sched'},
+      {desc:'Komisi dari Ivan Kristanto',prod:'IDS',amt:28000,st:'sched'},
+    ]},
+    {d:'12 Mei 2026',rows:[
+      {desc:'Komisi dari Gani Hartono',  prod:'IDS',amt:45000,st:'paid'},
+      {desc:'Komisi dari Hana Sari',     prod:'IDS',amt:34500,st:'paid'},
+    ]},
+    {d:'5 Mei 2026',rows:[
+      {desc:'Komisi dari Dian Pratama',  prod:'IDS',amt:62000,st:'paid'},
+      {desc:'Komisi dari Budi Santoso',  prod:'IDS',amt:87500,st:'paid'},
+    ]},
+    {d:'2 Mei 2026',rows:[
+      {desc:'Komisi dari Andi Kurniawan',prod:'IDS',amt:125000,st:'paid'},
+    ]},
+  ],
+};
+RWD.all=RWD.month;
+const PS={
+  week: {val:'Rp49.000', tr:2,tot:12,sub:'dari 2 teman yang trading minggu ini'},
+  month:{val:'Rp274.500',tr:8,tot:12,sub:'dari 8 teman yang sudah aktif trading'},
+  all:  {val:'Rp274.500',tr:8,tot:12,sub:'dari 8 teman yang sudah aktif trading'},
+};
+const SL={r:'Daftar',k:'KYC',t:'Trading'};
+
+let curTab='lite', curPeriod='month', ctrlOpen=false;
+
+/* Controller */
+function toggleCtrl(){
+  ctrlOpen=!ctrlOpen;
+  document.getElementById('ctrl-panel').classList.toggle('on',ctrlOpen);
+  document.querySelectorAll('.di').forEach(d=>d.classList.toggle('open',ctrlOpen));
+}
+function syncCtrl(screen){
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('on'));
+  const btn=document.querySelector('.ctrl-btn[data-s="'+screen+'"]');
+  if(btn) btn.classList.add('on');
+  if(ctrlOpen){ ctrlOpen=false; document.getElementById('ctrl-panel').classList.remove('on'); document.querySelectorAll('.di').forEach(d=>d.classList.remove('open')); }
+}
+function ctrlGo(screen){
+  document.getElementById('s-dash').classList.remove('act');
+  document.getElementById('s-ref').classList.remove('act');
+  document.getElementById('s-main').classList.remove('pushed');
+  if(screen==='lite'){ tab('lite'); }
+  else if(screen==='pro'){ tab('pro'); }
+  else if(screen==='dash'){ tab('pro'); openDash(); }
+  else if(screen==='ref'){ openRef(); }
+  syncCtrl(screen);
+}
+
+/* Tab */
+function tab(t){
+  curTab=t;
+  const pl=document.getElementById('pl'),pp=document.getElementById('pp');
+  const tl=document.getElementById('tl'),tp=document.getElementById('tp');
+  const ind=document.getElementById('tind');
+  const sticky=document.getElementById('sticky-cta');
+  document.getElementById('ms').scrollTop=0;
+  if(t==='lite'){
+    pl.style.display='block'; pp.style.display='none';
+    pl.classList.remove('pane'); void pl.offsetWidth; pl.classList.add('pane');
+    tl.className='tbtn al'; tp.className='tbtn'; ind.classList.remove('gold');
+    sticky.classList.remove('on');
+    syncCtrl('lite');
+  } else {
+    pl.style.display='none'; pp.style.display='block';
+    pp.classList.remove('pane'); void pp.offsetWidth; pp.classList.add('pane');
+    tl.className='tbtn'; tp.className='tbtn ap'; ind.classList.add('gold');
+    sticky.classList.add('on');
+    setTimeout(()=>{ document.getElementById('ph-bar').style.width='66.7%'; },80);
+    syncCtrl('pro');
+  }
+  posInd();
+}
+function posInd(){
+  const el=curTab==='lite'?document.getElementById('tl'):document.getElementById('tp');
+  const ind=document.getElementById('tind');
+  ind.style.left=el.offsetLeft+'px';
+  ind.style.width=el.offsetWidth+'px';
+}
+
+/* Nav */
+function openDash(){
+  document.getElementById('s-dash').classList.add('act');
+  document.getElementById('s-main').classList.add('pushed');
+  period(curPeriod);
+  renderRefs(); renderRwd(curPeriod);
+  setTimeout(()=>{
+    const s=PS[curPeriod];
+    document.getElementById('dp-fill').style.width=(s.tr/s.tot*100).toFixed(1)+'%';
+  },120);
+  syncCtrl('dash');
+}
+function closeDash(){
+  document.getElementById('s-dash').classList.remove('act');
+  document.getElementById('s-main').classList.remove('pushed');
+  syncCtrl('pro');
+}
+
+function openRef(){
+  document.getElementById('s-ref').classList.add('act');
+  document.getElementById('s-main').classList.add('pushed');
+  syncCtrl('ref');
+}
+function closeRef(){
+  document.getElementById('s-ref').classList.remove('act');
+  document.getElementById('s-main').classList.remove('pushed');
+  syncCtrl('pro');
+}
+
+/* Period */
+function period(p){
+  curPeriod=p;
+  ['week','month','all'].forEach(id=>{
+    document.getElementById('p'+id[0]).className='pbtn'+(id===p?' act':'');
+  });
+  const s=PS[p];
+  document.getElementById('dh-val').textContent=s.val;
+  document.getElementById('dh-sub').textContent=s.sub;
+  document.getElementById('dp-lbl').textContent=s.tr+' dari '+s.tot+' teman trading';
+  document.getElementById('ref-stat').textContent=s.tr+' aktif · '+(s.tot-s.tr)+' menunggu';
+  document.getElementById('dp-fill').style.width='0%';
+  setTimeout(()=>{
+    document.getElementById('dp-fill').style.width=(s.tr/s.tot*100).toFixed(1)+'%';
+  },80);
+  renderRwd(p);
+}
+
+function renderRefs(){
+  document.getElementById('ref-list').innerHTML=REFS.map(r=>{
+    const active=r.s==='t';
+    const right=active
+      ?`<div class="rcomm n">+Rp${r.comm.toLocaleString('id-ID')}</div><div class="rjoin">${r.j}</div>`
+      :`<div class="rcomm z">–</div><div class="rnudge" onclick="nudge('${r.n}')">Ingatkan</div>`;
+    return`<div class="rrow">
+      <div class="ravatar" style="background:${r.c}">${r.i}</div>
+      <div class="rinfo"><div class="rname">${r.n}</div>
+        <div class="rmeta"><div class="spill ${r.s}">${SL[r.s]}</div><div class="rprod">${r.prod}</div></div>
+      </div>
+      <div class="rright">${right}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRwd(p){
+  document.getElementById('rwd-list').innerHTML=(RWD[p]||[]).map(g=>{
+    const rows=g.rows.map(r=>{
+      const ico=r.st==='paid'
+        ?`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`
+        :`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+      return`<div class="rwrow">
+        <div class="rwico ${r.st}">${ico}</div>
+        <div class="rwinfo"><div class="rwdesc">${r.desc}</div><div class="rwsub">${r.prod}</div></div>
+        <div><div class="rwamt n">+Rp${r.amt.toLocaleString('id-ID')}</div>
+          <div class="rwst ${r.st}">${r.st==='paid'?'Dibayar':'Dijadwalkan Senin'}</div></div>
+      </div>`;
+    }).join('');
+    return`<div class="rwd-date">${g.d}</div>${rows}`;
+  }).join('');
+}
+
+function copyCode(id,code){
+  if(navigator.clipboard)navigator.clipboard.writeText(code).catch(()=>{});
+  const el=document.getElementById(id),orig=el.innerHTML;
+  if(id==='lc'){
+    el.textContent='✓ Tersalin'; el.style.color='var(--green)';
+    setTimeout(()=>{ el.textContent='Salin'; el.style.color=''; },1800);
+  } else {
+    el.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Tersalin`;
+    el.style.color='var(--green)';
+    setTimeout(()=>{ el.innerHTML=orig; el.style.color=''; },1800);
+  }
+}
+
+function nudge(name){ toast('Pengingat dikirim ke '+name+' via WhatsApp'); }
+function openShare(){ document.getElementById('bd').classList.add('on'); document.getElementById('sh-share').classList.add('on'); }
+function closeSheets(){ document.getElementById('bd').classList.remove('on'); document.getElementById('sh-share').classList.remove('on'); }
+
+let _tt;
+function toast(msg){
+  const el=document.getElementById('tst');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('on'),2200);
+}
+
+window.addEventListener('load',()=>{
+  requestAnimationFrame(()=>requestAnimationFrame(posInd));
+  renderRefs(); renderRwd('month');
+  syncCtrl('lite');
+});
+window.addEventListener('resize',posInd);
+</script>
+</body>
+</html>
